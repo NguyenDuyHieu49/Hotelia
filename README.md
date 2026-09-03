@@ -49,7 +49,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                           DuLich Platform                            │
+│                           DuLich Platform                           │
 └─────────────────────────────────────────────────────────────────────┘
 
      ┌─────────────┐                    ┌─────────────────────┐
@@ -60,18 +60,18 @@
             │                                        │
             ▼                                        ▼
      ┌─────────────────────────────────────────────────────────────┐
-     │                    REST API (NestJS)                         │
-     │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
-     │  │   Auth   │  │  Hotels  │  │ Bookings │  │ Payments │ │
-     │  └──────────┘  └──────────┘  └──────────┘  └──────────┘ │
-     │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
-     │  │  Users   │  │ Reviews  │  │  Owners  │  │  Admin   │ │
-     │  └──────────┘  └──────────┘  └──────────┘  └──────────┘ │
+     │                    REST API (NestJS)                        │
+     │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
+     │  │   Auth   │  │  Hotels  │  │ Bookings │  │ Payments │     │
+     │  └──────────┘  └──────────┘  └──────────┘  └──────────┘     │
+     │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
+     │  │  Users   │  │ Reviews  │  │  Owners  │  │  Admin   │     │
+     │  └──────────┘  └──────────┘  └──────────┘  └──────────┘     │
      └─────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
      ┌─────────────────────────────────────────────────────────────┐
-     │                      MongoDB                                 │
+     │                      MongoDB                                │
      │  users | hotels | bookings | payments | reviews | ...       │
      └─────────────────────────────────────────────────────────────┘
 ```
@@ -108,8 +108,8 @@
       ▼
 ┌───────────┐
 │ COMPLETED │◄────────────────┐
-└───────────┘                   │
-      │                         │
+└───────────┘                 │
+      │                       │
       └─────► Review ◄─────────┘
 ```
 
@@ -117,19 +117,19 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│              Double Booking Prevention                        │
+│              Double Booking Prevention                      │
 └─────────────────────────────────────────────────────────────┘
 
   User A ───────┐
                  ├──► Check Availability ──► Room Available
-  User B ───────┘                                       │
-                                                        │
+  User B ───────┘                                        │
+                                                         │
                     ⚠️ Only ONE succeeds ────────────────┘
                                                         │
                     ┌─────────────────────────────────┐
-                    │   MongoDB Transaction +           │
-                    │   Atomic findOneAndUpdate         │
-                    │   with $gte: 1 condition         │
+                    │   MongoDB Transaction +         │
+                    │   Atomic findOneAndUpdate       │
+                    │   with $gte: 1 condition        │
                     └─────────────────────────────────┘
 ```
 
@@ -420,33 +420,6 @@ docker-compose up -d
 | Auth | JWT (self-hosted) | Free |
 | Payment | Mock | Free |
 | **Total** | | **$0/month** |
-
----
-
-## 🔄 Development Roadmap
-
-| Phase | Features | Status |
-|-------|----------|--------|
-| 1 | Project Setup | ✅ Complete |
-| 2 | Authentication | ✅ Complete |
-| 3 | Users Module | ✅ Complete |
-| 4 | Hotels Module | 🔄 In Progress |
-| 5 | Room Types & Availability | ⏳ Pending |
-| 6 | Bookings with State Machine | ⏳ Pending |
-| 7 | Mock Payments | ⏳ Pending |
-| 8 | Reviews & Notifications | ⏳ Pending |
-| 9 | Admin Dashboard | ⏳ Pending |
-| 10 | SwiftUI Migration | ⏳ Pending |
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ---
 
