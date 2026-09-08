@@ -2,12 +2,6 @@
 
 <div align="center">
 
-![Swift](https://img.shields.io/badge/Swift-5.9-orange?style=flat-square&logo=swift)
-![Node.js](https://img.shields.io/badge/Node.js-20-green?style=flat-square&logo=nodedotjs)
-![NestJS](https://img.shields.io/badge/NestJS-10-red?style=flat-square&logo=nestjs)
-![MongoDB](https://img.shields.io/badge/MongoDB-6-green?style=flat-square&logo=mongodb)
-![iOS](https://img.shields.io/badge/iOS-17-blue?style=flat-square&logo=apple)
-
 **A full-stack hotel booking platform built with SwiftUI, NestJS, and MongoDB**
 
 *Book hotels seamlessly with a modern, scalable architecture*
