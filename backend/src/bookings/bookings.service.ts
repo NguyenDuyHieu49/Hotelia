@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types, Connection } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Booking, BookingDocument, BookingStatus } from './schemas/booking.schema';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { CancelBookingDto } from './dto/cancel-booking.dto';
@@ -13,7 +13,6 @@ export class BookingsService {
     @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
     private stateService: BookingStateService,
     private hotelsService: HotelsService,
-    private connection: Connection,
   ) {}
 
   async create(userId: string, dto: CreateBookingDto): Promise<BookingDocument> {
@@ -29,8 +28,7 @@ export class BookingsService {
     if (checkIn < new Date()) throw new BadRequestException('Check-in date must be in the future');
     if (checkOut <= checkIn) throw new BadRequestException('Check-out must be after check-in');
 
-    // Mock price calculation (in real app, fetch from RoomType)
-    const roomPrice = 100; // VND per night
+    const roomPrice = 100;
     const totalPrice = roomPrice * nights;
 
     const booking = new this.bookingModel({
@@ -85,7 +83,7 @@ export class BookingsService {
 
     booking.status = BookingStatus.CANCELLED;
     booking.cancelledAt = new Date();
-    booking.cancelReason = dto.reason;
+    booking.cancelReason = dto.reason || '';
     booking.refundAmount = refundAmount;
 
     return booking.save();

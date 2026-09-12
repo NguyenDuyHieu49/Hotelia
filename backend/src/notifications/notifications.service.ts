@@ -7,7 +7,7 @@ import { Notification, NotificationDocument, NotificationType } from './schemas/
 export class NotificationsService {
   constructor(@InjectModel(Notification.name) private notificationModel: Model<NotificationDocument>) {}
 
-  async create(userId: string, title: string, message: string, type: NotificationType, relatedId?: string): Promise<NotificationDocument> {
+  async create(userId: string, title: string, message: string, type: NotificationType, relatedId?: string): Promise<Notification> {
     const notification = new this.notificationModel({
       userId: new Types.ObjectId(userId),
       title,
@@ -30,7 +30,7 @@ export class NotificationsService {
     return { notifications, unread };
   }
 
-  async markAsRead(notificationId: string, userId: string): Promise<NotificationDocument> {
+  async markAsRead(notificationId: string, userId: string): Promise<NotificationDocument | null> {
     const notification = await this.notificationModel.findOne({
       _id: new Types.ObjectId(notificationId),
       userId: new Types.ObjectId(userId),

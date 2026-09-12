@@ -47,6 +47,9 @@ export class User extends Document {
 
   @Prop()
   refreshTokenExpiry?: Date;
+
+  @Prop()
+  lastLoginAt?: Date;
 }
 
 export type UserDocument = User;
