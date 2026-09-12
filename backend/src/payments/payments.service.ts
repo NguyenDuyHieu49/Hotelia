@@ -9,7 +9,7 @@ import { BankTransferProvider } from './providers/bank-transfer.provider';
 import { CODProvider } from './providers/cod.provider';
 import { PaymentProvider } from './providers/payment-provider.interface';
 import { BookingsService } from '../bookings/bookings.service';
-import { BookingStatus } from '../bookings/schemas/booking.schema';
+import { BookingStatus } from '../bookings/booking-state.service';
 
 @Injectable()
 export class PaymentsService {
@@ -68,8 +68,8 @@ export class PaymentsService {
       throw new BadRequestException(result.message || 'Payment creation failed');
     }
 
-    payment.transactionId = result.transactionId;
-    payment.paymentUrl = result.paymentUrl;
+    payment.transactionId = result.transactionId || '';
+    payment.paymentUrl = result.paymentUrl || '';
     payment.status = PaymentStatus.PROCESSING;
     await payment.save();
 
@@ -98,7 +98,6 @@ export class PaymentsService {
     payment.paidAt = new Date();
     await payment.save();
 
-    // Update booking status
     await this.bookingsService.updateStatus(payment.bookingId.toString(), BookingStatus.PAID);
 
     return payment;
@@ -124,13 +123,16 @@ export class PaymentsService {
     }
 
     const provider = this.providers.get(payment.method);
+    if (!provider) {
+      throw new BadRequestException('Payment provider not found');
+    }
+
     const result = await provider.refund(payment.transactionId, payment.amount);
 
     if (result.success) {
       payment.status = PaymentStatus.REFUNDED;
       await payment.save();
 
-      // Update booking status
       await this.bookingsService.updateStatus(payment.bookingId.toString(), BookingStatus.REFUNDED);
     }
 

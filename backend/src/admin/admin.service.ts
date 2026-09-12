@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument, OwnerStatus } from '../users/schemas/user.schema';
+import { User, UserDocument, OwnerStatus, UserRole } from '../users/schemas/user.schema';
 import { Hotel, HotelDocument, HotelStatus } from '../hotels/schemas/hotel.schema';
 import { Booking, BookingDocument } from '../bookings/schemas/booking.schema';
 import { Review, ReviewDocument } from '../reviews/schemas/review.schema';
@@ -17,8 +17,8 @@ export class AdminService {
 
   async getStats() {
     const [users, owners, hotels, bookings, reviews] = await Promise.all([
-      this.userModel.countDocuments({ role: 'USER' }),
-      this.userModel.countDocuments({ role: 'OWNER' }),
+      this.userModel.countDocuments({ role: UserRole.USER }),
+      this.userModel.countDocuments({ role: UserRole.OWNER }),
       this.hotelModel.countDocuments({ status: HotelStatus.PUBLISHED }),
       this.bookingModel.countDocuments(),
       this.reviewModel.countDocuments({ isVisible: true }),
@@ -35,7 +35,7 @@ export class AdminService {
     const user = await this.userModel.findById(userId);
     if (!user) throw new Error('User not found');
     user.ownerStatus = OwnerStatus.APPROVED;
-    user.role = 'OWNER';
+    user.role = UserRole.OWNER;
     await user.save();
     return user;
   }

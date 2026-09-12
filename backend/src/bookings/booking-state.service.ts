@@ -1,5 +1,17 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { BookingStatus } from '../schemas/booking.schema';
+
+export enum BookingStatus {
+  PENDING_PAYMENT = 'PENDING_PAYMENT',
+  PAID = 'PAID',
+  CONFIRMED = 'CONFIRMED',
+  CHECKED_IN = 'CHECKED_IN',
+  CHECKED_OUT = 'CHECKED_OUT',
+  COMPLETED = 'COMPLETED',
+  CANCEL_REQUESTED = 'CANCEL_REQUESTED',
+  CANCELLED = 'CANCELLED',
+  REFUNDED = 'REFUNDED',
+  EXPIRED = 'EXPIRED',
+}
 
 @Injectable()
 export class BookingStateService {
@@ -60,10 +72,10 @@ export class BookingStateService {
     const daysUntilCheckIn = Math.ceil((checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
     if (daysUntilCheckIn >= 7) {
-      return booking.totalPrice; // 100% refund
+      return booking.totalPrice;
     } else if (daysUntilCheckIn >= 3) {
-      return booking.totalPrice * 0.5; // 50% refund
+      return booking.totalPrice * 0.5;
     }
-    return 0; // No refund
+    return 0;
   }
 }
