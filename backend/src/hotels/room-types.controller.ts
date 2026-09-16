@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { RoomTypesService } from './room-types.service';
+import { CreateRoomTypeDto } from './dto/create-room-type.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles, Role } from '../common/decorators/roles.decorator';
@@ -19,9 +20,9 @@ export class RoomTypesController {
   async create(
     @Param('hotelId') hotelId: string,
     @CurrentUser('sub') userId: string,
-    @Body() data: any,
+    @Body() dto: CreateRoomTypeDto,
   ) {
-    return this.roomTypesService.createRoomType(userId, hotelId, data);
+    return this.roomTypesService.createRoomType(userId, hotelId, dto);
   }
 
   @Get('hotel/:hotelId')
