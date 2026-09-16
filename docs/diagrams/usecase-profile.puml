@@ -1,0 +1,30 @@
+@startuml usecase-profile
+' Theme: UML cổ điển đen trắng (giống diagram Review mẫu)
+left to right direction
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam RoundCorner 0
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam ActorBorderColor black
+skinparam ActorFontColor black
+skinparam UsecaseBorderColor black
+skinparam UsecaseFontColor black
+skinparam UsecaseBackgroundColor white
+skinparam RectangleBorderColor black
+skinparam RectangleFontColor black
+skinparam RectangleBackgroundColor white
+skinparam defaultFontName Arial
+
+actor Admin
+actor User
+
+rectangle "Profile" {
+  usecase "Xem profile" as UC_XEM
+  usecase "Chỉnh sửa profile" as UC_SUA
+}
+
+User --> UC_XEM
+User --> UC_SUA
+
+@enduml

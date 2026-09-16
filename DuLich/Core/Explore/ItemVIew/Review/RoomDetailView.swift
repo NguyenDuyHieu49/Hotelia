@@ -1,245 +1,134 @@
-//
-//  RoomDetailView.swift
-//  Hotelia
-//
-//  Created by Macbook Pro on 20/5/26.
-//
-
 import SwiftUI
-import FirebaseFirestore
-
-struct RoomInfo: Identifiable {
-    let id: String
-    let roomNumber: String
-    var isBooked: Bool
-}
 
 struct RoomDetailView: View {
-    let roomName: String
-    let price: Double
-    let listing: Listing
-    let checkInDate: Date
-    let checkOutDate: Date
-    var onConfirm: (String) -> Void
-
-    @Environment(\.dismiss) private var dismiss
-    @State private var rooms: [RoomInfo] = []
-    @State private var selectedRoomNumber: String? = nil
-    @State private var isLoading = true
+    let hotel: Hotel
+    @State private var checkIn: Date = Date()
+    @State private var checkOut: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+    @State private var guestCount: Int = 1
+    @State private var isBooking = false
+    @State private var bookingResult: Booking?
+    @State private var errorMessage: String?
 
     var body: some View {
-        ZStack {
-            Color(red: 0.93, green: 0.96, blue: 1.00).ignoresSafeArea()
-            Circle()
-                .fill(Color(red: 0.55, green: 0.75, blue: 1.00).opacity(0.30))
-                .frame(width: 260, height: 260)
-                .blur(radius: 70)
-                .offset(x: 80, y: -50)
-                .ignoresSafeArea()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                // Hotel Info
+                Text(hotel.name)
+                    .font(.title)
+                    .fontWeight(.bold)
 
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 20) {
-                    Capsule()
-                        .fill(Color.gray.opacity(0.25))
-                        .frame(width: 36, height: 4)
-                        .padding(.top, 10)
+                HStack {
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.yellow)
+                    Text(String(format: "%.1f", hotel.averageRating ?? 0))
+                    Text("(\(hotel.reviewCount ?? 0) đánh giá)")
+                        .foregroundColor(.secondary)
+                }
 
-                    VStack(spacing: 10) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Glass.accentLight)
-                                .overlay(RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Glass.cardStroke2, lineWidth: 0.8))
-                                .frame(width: 60, height: 60)
-                            Image(systemName: "bed.double.fill")
-                                .font(.system(size: 24))
-                                .foregroundStyle(Glass.accent)
-                        }
-                        Text(roomName)
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
-                            .foregroundStyle(Glass.textPrimary)
-                        HStack(alignment: .lastTextBaseline, spacing: 4) {
-                            Text("\(Int(price))")
-                                .font(.system(size: 26, weight: .bold))
-                                .foregroundStyle(Glass.accent)
-                            Text("room_per_night")
-                                .font(.system(size: 13))
-                                .foregroundStyle(Glass.textSecondary)
-                        }
-                    }
+                // Location
+                HStack {
+                    Image(systemName: "location.fill")
+                        .foregroundColor(.red)
+                    Text("\(hotel.address), \(hotel.city)")
+                }
+                .foregroundColor(.secondary)
 
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "text.alignleft").foregroundStyle(Glass.accent)
-                            Text("room_description_title")
-                                .font(.system(size: 15, weight: .bold, design: .rounded))
-                                .foregroundStyle(Glass.textPrimary)
-                        }
-                        Text("room_description_body")
-                            .font(.system(size: 14))
-                            .foregroundStyle(Glass.textSecondary)
-                            .lineSpacing(5)
-                    }
-                    .padding(18)
-                    .glassCard()
-                    .padding(.horizontal, 16)
+                Divider()
 
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "list.number").foregroundStyle(Glass.accent)
-                            Text("select_room_number")
-                                .font(.system(size: 15, weight: .bold, design: .rounded))
-                                .foregroundStyle(Glass.textPrimary)
-                        }
+                // Room Selection
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Chọn ngày")
+                        .font(.headline)
 
-                        if isLoading {
-                            ProgressView()
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                        } else if rooms.isEmpty {
-                            Text("no_rooms_available")
-                                .font(.system(size: 14))
-                                .foregroundStyle(Glass.textSecondary)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding()
-                        } else {
-                            LazyVGrid(
-                                columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())],
-                                spacing: 10
-                            ) {
-                                ForEach(rooms) { room in
-                                    roomCell(room: room)
+                    DatePicker("Nhận phòng", selection: $checkIn, in: Date()..., displayedComponents: .date)
+                    DatePicker("Trả phòng", selection: $checkOut, in: checkIn..., displayedComponents: .date)
+
+                    Stepper("Khách: \(guestCount)", value: $guestCount, in: 1...10)
+                }
+
+                // Amenities
+                if let amenities = hotel.amenities, !amenities.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Tiện ích")
+                            .font(.headline)
+
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 8) {
+                            ForEach(amenities, id: \.self) { amenity in
+                                HStack {
+                                    Image(systemName: amenityIcon(amenity))
+                                    Text(amenity)
+                                        .font(.caption)
                                 }
+                                .padding(6)
+                                .background(Color.gray.opacity(0.1))
+                                .cornerRadius(8)
                             }
                         }
                     }
-                    .padding(18)
-                    .glassCard()
-                    .padding(.horizontal, 16)
+                }
 
-                    Button {
-                        if let roomNumber = selectedRoomNumber {
-                            onConfirm(roomNumber)
-                            dismiss()
+                if let error = errorMessage {
+                    Text(error).foregroundColor(.red)
+                }
+
+                // Book Button
+                Button(action: bookRoom) {
+                    HStack {
+                        if isBooking {
+                            ProgressView()
+                                .tint(.white)
                         }
-                    } label: {
-                        Text("confirm")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(
-                                RoundedRectangle(cornerRadius: Glass.cornerMd)
-                                    .fill(selectedRoomNumber == nil
-                                          ? Glass.accent.opacity(0.35)
-                                          : Glass.accent)
-                                    .shadow(color: Glass.accent.opacity(0.30), radius: 10, x: 0, y: 5)
-                            )
+                        Text("Đặt phòng")
                     }
-                    .disabled(selectedRoomNumber == nil)
-                    .padding(.horizontal, 16)
-
-                    Spacer(minLength: 32)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
                 }
+                .disabled(isBooking)
             }
+            .padding()
         }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.hidden)
-        .task { await loadRooms() }
+        .navigationBarTitleDisplayMode(.inline)
     }
 
-    private func roomCell(room: RoomInfo) -> some View {
-        let isSelected = selectedRoomNumber == room.roomNumber
-        return Button {
-            if !room.isBooked {
-                withAnimation(.spring(response: 0.3)) {
-                    selectedRoomNumber = room.roomNumber
-                }
+    private func bookRoom() {
+        isBooking = true
+        errorMessage = nil
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+
+        Task {
+            do {
+                let guest = AuthService.shared.getCurrentUser()
+                bookingResult = try await BookingService.shared.createBooking(
+                    hotelId: hotel.id,
+                    roomTypeId: "default",
+                    checkIn: dateFormatter.string(from: checkIn),
+                    checkOut: dateFormatter.string(from: checkOut),
+                    guestCount: guestCount,
+                    guestName: guest?.name ?? "Guest",
+                    guestEmail: guest?.email ?? "guest@test.com",
+                    guestPhone: guest?.phone ?? "0000000000"
+                )
+            } catch {
+                errorMessage = "Không thể đặt phòng"
             }
-        } label: {
-            VStack(spacing: 6) {
-                Image(systemName: room.isBooked ? "lock.fill" : "bed.double")
-                    .font(.system(size: 18))
-                    .foregroundStyle(
-                        room.isBooked ? Glass.textTertiary :
-                        isSelected ? Glass.accent : Glass.textSecondary
-                    )
-                Text(room.roomNumber)
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .foregroundStyle(
-                        room.isBooked ? Glass.textTertiary :
-                        isSelected ? Glass.accent : Glass.textPrimary
-                    )
-                if room.isBooked {
-                    Text("room_booked")
-                        .font(.system(size: 9))
-                        .foregroundStyle(Glass.textTertiary)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(
-                        room.isBooked ? Color.gray.opacity(0.08) :
-                        isSelected ? Glass.accentLight : Color.white.opacity(0.55)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(
-                                room.isBooked ? Color.gray.opacity(0.2) :
-                                isSelected ? Glass.accent : Glass.cardStroke2,
-                                lineWidth: isSelected ? 1.5 : 0.8
-                            )
-                    )
-            )
+            isBooking = false
         }
-        .buttonStyle(.plain)
-        .disabled(room.isBooked)
     }
 
-    private func loadRooms() async {
-        isLoading = true
-        do {
-            let snapshot = try await Firestore.firestore()
-                .collection("rooms")
-                .whereField("hotelId", isEqualTo: listing.id)
-                .whereField("roomType", isEqualTo: roomName)
-                .getDocuments()
-
-            var result: [RoomInfo] = []
-            for doc in snapshot.documents {
-                let data = doc.data()
-                let roomNumber = data["roomNumber"] as? String ?? ""
-                let isBooked = await checkIfBooked(roomNumber: roomNumber)
-                result.append(RoomInfo(id: doc.documentID, roomNumber: roomNumber, isBooked: isBooked))
-            }
-            rooms = result.sorted { $0.roomNumber < $1.roomNumber }
-        } catch {
-            print("[RoomDetailView] loadRooms error:", error.localizedDescription)
+    private func amenityIcon(_ amenity: String) -> String {
+        switch amenity.lowercased() {
+        case "wifi": return "wifi"
+        case "pool": return "figure.pool.swim"
+        case "parking": return "car.fill"
+        case "spa": return "sparkles"
+        case "restaurant": return "fork.knife"
+        case "gym": return "dumbbell.fill"
+        default: return "checkmark.circle"
         }
-        isLoading = false
-    }
-
-    private func checkIfBooked(roomNumber: String) async -> Bool {
-        do {
-            let snapshot = try await Firestore.firestore()
-                .collection("bookings")
-                .whereField("hotelId", isEqualTo: listing.id)
-                .whereField("roomNumber", isEqualTo: roomNumber)
-                .getDocuments()
-
-            for doc in snapshot.documents {
-                let data = doc.data()
-                let checkOut = (data["checkOut"] as? Timestamp)?.dateValue() ?? Date.distantPast
-                let status = data["status"] as? String ?? "active"
-                if checkOut > Date() && status != "cancelled" {
-                    return true
-                }
-            }
-        } catch {
-            print("[checkIfBooked] error:", error.localizedDescription)
-        }
-        return false
     }
 }

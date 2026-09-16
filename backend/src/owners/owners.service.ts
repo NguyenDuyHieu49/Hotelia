@@ -3,13 +3,27 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Hotel, HotelDocument, HotelStatus } from '../hotels/schemas/hotel.schema';
 import { Booking, BookingDocument, BookingStatus } from '../bookings/schemas/booking.schema';
+import { User, UserDocument, OwnerStatus, UserRole } from '../users/schemas/user.schema';
 
 @Injectable()
 export class OwnersService {
   constructor(
     @InjectModel(Hotel.name) private hotelModel: Model<HotelDocument>,
     @InjectModel(Booking.name) private bookingModel: Model<BookingDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
+
+  async apply(userId: string, businessName: string, businessLicense?: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new Error('User not found');
+
+    user.businessName = businessName;
+    user.businessLicense = businessLicense;
+    user.ownerStatus = OwnerStatus.PENDING;
+    await user.save();
+
+    return { message: 'Application submitted successfully', status: OwnerStatus.PENDING };
+  }
 
   async getDashboard(ownerId: string) {
     const hotels = await this.hotelModel.find({ ownerId: new Types.ObjectId(ownerId) });

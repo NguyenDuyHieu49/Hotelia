@@ -1,0 +1,39 @@
+@startuml usecase-dat-phong
+' Theme: UML cổ điển đen trắng (giống diagram Review mẫu)
+left to right direction
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam RoundCorner 0
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam ActorBorderColor black
+skinparam ActorFontColor black
+skinparam UsecaseBorderColor black
+skinparam UsecaseFontColor black
+skinparam UsecaseBackgroundColor white
+skinparam RectangleBorderColor black
+skinparam RectangleFontColor black
+skinparam RectangleBackgroundColor white
+skinparam defaultFontName Arial
+
+actor Admin
+actor User
+
+rectangle "Đặt phòng" {
+  usecase "Quản lý khách sạn" as UC_QLKS
+  usecase "Xem khách sạn" as UC_XKS
+  usecase "Đặt phòng" as UC_DP
+  usecase "Xem lịch sử đặt phòng" as UC_LS
+  usecase "Hủy đặt phòng" as UC_HUY
+  usecase "Check-in" as UC_CI
+}
+
+Admin --> UC_QLKS
+
+User --> UC_XKS
+User --> UC_DP
+User --> UC_LS
+User --> UC_HUY
+User --> UC_CI
+
+@enduml

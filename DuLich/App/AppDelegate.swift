@@ -1,31 +1,30 @@
 import UIKit
-import GoogleSignIn
-import FirebaseAuth
 
-class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+// Note: @main is in DuLichApp.swift for SwiftUI
+// This file can be used for UIKit lifecycle if needed
+
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
+        // Load token on app start
+        APIClient.shared.loadToken()
         return true
     }
 
-    func application(_ app: UIApplication, open url: URL,
-                     options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        if GIDSignIn.sharedInstance.handle(url) {
-            print("AppDelegate: Google handled URL:", url.absoluteString)
-            return true
-        }
-        if Auth.auth().canHandle(url) {
-            print("AppDelegate: Firebase handled URL:", url.absoluteString)
-            return true
-        }
-        if url.scheme == PaymentConfig.returnScheme {
-            Task { @MainActor in
-                if PaymentCheckoutCoordinator.shared.handleReturnURL(url) {
-                    print("AppDelegate: Payment handled URL:", url.absoluteString)
-                }
-            }
-            return true
-        }
-        return false
+    // MARK: UISceneSession Lifecycle
+    func application(
+        _ application: UIApplication,
+        configurationForConnecting connectingSceneSession: UISceneSession,
+        options: UIScene.ConnectionOptions
+    ) -> UISceneConfiguration {
+        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    }
+
+    func application(
+        _ application: UIApplication,
+        didDiscardSceneSessions sceneSessions: Set<UISceneSession>
+    ) {
     }
 }

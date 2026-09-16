@@ -1,19 +1,27 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, Body, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { OwnersService } from './owners.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles, Role } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { ApplyOwnerDto } from './dto/apply-owner.dto';
 
 @ApiTags('owners')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.OWNER, Role.ADMIN)
 @Controller('owners')
 export class OwnersController {
   constructor(private readonly ownersService: OwnersService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Post('apply')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Apply to become an owner' })
+  async apply(@CurrentUser('sub') userId: string, @Body() dto: ApplyOwnerDto) {
+    return this.ownersService.apply(userId, dto.businessName, dto.businessLicense);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN)
   @Get('dashboard')
   @ApiOperation({ summary: 'Get owner dashboard stats' })
   async getDashboard(@CurrentUser('sub') userId: string) {

@@ -14,7 +14,7 @@ export class HotelsService {
     const hotel = new this.hotelModel({
       ...dto,
       ownerId: new Types.ObjectId(ownerId),
-      status: HotelStatus.DRAFT,
+      status: HotelStatus.PUBLISHED, // Changed to PUBLISHED for development
     });
     return hotel.save();
   }
