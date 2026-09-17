@@ -1,21 +1,38 @@
-# Secrets & local config
-Secrets.plist
-Config.plist
-.env
-.env.local
-*.xcconfig.local
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
 
-# Firebase (download from Firebase Console)
-DuLich/App/GoogleService-Info.plist
+# Build
+dist/
+build/
 
-# Xcode user data
-xcuserdata/
-*.xcuserstate
-*.xcbkptlist
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
 
-# Build
-DerivedData/
-build/
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Test
+coverage/
+
+# Misc
+*.tgz
+*.tar.gz

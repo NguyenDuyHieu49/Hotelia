@@ -1,0 +1,94 @@
+:root {
+  /* ============================================
+   * HOTELIA DESIGN SYSTEM TOKENS
+   * ============================================ */
+  
+  /* === OWNER THEME (Modern Hospitality) === */
+  --owner-bg: #F8F7F4;
+  --owner-surface: #FFFFFF;
+  --owner-primary: #0F766E;
+  --owner-primary-hover: #115E59;
+  --owner-text: #1F2937;
+  --owner-muted: #6B7280;
+  --owner-border: #E5E7EB;
+  --owner-success: #16A34A;
+  --owner-warning: #D97706;
+  --owner-danger: #DC2626;
+  
+  /* === ADMIN THEME (Enterprise Operations) === */
+  --admin-bg: #F8FAFC;
+  --admin-surface: #FFFFFF;
+  --admin-primary: #2563EB;
+  --admin-primary-hover: #1D4ED8;
+  --admin-sidebar: #172033;
+  --admin-text: #111827;
+  --admin-muted: #64748B;
+  --admin-border: #E2E8F0;
+  --admin-success: #16A34A;
+  --admin-warning: #D97706;
+  --admin-danger: #DC2626;
+  
+  /* === SHARED TOKENS === */
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+}
+
+/* Apply theme based on body class */
+body.owner-theme {
+  --bg: var(--owner-bg);
+  --surface: var(--owner-surface);
+  --primary: var(--owner-primary);
+  --primary-hover: var(--owner-primary-hover);
+  --text: var(--owner-text);
+  --muted: var(--owner-muted);
+  --border: var(--owner-border);
+  --success: var(--owner-success);
+  --warning: var(--owner-warning);
+  --danger: var(--owner-danger);
+}
+
+body.admin-theme {
+  --bg: var(--admin-bg);
+  --surface: var(--admin-surface);
+  --primary: var(--admin-primary);
+  --primary-hover: var(--admin-primary-hover);
+  --sidebar: var(--admin-sidebar);
+  --text: var(--admin-text);
+  --muted: var(--admin-muted);
+  --border: var(--admin-border);
+  --success: var(--admin-success);
+  --warning: var(--admin-warning);
+  --danger: var(--admin-danger);
+}
