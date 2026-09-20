@@ -6,15 +6,16 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles, Role } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
 
 @ApiTags('room-types')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.OWNER, Role.ADMIN)
 @Controller('room-types')
 export class RoomTypesController {
   constructor(private readonly roomTypesService: RoomTypesService) {}
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN)
   @Post('hotel/:hotelId')
   @ApiOperation({ summary: 'Create room type' })
   async create(
@@ -25,6 +26,7 @@ export class RoomTypesController {
     return this.roomTypesService.createRoomType(userId, hotelId, dto);
   }
 
+  @Public()
   @Get('hotel/:hotelId')
   @ApiOperation({ summary: 'Get room types by hotel' })
   async findByHotel(@Param('hotelId') hotelId: string) {

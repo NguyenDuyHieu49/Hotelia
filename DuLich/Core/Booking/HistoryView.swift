@@ -4,18 +4,22 @@ struct BookingHistoryView: View {
     @State private var bookings: [Booking] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
+    @State private var hasLoaded = false
 
     var body: some View {
         Group {
-            if isLoading {
+            if isLoading && !hasLoaded {
                 ProgressView("Đang tải...")
             } else if let error = errorMessage {
-                VStack {
+                VStack(spacing: 12) {
                     Image(systemName: "exclamationmark.triangle")
                         .font(.system(size: 50))
                         .foregroundColor(.orange)
                     Text(error)
                         .foregroundColor(.red)
+                    Button("Thử lại") {
+                        Task { await loadBookings() }
+                    }
                 }
             } else if bookings.isEmpty {
                 VStack(spacing: 12) {
@@ -31,14 +35,17 @@ struct BookingHistoryView: View {
                         BookingRowView(booking: booking)
                     }
                 }
+                .refreshable {
+                    await loadBookings()
+                }
             }
         }
         .navigationTitle("Lịch sử đặt phòng")
-        .refreshable {
-            await loadBookings()
-        }
         .task {
-            await loadBookings()
+            if !hasLoaded {
+                await loadBookings()
+                hasLoaded = true
+            }
         }
     }
 

@@ -24,13 +24,18 @@ struct ExploreView: View {
                 .padding()
 
                 // Content
-                if viewModel.isLoading {
+                if viewModel.isLoading && viewModel.hotels.isEmpty {
                     Spacer()
                     ProgressView("Đang tải...")
                     Spacer()
-                } else if let error = viewModel.errorMessage {
+                } else if let error = viewModel.errorMessage, viewModel.hotels.isEmpty {
                     Spacer()
-                    Text(error).foregroundColor(.red)
+                    VStack(spacing: 12) {
+                        Text(error).foregroundColor(.red)
+                        Button("Thử lại") {
+                            Task { await viewModel.loadHotels() }
+                        }
+                    }
                     Spacer()
                 } else if viewModel.hotels.isEmpty {
                     Spacer()
@@ -53,11 +58,16 @@ struct ExploreView: View {
                         }
                         .padding()
                     }
+                    .refreshable {
+                        await viewModel.loadHotels()
+                    }
                 }
             }
             .navigationTitle("Khám phá")
             .task {
-                await viewModel.loadHotels()
+                if viewModel.hotels.isEmpty {
+                    await viewModel.loadHotels()
+                }
             }
         }
     }

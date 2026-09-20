@@ -50,3 +50,22 @@ struct AdminStats: Codable {
     let bookings: Int
     let reviews: Int
 }
+
+// MARK: - Room Type Model
+struct RoomType: Codable, Identifiable {
+    let id: String
+    let hotelId: String
+    let name: String
+    let description: String?
+    let basePrice: Int
+    let maxGuests: Int
+    let totalRooms: Int
+    let availableRooms: Int
+    let amenities: [String]?
+    let isActive: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case hotelId, name, description, basePrice, maxGuests, totalRooms, availableRooms, amenities, isActive
+    }
+}

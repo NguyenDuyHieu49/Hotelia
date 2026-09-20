@@ -41,4 +41,9 @@ class ExploreService {
     func getHotel(id: String) async throws -> Hotel {
         return try await client.request(endpoint: "/hotels/\(id)")
     }
+
+    // MARK: - Get Room Types by Hotel
+    func getRoomTypes(hotelId: String) async throws -> [RoomType] {
+        return try await client.request(endpoint: "/room-types/hotel/\(hotelId)")
+    }
 }

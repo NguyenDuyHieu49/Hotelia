@@ -12,7 +12,7 @@ struct AddHotelView: View {
     @State private var isCreating = false
     @State private var errorMessage: String?
 
-    var onComplete: (() -> Void)?
+    var onSave: (() -> Void)?
 
     let amenities = ["wifi", "pool", "parking", "gym", "spa", "restaurant", "ac", "tv", "minibar", "laundry"]
 
@@ -129,7 +129,7 @@ struct AddHotelView: View {
                     starRating: starRating,
                     amenities: Array(selectedAmenities)
                 )
-                onComplete?()
+                onSave?()
                 dismiss()
             } catch {
                 errorMessage = "Không thể tạo khách sạn"

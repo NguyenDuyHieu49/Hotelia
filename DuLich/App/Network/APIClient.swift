@@ -3,18 +3,21 @@ import Foundation
 class APIClient {
     static let shared = APIClient()
 
-    private let baseURL = "http://192.168.100.118:3000/api/v1"
+    private let baseURL = "http://127.0.0.1:3000/api/v1"
     private var accessToken: String?
 
     private init() {
         loadToken()
     }
 
-    // MARK: - Headers
+    // MARK: - Headers - Always read fresh token from UserDefaults
     private var headers: [String: String] {
         var headers = ["Content-Type": "application/json"]
-        if let token = accessToken {
+        if let token = UserDefaults.standard.string(forKey: "accessToken") {
             headers["Authorization"] = "Bearer \(token)"
+            print("[DEBUG-APIClient] Token: \(token.prefix(30))...")
+        } else {
+            print("[DEBUG-APIClient] No token!")
         }
         return headers
     }
@@ -34,7 +37,7 @@ class APIClient {
         UserDefaults.standard.removeObject(forKey: "accessToken")
     }
 
-    // MARK: - Request
+    // MARK: - Request with Response
     func request<T: Decodable>(
         endpoint: String,
         method: String = "GET",
@@ -68,6 +71,39 @@ class APIClient {
 
         let decoder = JSONDecoder()
         return try decoder.decode(T.self, from: data)
+    }
+
+    // MARK: - Void Request (no response body)
+    func requestVoid(
+        endpoint: String,
+        method: String = "POST",
+        body: [String: Any]? = nil
+    ) async throws {
+        guard let url = URL(string: "\(baseURL)\(endpoint)") else {
+            throw APIError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        headers.forEach { request.setValue($1, forHTTPHeaderField: $0) }
+
+        if let body = body {
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        }
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+
+        if httpResponse.statusCode == 401 {
+            throw APIError.unauthorized
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw APIError.serverError(httpResponse.statusCode)
+        }
     }
 }
 

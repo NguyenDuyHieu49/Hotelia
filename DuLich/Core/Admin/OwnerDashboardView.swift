@@ -65,9 +65,11 @@ struct OwnerDashboardView: View {
                 await loadHotels()
             }
             .sheet(isPresented: $showAddHotel) {
-                AddHotelView {
-                    await loadHotels()
-                }
+                AddHotelView(onSave: {
+                    Task {
+                        await loadHotels()
+                    }
+                })
             }
         }
     }

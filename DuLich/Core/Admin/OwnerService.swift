@@ -13,7 +13,7 @@ class OwnerService {
             body["businessLicense"] = license
         }
 
-        _ = try await client.request(
+        try await client.requestVoid(
             endpoint: "/owners/apply",
             method: "POST",
             body: body
@@ -67,15 +67,15 @@ class OwnerService {
 
     // MARK: - Delete Hotel
     func deleteHotel(id: String) async throws {
-        _ = try await client.request(
+        try await client.requestVoid(
             endpoint: "/hotels/\(id)",
             method: "DELETE"
         )
     }
 
     // MARK: - Submit Hotel for Approval
-    func submitForApproval(hotelId: String) async throws -> Hotel {
-        return try await client.request(
+    func submitForApproval(hotelId: String) async throws {
+        try await client.requestVoid(
             endpoint: "/hotels/\(hotelId)/submit",
             method: "POST"
         )
