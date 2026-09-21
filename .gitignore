@@ -36,3 +36,9 @@ coverage/
 # Misc
 *.tgz
 *.tar.gz
+
+# Research data (large files)
+research/data/raw/
+research/data/processed/
+research/venv/
+.pytest_cache/
