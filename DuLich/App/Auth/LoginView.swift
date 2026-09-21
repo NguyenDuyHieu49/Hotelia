@@ -1,83 +1,110 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject var authViewModel: AuthViewModel
     @Environment(\.dismiss) private var dismiss
-
+    @EnvironmentObject var authViewModel: AuthViewModel
     @State private var email = ""
     @State private var password = ""
 
     var body: some View {
         NavigationView {
-            VStack(spacing: 24) {
-                // Header
-                VStack(spacing: 8) {
-                    Image(systemName: "person.circle.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
+            ScrollView {
+                VStack(spacing: AppSpacing.xl) {
+                    // Header
+                    VStack(spacing: AppSpacing.sm) {
+                        Text("Chào mừng trở lại")
+                            .font(AppTypography.title1)
+                            .foregroundColor(AppColors.textPrimary)
 
-                    Text("Đăng nhập")
-                        .font(.title)
-                        .fontWeight(.bold)
-                }
-                .padding(.top, 40)
-
-                // Form
-                VStack(spacing: 16) {
-                    TextField("Email", text: $email)
-                        .textFieldStyle(.roundedBorder)
-                        .textContentType(.emailAddress)
-                        .autocapitalization(.none)
-
-                    SecureField("Mật khẩu", text: $password)
-                        .textFieldStyle(.roundedBorder)
-                        .textContentType(.password)
-                }
-                .padding(.horizontal)
-
-                if let error = authViewModel.errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .font(.caption)
-                }
-
-                // Login Button
-                Button(action: login) {
-                    HStack {
-                        if authViewModel.isLoading {
-                            ProgressView()
-                                .tint(.white)
-                        }
-                        Text("Đăng nhập")
+                        Text("Đăng nhập để tiếp tục")
+                            .font(AppTypography.subheadline)
+                            .foregroundColor(AppColors.textSecondary)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-                }
-                .disabled(email.isEmpty || password.isEmpty || authViewModel.isLoading)
-                .padding(.horizontal)
+                    .padding(.top, AppSpacing.xxl)
 
-                Spacer()
+                    // Form
+                    VStack(spacing: AppSpacing.base) {
+                        AppTextField(
+                            placeholder: "Email",
+                            text: $email,
+                            icon: "envelope",
+                            keyboardType: .emailAddress
+                        )
+
+                        AppTextField(
+                            placeholder: "Mật khẩu",
+                            text: $password,
+                            icon: "lock",
+                            isSecure: true
+                        )
+
+                        if let error = authViewModel.errorMessage {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle")
+                                Text(error)
+                            }
+                            .font(AppTypography.caption1)
+                            .foregroundColor(AppColors.error)
+                            .padding(.top, AppSpacing.xs)
+                        }
+                    }
+                    .padding(.horizontal, AppSpacing.base)
+
+                    // Login Button
+                    PrimaryButton(
+                        title: "Đăng nhập",
+                        action: {
+                            Task {
+                                await authViewModel.login(email: email, password: password)
+                                if authViewModel.isLoggedIn {
+                                    dismiss()
+                                }
+                            }
+                        },
+                        isLoading: authViewModel.isLoading,
+                        isDisabled: !isFormValid
+                    )
+                    .padding(.horizontal, AppSpacing.base)
+
+                    // Forgot Password
+                    Button(action: {}) {
+                        Text("Quên mật khẩu?")
+                            .font(AppTypography.subheadline)
+                            .foregroundColor(AppColors.primary)
+                    }
+
+                    Spacer()
+
+                    // Register Link
+                    HStack {
+                        Text("Bạn chưa có tài khoản?")
+                            .font(AppTypography.subheadline)
+                            .foregroundColor(AppColors.textSecondary)
+
+                        Button(action: {}) {
+                            Text("Đăng ký")
+                                .font(AppTypography.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(AppColors.primary)
+                        }
+                    }
+                    .padding(.bottom, AppSpacing.xxl)
+                }
             }
+            .background(AppColors.backgroundPrimary)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Hủy") {
-                        dismiss()
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(AppColors.textPrimary)
                     }
                 }
             }
         }
     }
 
-    private func login() {
-        Task {
-            await authViewModel.login(email: email, password: password)
-            if authViewModel.isLoggedIn {
-                dismiss()
-            }
-        }
+    private var isFormValid: Bool {
+        !email.isEmpty && !password.isEmpty
     }
 }

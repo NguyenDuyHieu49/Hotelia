@@ -62,10 +62,12 @@ struct RoomType: Codable, Identifiable {
     let totalRooms: Int
     let availableRooms: Int
     let amenities: [String]?
+    let images: [String]?
     let isActive: Bool
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
-        case hotelId, name, description, basePrice, maxGuests, totalRooms, availableRooms, amenities, isActive
+        case hotelId, name, description, basePrice, maxGuests
+        case totalRooms, availableRooms, amenities, images, isActive
     }
 }

@@ -1,9 +1,8 @@
 import SwiftUI
 
 struct RegisterView: View {
-    @EnvironmentObject var authViewModel: AuthViewModel
     @Environment(\.dismiss) private var dismiss
-
+    @EnvironmentObject var authViewModel: AuthViewModel
     @State private var name = ""
     @State private var email = ""
     @State private var phone = ""
@@ -13,77 +12,145 @@ struct RegisterView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: AppSpacing.xl) {
                     // Header
-                    VStack(spacing: 8) {
-                        Image(systemName: "person.badge.plus.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.blue)
+                    VStack(spacing: AppSpacing.sm) {
+                        Text("Tạo tài khoản")
+                            .font(AppTypography.title1)
+                            .foregroundColor(AppColors.textPrimary)
 
-                        Text("Đăng ký")
-                            .font(.title)
-                            .fontWeight(.bold)
+                        Text("Đăng ký để bắt đầu")
+                            .font(AppTypography.subheadline)
+                            .foregroundColor(AppColors.textSecondary)
                     }
-                    .padding(.top, 40)
+                    .padding(.top, AppSpacing.xl)
 
                     // Form
-                    VStack(spacing: 16) {
-                        TextField("Họ và tên", text: $name)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.name)
+                    VStack(spacing: AppSpacing.base) {
+                        AppTextField(
+                            placeholder: "Họ và tên",
+                            text: $name,
+                            icon: "person"
+                        )
 
-                        TextField("Email", text: $email)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.emailAddress)
-                            .autocapitalization(.none)
+                        AppTextField(
+                            placeholder: "Email",
+                            text: $email,
+                            icon: "envelope",
+                            keyboardType: .emailAddress
+                        )
 
-                        TextField("Số điện thoại", text: $phone)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.telephoneNumber)
-                            .keyboardType(.phonePad)
+                        AppTextField(
+                            placeholder: "Số điện thoại",
+                            text: $phone,
+                            icon: "phone",
+                            keyboardType: .phonePad
+                        )
 
-                        SecureField("Mật khẩu", text: $password)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.newPassword)
+                        AppTextField(
+                            placeholder: "Mật khẩu",
+                            text: $password,
+                            icon: "lock",
+                            isSecure: true
+                        )
 
-                        SecureField("Xác nhận mật khẩu", text: $confirmPassword)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.newPassword)
+                        AppTextField(
+                            placeholder: "Xác nhận mật khẩu",
+                            text: $confirmPassword,
+                            icon: "lock",
+                            isSecure: true
+                        )
+
+                        if !passwordsMatch && !confirmPassword.isEmpty {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle")
+                                Text("Mật khẩu không khớp")
+                            }
+                            .font(AppTypography.caption1)
+                            .foregroundColor(AppColors.error)
+                        }
+
+                        if let error = authViewModel.errorMessage {
+                            HStack {
+                                Image(systemName: "exclamationmark.triangle")
+                                Text(error)
+                            }
+                            .font(AppTypography.caption1)
+                            .foregroundColor(AppColors.error)
+                        }
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal, AppSpacing.base)
 
-                    if let error = authViewModel.errorMessage {
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.caption)
+                    // Terms
+                    HStack(alignment: .top, spacing: AppSpacing.sm) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(AppColors.primary)
+                            .font(.system(size: 20))
+
+                        Text("Khi đăng ký, bạn đồng ý với")
+                            .font(AppTypography.caption1)
+                            .foregroundColor(AppColors.textSecondary)
+                        +
+                        Text(" Điều khoản sử dụng")
+                            .font(AppTypography.caption1)
+                            .foregroundColor(AppColors.primary)
+                        +
+                        Text(" và")
+                            .font(AppTypography.caption1)
+                            .foregroundColor(AppColors.textSecondary)
+                        +
+                        Text(" Chính sách bảo mật")
+                            .font(AppTypography.caption1)
+                            .foregroundColor(AppColors.primary)
                     }
+                    .padding(.horizontal, AppSpacing.base)
 
                     // Register Button
-                    Button(action: register) {
-                        HStack {
-                            if authViewModel.isLoading {
-                                ProgressView()
-                                    .tint(.white)
+                    PrimaryButton(
+                        title: "Đăng ký",
+                        action: {
+                            Task {
+                                await authViewModel.register(
+                                    email: email,
+                                    password: password,
+                                    name: name,
+                                    phone: phone.isEmpty ? nil : phone
+                                )
+                                if authViewModel.isLoggedIn {
+                                    dismiss()
+                                }
                             }
-                            Text("Đăng ký")
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                    }
-                    .disabled(!isFormValid || authViewModel.isLoading)
-                    .padding(.horizontal)
+                        },
+                        isLoading: authViewModel.isLoading,
+                        isDisabled: !isFormValid
+                    )
+                    .padding(.horizontal, AppSpacing.base)
 
                     Spacer()
+
+                    // Login Link
+                    HStack {
+                        Text("Bạn đã có tài khoản?")
+                            .font(AppTypography.subheadline)
+                            .foregroundColor(AppColors.textSecondary)
+
+                        Button(action: {}) {
+                            Text("Đăng nhập")
+                                .font(AppTypography.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(AppColors.primary)
+                        }
+                    }
+                    .padding(.bottom, AppSpacing.xxl)
                 }
             }
+            .background(AppColors.backgroundPrimary)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Hủy") {
-                        dismiss()
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(AppColors.textPrimary)
                     }
                 }
             }
@@ -94,21 +161,11 @@ struct RegisterView: View {
         !name.isEmpty &&
         !email.isEmpty &&
         !password.isEmpty &&
-        password == confirmPassword &&
+        passwordsMatch &&
         password.count >= 6
     }
 
-    private func register() {
-        Task {
-            await authViewModel.register(
-                email: email,
-                password: password,
-                name: name,
-                phone: phone.isEmpty ? nil : phone
-            )
-            if authViewModel.isLoggedIn {
-                dismiss()
-            }
-        }
+    private var passwordsMatch: Bool {
+        password == confirmPassword
     }
 }

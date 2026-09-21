@@ -8,115 +8,47 @@ struct HotelDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                // Image
-                ZStack {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(height: 250)
+            VStack(alignment: .leading, spacing: 0) {
+                // Hero Image
+                hotelImageSection
 
-                    Image(systemName: "building.2.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(.gray)
-                }
+                VStack(alignment: .leading, spacing: AppSpacing.lg) {
+                    // Header Info
+                    headerSection
 
-                VStack(alignment: .leading, spacing: 16) {
-                    // Name & Rating
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(hotel.name)
-                                .font(.title)
-                                .fontWeight(.bold)
-
-                            HStack {
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                                Text(String(format: "%.1f", hotel.averageRating ?? 0))
-                                Text("(\(hotel.reviewCount ?? 0) đánh giá)")
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-
-                        Spacer()
-
-                        if let stars = hotel.starRating {
-                            VStack {
-                                Text("\(stars)")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                Text("sao")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
+                    Divider()
 
                     // Location
-                    HStack {
-                        Image(systemName: "location.fill")
-                            .foregroundColor(.red)
-                        Text("\(hotel.address), \(hotel.city)")
-                    }
-                    .foregroundColor(.secondary)
+                    locationSection
 
                     Divider()
 
                     // Description
-                    Text("Mô tả")
-                        .font(.headline)
-                    Text(hotel.description)
+                    descriptionSection
 
                     // Amenities
                     if let amenities = hotel.amenities, !amenities.isEmpty {
                         Divider()
-                        Text("Tiện ích")
-                            .font(.headline)
-
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 8) {
-                            ForEach(amenities, id: \.self) { amenity in
-                                HStack {
-                                    Image(systemName: amenityIcon(amenity))
-                                    Text(amenity)
-                                        .font(.caption)
-                                }
-                                .padding(6)
-                                .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
-                            }
-                        }
+                        amenitiesSection(amenities)
                     }
 
                     Divider()
 
                     // Reviews
-                    Text("Đánh giá")
-                        .font(.headline)
+                    reviewsSection
 
-                    if isLoadingReviews {
-                        ProgressView()
-                    } else if reviews.isEmpty {
-                        Text("Chưa có đánh giá nào")
-                            .foregroundColor(.secondary)
-                    } else {
-                        ForEach(reviews.prefix(3)) { review in
-                            ReviewCardItemView(review: review)
-                        }
-                    }
+                    Divider()
+
+                    // Policies
+                    policiesSection
 
                     // Book Button
-                    Button(action: { showBooking = true }) {
-                        Text("Đặt phòng ngay")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
-                    }
+                    bookButtonSection
                 }
-                .padding()
+                .padding(AppSpacing.base)
             }
         }
+        .background(AppColors.backgroundPrimary)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showBooking) {
             RoomBookingView(hotel: hotel)
@@ -126,6 +58,214 @@ struct HotelDetailView: View {
         }
     }
 
+    // MARK: - Sections
+    private var hotelImageSection: some View {
+        ZStack(alignment: .bottomLeading) {
+            if let images = hotel.images, !images.isEmpty, let firstImage = images.first {
+                AsyncImage(url: URL(string: firstImage)) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    default:
+                        imagePlaceholder
+                    }
+                }
+            } else {
+                imagePlaceholder
+            }
+
+            // Gradient overlay
+            LinearGradient(
+                colors: [.clear, .black.opacity(0.5)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: 100)
+
+            // Rating Badge
+            HStack {
+                if let rating = hotel.averageRating {
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.white)
+                            Text(String(format: "%.1f", rating))
+                                .font(AppTypography.headline)
+                                .foregroundColor(.white)
+                        }
+                        if let reviews = hotel.reviewCount {
+                            Text("\(reviews) đánh giá")
+                                .font(AppTypography.caption1)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                    }
+                    .padding(AppSpacing.sm)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(AppSpacing.radiusSmall)
+                }
+
+                Spacer()
+
+                if let stars = hotel.starRating {
+                    StarBadge(stars: stars)
+                }
+            }
+            .padding(AppSpacing.base)
+        }
+        .frame(height: 250)
+        .clipped()
+    }
+
+    private var imagePlaceholder: some View {
+        Rectangle()
+            .fill(LinearGradient(
+                colors: [AppColors.backgroundTertiary, AppColors.backgroundSecondary],
+                startPoint: .top,
+                endPoint: .bottom
+            ))
+            .overlay(
+                Image(systemName: "building.2.fill")
+                    .font(.system(size: 60))
+                    .foregroundColor(AppColors.textTertiary)
+            )
+    }
+
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            Text(hotel.name)
+                .font(AppTypography.title1)
+                .foregroundColor(AppColors.textPrimary)
+
+            HStack {
+                if let stars = hotel.starRating {
+                    HStack(spacing: 4) {
+                        ForEach(0..<stars, id: \.self) { _ in
+                            Image(systemName: "star.fill")
+                                .foregroundColor(AppColors.starYellow)
+                                .font(.system(size: 14))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var locationSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            SectionHeader(title: "Địa điểm")
+
+            HStack(spacing: AppSpacing.md) {
+                Image(systemName: "location.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(AppColors.locationRed)
+                    .frame(width: 32, height: 32)
+                    .background(AppColors.locationRed.opacity(0.1))
+                    .cornerRadius(AppSpacing.radiusSmall)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(hotel.address)
+                        .font(AppTypography.body)
+                        .foregroundColor(AppColors.textPrimary)
+
+                    Text(hotel.city)
+                        .font(AppTypography.subheadline)
+                        .foregroundColor(AppColors.textSecondary)
+                }
+            }
+        }
+    }
+
+    private var descriptionSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            SectionHeader(title: "Mô tả")
+
+            Text(hotel.description)
+                .font(AppTypography.body)
+                .foregroundColor(AppColors.textSecondary)
+                .lineSpacing(4)
+        }
+    }
+
+    private func amenitiesSection(_ amenities: [String]) -> some View {
+        VStack(alignment: .leading, spacing: AppSpacing.md) {
+            SectionHeader(title: "Tiện ích")
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: AppSpacing.sm) {
+                    ForEach(amenities, id: \.self) { amenity in
+                        AmenityBadge(amenity: amenity)
+                    }
+                }
+                .padding(.horizontal, 1)
+            }
+        }
+    }
+
+    private var reviewsSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.md) {
+            HStack {
+                SectionHeader(title: "Đánh giá")
+                Spacer()
+                Button(action: {}) {
+                    Text("Xem tất cả")
+                        .font(AppTypography.subheadline)
+                        .foregroundColor(AppColors.primary)
+                }
+            }
+
+            if isLoadingReviews {
+                HStack {
+                    ProgressView()
+                    Text("Đang tải đánh giá...")
+                        .font(AppTypography.subheadline)
+                        .foregroundColor(AppColors.textSecondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, AppSpacing.xl)
+            } else if reviews.isEmpty {
+                VStack(spacing: AppSpacing.sm) {
+                    Image(systemName: "bubble.left.and.bubble.right")
+                        .font(.system(size: 40))
+                        .foregroundColor(AppColors.textTertiary)
+                    Text("Chưa có đánh giá nào")
+                        .font(AppTypography.subheadline)
+                        .foregroundColor(AppColors.textSecondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, AppSpacing.xl)
+            } else {
+                ForEach(reviews.prefix(3)) { review in
+                    ReviewCardItemView(review: review)
+                }
+            }
+        }
+    }
+
+    private var policiesSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.md) {
+            SectionHeader(title: "Chính sách")
+
+            PolicyRow(icon: "clock", title: "Nhận phòng", value: hotel.checkInTime ?? "14:00")
+            PolicyRow(icon: "clock.badge.checkmark", title: "Trả phòng", value: hotel.checkOutTime ?? "12:00")
+        }
+    }
+
+    private var bookButtonSection: some View {
+        VStack(spacing: AppSpacing.sm) {
+            PrimaryButton(title: "Đặt phòng ngay") {
+                showBooking = true
+            }
+
+            Text("Miễn phí hủy phòng trong 24 giờ")
+                .font(AppTypography.caption1)
+                .foregroundColor(AppColors.textSecondary)
+        }
+        .padding(.top, AppSpacing.base)
+    }
+
+    // MARK: - Actions
     private func loadReviews() async {
         do {
             let response = try await ReviewService.shared.getReviews(hotelId: hotel.id)
@@ -135,16 +275,54 @@ struct HotelDetailView: View {
         }
         isLoadingReviews = false
     }
+}
 
-    private func amenityIcon(_ amenity: String) -> String {
-        switch amenity.lowercased() {
-        case "wifi": return "wifi"
-        case "pool": return "figure.pool.swim"
-        case "parking": return "car.fill"
-        case "spa": return "sparkles"
-        case "restaurant": return "fork.knife"
-        case "gym": return "dumbbell.fill"
-        default: return "checkmark.circle"
+// MARK: - Section Header
+struct SectionHeader: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .font(AppTypography.headline)
+            .foregroundColor(AppColors.textPrimary)
+    }
+}
+
+// MARK: - Policy Row
+struct PolicyRow: View {
+    let icon: String
+    let title: String
+    let value: String
+
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .foregroundColor(AppColors.primary)
+                .frame(width: 24)
+
+            Text(title)
+                .font(AppTypography.body)
+                .foregroundColor(AppColors.textSecondary)
+
+            Spacer()
+
+            Text(value)
+                .font(AppTypography.bodyMedium)
+                .foregroundColor(AppColors.textPrimary)
         }
+        .padding(AppSpacing.base)
+        .background(AppColors.backgroundSecondary)
+        .cornerRadius(AppSpacing.radiusSmall)
+    }
+}
+
+// Add checkInTime and checkOutTime to Hotel model
+extension Hotel {
+    var checkInTime: String? {
+        return "14:00"
+    }
+
+    var checkOutTime: String? {
+        return "12:00"
     }
 }

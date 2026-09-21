@@ -1,24 +1,31 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @EnvironmentObject var authViewModel: AuthViewModel
+    @State private var selectedTab = 0
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
+            // Explore Tab
             ExploreView()
                 .tabItem {
                     Label("Khám phá", systemImage: "magnifyingglass")
                 }
+                .tag(0)
 
-            BookingHistoryView()
+            // Bookings Tab
+            HistoryView()
                 .tabItem {
                     Label("Đặt phòng", systemImage: "calendar")
                 }
+                .tag(1)
 
+            // Profile Tab
             ProfileView()
                 .tabItem {
-                    Label("Tài khoản", systemImage: "person.circle")
+                    Label("Tài khoản", systemImage: "person.fill")
                 }
+                .tag(2)
         }
+        .tint(AppColors.primary)
     }
 }

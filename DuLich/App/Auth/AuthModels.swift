@@ -18,6 +18,11 @@ struct User: Codable, Identifiable {
     let phone: String?
     let avatar: String?
     let role: String
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case email, name, phone, avatar, role
+    }
 }
 
 struct RegisterRequest: Encodable {

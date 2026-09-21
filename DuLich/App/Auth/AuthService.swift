@@ -7,6 +7,8 @@ class AuthService {
     private init() {}
 
     func login(email: String, password: String) async throws -> AuthResponse {
+        print("[DEBUG-Auth] Login attempt for: \(email)")
+
         let body: [String: Any] = [
             "email": email,
             "password": password
@@ -17,6 +19,8 @@ class AuthService {
             method: "POST",
             body: body
         )
+
+        print("[DEBUG-Auth] Login success! Token: \(response.accessToken.prefix(20))...")
 
         client.setAccessToken(response.accessToken)
         saveRefreshToken(response.refreshToken)

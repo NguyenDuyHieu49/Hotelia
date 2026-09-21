@@ -61,6 +61,9 @@ class APIClient {
             throw APIError.invalidResponse
         }
 
+        print("[DEBUG-API] Status: \(httpResponse.statusCode)")
+        print("[DEBUG-API] Data: \(String(data: data, encoding: .utf8)?.prefix(200) ?? "none")")
+
         if httpResponse.statusCode == 401 {
             throw APIError.unauthorized
         }
