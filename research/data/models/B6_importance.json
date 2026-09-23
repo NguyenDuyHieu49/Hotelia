@@ -1,0 +1,14 @@
+{
+  "avg_price": 0,
+  "city_id": 0,
+  "device_type": 0,
+  "platform_encoded": 0,
+  "filter_count": 0,
+  "session_length": 0,
+  "action_count": 0,
+  "click_count": 0,
+  "last_action_type_encoded": 0,
+  "hour": 0,
+  "day_of_week": 0,
+  "is_weekend": 0
+}

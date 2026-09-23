@@ -1,0 +1,33 @@
+{
+  "feature_groups": {
+    "item_features": [
+      "price",
+      "price_rank",
+      "price_relative",
+      "is_clicked"
+    ],
+    "context_features": [
+      "city_id",
+      "device_type",
+      "platform",
+      "filter_count"
+    ],
+    "session_features": [
+      "session_length",
+      "action_count",
+      "click_count",
+      "last_action_type"
+    ],
+    "temporal_features": [
+      "hour",
+      "day_of_week",
+      "is_weekend"
+    ],
+    "content_features": [
+      "star_rating",
+      "amenity_count",
+      "category"
+    ]
+  },
+  "total_features": 18
+}

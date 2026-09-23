@@ -35,7 +35,9 @@ struct AppTypography {
     // Caption
     static let caption1 = Font.system(size: 12, weight: .regular, design: .default)
     static let caption1Medium = Font.system(size: 12, weight: .medium, design: .default)
+    static let caption1Bold = Font.system(size: 12, weight: .bold, design: .default)
     static let caption2 = Font.system(size: 11, weight: .regular, design: .default)
+    static let caption2Bold = Font.system(size: 11, weight: .bold, design: .default)
 
     // Price
     static let priceLarge = Font.system(size: 28, weight: .bold, design: .default)

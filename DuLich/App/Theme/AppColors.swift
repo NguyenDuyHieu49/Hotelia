@@ -49,6 +49,12 @@ struct AppColors {
 
     // Location Pin
     static let locationRed = Color(hex: "FF3B30")
+
+    // ML Ranking
+    static let primaryBlue = Color(hex: "007AFF")
+    static let goldBadge = Color(hex: "FFD700")
+    static let silverBadge = Color(hex: "C0C0C0")
+    static let bronzeBadge = Color(hex: "CD7F32")
 }
 
 // MARK: - Color Extension for Hex

@@ -3,6 +3,7 @@ import Foundation
 class ExploreService {
     static let shared = ExploreService()
     private let client = APIClient.shared
+    private let recommendationService = RecommendationService.shared
 
     private init() {}
 
@@ -13,7 +14,8 @@ class ExploreService {
         maxPrice: Int? = nil,
         minRating: Int? = nil,
         page: Int = 1,
-        limit: Int = 20
+        limit: Int = 20,
+        useMLRanking: Bool = true
     ) async throws -> [Hotel] {
         var queryParams = "?"
 
@@ -34,7 +36,34 @@ class ExploreService {
         let response: HotelsResponse = try await client.request(
             endpoint: "/hotels\(queryParams)"
         )
-        return response.hotels
+
+        var hotels = response.hotels
+
+        // Apply ML Ranking if enabled
+        if useMLRanking, !hotels.isEmpty {
+            do {
+                // Use first hotel's cityId as proxy (in real app, get from destination)
+                let cityId = hotels.first?.id.hashValue ?? 1
+
+                // Get ranked hotel IDs
+                let rankedIds = try await recommendationService.rankHotels(
+                    hotels: hotels,
+                    cityId: cityId
+                )
+
+                // Reorder hotels based on ML ranking
+                let hotelDict = Dictionary(uniqueKeysWithValues: hotels.map { ($0.id, $0) })
+                hotels = rankedIds.compactMap { hotelDict[$0] }
+
+                print("[ExploreService] Hotels reordered using ML ranking")
+            } catch {
+                print("[ExploreService] ML ranking failed, using default order: \(error)")
+                // Fallback to popularity-based sorting
+                hotels = recommendationService.getPopularityRanking(hotels: hotels)
+            }
+        }
+
+        return hotels
     }
 
     // MARK: - Get Hotel by ID

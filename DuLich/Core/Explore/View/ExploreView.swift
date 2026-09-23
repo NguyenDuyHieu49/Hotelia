@@ -16,6 +16,11 @@ struct ExploreView: View {
                 .padding(.horizontal, AppSpacing.base)
                 .padding(.vertical, AppSpacing.md)
 
+                // ML Ranking Indicator
+                if viewModel.isRanking {
+                    RankingIndicatorView(info: viewModel.rankingInfo ?? "Đang xếp hạng...")
+                }
+
                 // Content
                 if viewModel.isLoading && viewModel.hotels.isEmpty {
                     LoadingView(message: "Đang tải khách sạn...")
@@ -32,9 +37,9 @@ struct ExploreView: View {
                 } else {
                     ScrollView {
                         LazyVStack(spacing: AppSpacing.base) {
-                            ForEach(viewModel.hotels) { hotel in
+                            ForEach(Array(viewModel.hotels.enumerated()), id: \.element.id) { index, hotel in
                                 NavigationLink(destination: HotelDetailView(hotel: hotel)) {
-                                    HotelCardView(hotel: hotel)
+                                    RankedHotelCardView(hotel: hotel, rank: index + 1)
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -43,15 +48,122 @@ struct ExploreView: View {
                         .padding(.vertical, AppSpacing.md)
                     }
                     .refreshable {
-                        await viewModel.loadHotels()
+                        await viewModel.refreshRanking()
                     }
                 }
             }
             .background(AppColors.backgroundSecondary)
             .navigationTitle("Khám phá")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if viewModel.isRanking {
+                        Image(systemName: "brain")
+                            .foregroundColor(.blue)
+                    } else {
+                        Button(action: {
+                            Task { await viewModel.refreshRanking() }
+                        }) {
+                            Image(systemName: "arrow.clockwise")
+                        }
+                    }
+                }
+            }
             .task {
                 if viewModel.hotels.isEmpty {
                     await viewModel.loadHotels()
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Ranking Indicator
+struct RankingIndicatorView: View {
+    let info: String
+
+    var body: some View {
+        HStack(spacing: AppSpacing.sm) {
+            ProgressView()
+                .scaleEffect(0.8)
+            Text(info)
+                .font(AppTypography.caption1)
+                .foregroundColor(AppColors.textSecondary)
+        }
+        .padding(.horizontal, AppSpacing.base)
+        .padding(.vertical, AppSpacing.sm)
+        .background(Color.blue.opacity(0.1))
+    }
+}
+
+// MARK: - Ranked Hotel Card
+struct RankedHotelCardView: View {
+    let hotel: Hotel
+    let rank: Int
+
+    var body: some View {
+        HStack(spacing: 0) {
+            // Rank Badge
+            ZStack {
+                Circle()
+                    .fill(rankColor)
+                    .frame(width: 32, height: 32)
+
+                Text("\(rank)")
+                    .font(AppTypography.caption1Bold)
+                    .foregroundColor(.white)
+            }
+            .padding(.trailing, AppSpacing.md)
+
+            // Hotel Info
+            ExpandedHotelCardView(hotel: hotel)
+        }
+        .padding(AppSpacing.base)
+        .background(Color.white)
+        .cornerRadius(AppSpacing.radiusMedium)
+        .shadow(color: AppColors.cardShadow, radius: 6, x: 0, y: 3)
+    }
+
+    private var rankColor: Color {
+        switch rank {
+        case 1: return AppColors.goldBadge
+        case 2: return AppColors.silverBadge
+        case 3: return AppColors.bronzeBadge
+        default: return AppColors.primaryBlue
+        }
+    }
+}
+
+// MARK: - Expanded Hotel Card
+struct ExpandedHotelCardView: View {
+    let hotel: Hotel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            // Name
+            Text(hotel.name)
+                .font(AppTypography.headline)
+                .foregroundColor(AppColors.textPrimary)
+                .lineLimit(1)
+
+            // Location
+            HStack(spacing: AppSpacing.xs) {
+                Image(systemName: "location.fill")
+                    .font(.system(size: 12))
+                    .foregroundColor(AppColors.locationRed)
+                Text("\(hotel.city)")
+                    .font(AppTypography.subheadline)
+                    .foregroundColor(AppColors.textSecondary)
+            }
+
+            // Rating
+            HStack(spacing: AppSpacing.sm) {
+                if let rating = hotel.averageRating {
+                    RatingView(rating: rating, starSize: 12)
+                }
+                if let reviews = hotel.reviewCount {
+                    Text("(\(reviews) đánh giá)")
+                        .font(AppTypography.caption1)
+                        .foregroundColor(AppColors.textSecondary)
                 }
             }
         }
