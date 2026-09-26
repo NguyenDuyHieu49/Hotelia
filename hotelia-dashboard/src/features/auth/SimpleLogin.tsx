@@ -1,115 +1,128 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../lib/auth/AuthContext';
+import './SimpleLogin.css';
 
 export function SimpleLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setError('');
+
     try {
-      const user = await login(email, password);
+      const user = await login(email.trim(), password);
       navigate(user.role === 'ADMIN' ? '/admin/dashboard' : '/owner/dashboard', { replace: true });
     } catch (err) {
-      console.error('Login error:', err);
-      setError(err instanceof Error ? err.message : 'Đăng nhập thất bại');
+      const message = err as { response?: { status?: number; data?: { message?: string } }; message?: string };
+      setError(message.response?.status === 401
+        ? 'Email hoặc mật khẩu không đúng. Vui lòng kiểm tra và thử lại.'
+        : message.response?.data?.message || message.message || 'Không thể đăng nhập. Vui lòng thử lại.');
+    } finally {
+      setBusy(false);
     }
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    }}>
-      <div style={{
-        background: 'white',
-        padding: '40px',
-        borderRadius: '16px',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 'bold', textAlign: 'center', marginBottom: '8px' }}>
-          🏨 Hotelia
-        </h1>
-        <p style={{ textAlign: 'center', color: '#666', marginBottom: '24px' }}>
-          Dashboard Login
-        </p>
-
-        <div style={{ marginBottom: '16px' }}>
-          <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '14px',
-              boxSizing: 'border-box'
-            }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '24px' }}>
-          <label style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '14px',
-              boxSizing: 'border-box'
-            }}
-          />
-        </div>
-
-        {error && (
-          <div style={{
-            padding: '12px',
-            background: '#fee',
-            color: '#c00',
-            borderRadius: '8px',
-            marginBottom: '16px'
-          }}>
-            {error}
+    <main className="login-page" id="main-content">
+      <aside className="login-story" aria-label="Hotelia">
+        <div className="login-story__image" aria-hidden="true" />
+        <div className="login-story__shade" aria-hidden="true" />
+        <div className="login-story__content">
+          <div className="login-brand login-brand--light">
+            <span className="login-brand__mark" aria-hidden="true">H<span>.</span></span>
+            <span className="login-brand__name">hotelia</span>
           </div>
-        )}
-
-        <button
-          onClick={handleLogin}
-          style={{
-            width: '100%',
-            padding: '14px',
-            background: '#2563eb',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '16px',
-            fontWeight: '600',
-            cursor: 'pointer'
-          }}
-        >
-          Đăng nhập
-        </button>
-
-        <div style={{ marginTop: '20px', fontSize: '12px', color: '#666', textAlign: 'center' }}>
-          <p>Tài khoản Owner:</p>
-          <p>manager@hotelia.com / OwnerPass123!</p>
+          <div className="login-story__copy">
+            <span className="login-eyebrow">Không gian quản lý</span>
+            <h1>Mỗi kỳ lưu trú<br />bắt đầu từ đây.</h1>
+            <p>Một nơi để chăm chút khách sạn, đặt phòng và trải nghiệm của khách.</p>
+          </div>
+          <div className="login-story__footer">
+            <span>HOTELIA / MANAGEMENT</span>
+            <span>VIETNAM · {new Date().getFullYear()}</span>
+          </div>
         </div>
-      </div>
-    </div>
+      </aside>
+
+      <section className="login-panel" aria-labelledby="login-title">
+        <div className="login-panel__inner">
+          <div className="login-brand login-brand--mobile">
+            <span className="login-brand__mark" aria-hidden="true">H<span>.</span></span>
+            <span className="login-brand__name">hotelia</span>
+          </div>
+          <div className="login-panel__heading">
+            <span className="login-eyebrow">TÀI KHOẢN QUẢN LÝ</span>
+            <h2 id="login-title">Chào mừng trở lại<span className="login-period">.</span></h2>
+            <p>Đăng nhập để tiếp tục công việc hôm nay.</p>
+          </div>
+
+          <form className="login-form" onSubmit={handleLogin}>
+            <div className="login-field">
+              <label htmlFor="login-email">Email công việc</label>
+              <input
+                id="login-email"
+                type="email"
+                name="email"
+                autoComplete="username"
+                inputMode="email"
+                placeholder="ten@khachsan.com"
+                value={email}
+                onChange={event => setEmail(event.target.value)}
+                required
+              />
+            </div>
+            <div className="login-field">
+              <label htmlFor="login-password">Mật khẩu</label>
+              <div className="login-password-wrap">
+                <input
+                  id="login-password"
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  autoComplete="current-password"
+                  placeholder="Nhập mật khẩu của bạn"
+                  value={password}
+                  onChange={event => setPassword(event.target.value)}
+                  required
+                />
+                <button
+                  className="login-password-toggle"
+                  type="button"
+                  onClick={() => setShowPassword(value => !value)}
+                  aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  aria-pressed={showPassword}
+                >
+                  {showPassword ? 'Ẩn' : 'Hiện'}
+                </button>
+              </div>
+            </div>
+
+            {error && <p className="login-error" role="alert">{error}</p>}
+
+            <button className="login-submit" type="submit" disabled={busy}>
+              <span>{busy ? 'Đang đăng nhập…' : 'Vào trang quản lý'}</span>
+              {busy ? <span className="login-submit__loader" aria-hidden="true" /> : (
+                <svg className="login-submit__arrow" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M3.5 10h12m-5-5 5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </button>
+          </form>
+
+          <div className="login-panel__footnote">
+            <span className="login-footnote__rule" />
+            <p>Dành cho quản trị viên và đối tác khách sạn.</p>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }

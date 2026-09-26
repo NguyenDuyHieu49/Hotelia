@@ -1,0 +1,76 @@
+.login-page {
+  --login-ink: #1e2926;
+  --login-muted: #758079;
+  --login-accent: #41685b;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+  background: #f7f7f3;
+  color: var(--login-ink);
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+.login-story { position: relative; min-height: 100dvh; overflow: hidden; background: #243a38; color: #fff; }
+.login-story__image, .login-story__shade { position: absolute; inset: 0; }
+.login-story__image { background: url('/login-hotel.jpg') center / cover no-repeat; animation: login-image-reveal 1.5s cubic-bezier(.16, 1, .3, 1) both; }
+.login-story__shade { background: linear-gradient(180deg, rgba(15, 31, 29, .42) 0%, rgba(15, 31, 29, .08) 35%, rgba(12, 27, 25, .76) 100%); }
+.login-story__content { position: relative; display: flex; flex-direction: column; min-height: 100dvh; padding: clamp(2rem, 4.2vw, 4.5rem); }
+.login-brand { display: inline-flex; align-items: center; gap: .85rem; width: fit-content; }
+.login-brand__mark { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border: 1px solid currentColor; font-size: 1.35rem; font-weight: 700; letter-spacing: -.13em; padding-right: .16rem; }
+.login-brand__mark span { color: #dfba81; }
+.login-brand__name { font-size: 1.35rem; font-weight: 750; letter-spacing: -.07em; }
+.login-story__copy { margin-top: auto; max-width: 38rem; animation: login-enter .8s .12s cubic-bezier(.16, 1, .3, 1) both; }
+.login-eyebrow { font-size: .67rem; font-weight: 800; letter-spacing: .24em; }
+.login-story__copy .login-eyebrow { color: #e4e9e3; }
+.login-story__copy h1 { margin: 1.2rem 0 1rem; font-size: clamp(2.5rem, 4.2vw, 5.25rem); line-height: 1.08; font-weight: 550; letter-spacing: -.075em; }
+.login-story__copy p { max-width: 28rem; font-size: .98rem; line-height: 1.8; color: #ebeee9; }
+.login-story__footer { display: flex; justify-content: space-between; gap: 1rem; margin-top: clamp(3rem, 10vh, 7rem); padding-top: 1.2rem; border-top: 1px solid rgba(255,255,255,.38); color: rgba(255,255,255,.8); font-size: .64rem; font-weight: 700; letter-spacing: .16em; }
+
+.login-panel { display: grid; place-items: center; padding: 4rem clamp(2rem, 6vw, 7rem); }
+.login-panel__inner { width: min(100%, 26rem); animation: login-enter .75s .2s cubic-bezier(.16, 1, .3, 1) both; }
+.login-brand--mobile { display: none; }
+.login-panel__heading { margin-bottom: 2.7rem; }
+.login-panel__heading .login-eyebrow { color: var(--login-accent); }
+.login-panel__heading h2 { margin-top: .9rem; font-size: clamp(2.25rem, 3vw, 3.25rem); line-height: 1.18; font-weight: 650; letter-spacing: -.075em; }
+.login-period { color: var(--login-accent); }
+.login-panel__heading p { margin-top: .8rem; color: var(--login-muted); font-size: .91rem; line-height: 1.65; }
+.login-form { display: grid; gap: 1.45rem; }
+.login-field { display: grid; gap: .55rem; }
+.login-field label { font-size: .76rem; font-weight: 750; letter-spacing: .015em; }
+.login-field input { width: 100%; height: 3.45rem; padding: 0 1rem; border: 1px solid #cdd4cd; border-radius: .4rem; background: #fff; color: var(--login-ink); font-size: .9rem; outline: none; transition: border-color .25s ease, box-shadow .25s ease; }
+.login-field input::placeholder { color: #a0a8a1; }
+.login-field input:hover { border-color: #8fa698; }
+.login-field input:focus-visible { border-color: var(--login-accent); box-shadow: 0 0 0 3px rgba(65,104,91,.13); }
+.login-password-wrap { position: relative; }
+.login-password-wrap input { padding-right: 4.3rem; }
+.login-password-toggle { position: absolute; right: .62rem; top: 50%; transform: translateY(-50%); padding: .55rem; border-radius: .25rem; color: var(--login-accent); font-size: .73rem; font-weight: 750; transition: background .2s ease; }
+.login-password-toggle:hover { background: #ebf0ea; }
+.login-password-toggle:focus-visible { outline: 2px solid var(--login-accent); outline-offset: 2px; }
+.login-error { padding: .9rem 1rem; border-left: 2px solid #a34b3d; background: #f8ece9; color: #863b30; font-size: .82rem; line-height: 1.5; }
+.login-submit { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 3.55rem; margin-top: .4rem; padding: 0 1.15rem 0 1.35rem; border-radius: .4rem; background: var(--login-accent); color: #fff; font-size: .88rem; font-weight: 750; transition: background .24s ease, transform .24s cubic-bezier(.16, 1, .3, 1), box-shadow .24s ease; }
+.login-submit:hover:not(:disabled) { background: #34584b; transform: translateY(-2px); box-shadow: 0 8px 18px rgba(32,65,53,.16); }
+.login-submit:active:not(:disabled) { transform: translateY(1px) scale(.99); box-shadow: none; }
+.login-submit:focus-visible { outline: 3px solid rgba(65,104,91,.4); outline-offset: 3px; }
+.login-submit:disabled { cursor: wait; opacity: .75; }
+.login-submit__arrow { transition: transform .24s cubic-bezier(.16, 1, .3, 1); }
+.login-submit:hover .login-submit__arrow { transform: translateX(4px); }
+.login-submit__loader { width: 1rem; height: 1rem; border: 2px solid rgba(255,255,255,.45); border-top-color: #fff; border-radius: 50%; animation: login-spin .8s linear infinite; }
+.login-panel__footnote { display: flex; align-items: center; gap: .8rem; margin-top: 2.5rem; color: #8a948b; font-size: .74rem; }
+.login-footnote__rule { width: 1.4rem; height: 1px; background: #a7b4a9; }
+
+@keyframes login-image-reveal { from { opacity: .6; transform: scale(1.06); } to { opacity: 1; transform: scale(1); } }
+@keyframes login-enter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes login-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 800px) {
+  .login-page { grid-template-columns: 1fr; }
+  .login-story { display: none; }
+  .login-panel { min-height: 100dvh; padding: 2rem 1.5rem 3rem; }
+  .login-brand--mobile { display: inline-flex; margin-bottom: clamp(3rem, 10vh, 6rem); }
+  .login-panel__heading { margin-bottom: 2.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-story__image, .login-story__copy, .login-panel__inner, .login-submit__loader { animation: none; }
+  .login-submit, .login-submit__arrow, .login-field input { transition: none; }
+}
