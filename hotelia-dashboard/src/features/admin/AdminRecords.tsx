@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import api from '../../lib/api/client';
 import { Button } from '../../components/ui/Button';
 type RecordItem={id:string;createdAt?:string;method?:string;path?:string;actorId?:string;amount?:number;status?:string;content?:string;rating?:number;isVisible?:boolean;hotelId?:string};
 export function AdminRecords({ kind }:{kind:'payments'|'reviews'|'audit-logs'}) {
   const [items,setItems]=useState<RecordItem[]>([]),[error,setError]=useState(''),[busy,setBusy]=useState(false);
-  const load=async()=>{setBusy(true);try {setItems((await api.get(`/admin/${kind}`)).data);setError('');} catch {setError('Không thể tải dữ liệu');} finally {setBusy(false);}};
-  useEffect(()=>{load();},[kind]);
+  const requestId=useRef(0);
+  const load=async()=>{const id=++requestId.current;setBusy(true);try {const response=await api.get(`/admin/${kind}`);if(id===requestId.current){setItems(response.data);setError('');}} catch {if(id===requestId.current)setError('Không thể tải dữ liệu');} finally {if(id===requestId.current)setBusy(false);}};
+  useEffect(()=>{setItems([]);setError('');load();return ()=>{requestId.current++;};},[kind]);
   return <div className="space-y-4"><div className="flex justify-between"><h1 className="text-2xl font-bold">{{payments:'Thanh toán',reviews:'Đánh giá','audit-logs':'Nhật ký thao tác'}[kind]}</h1><Button onClick={load} loading={busy}>Làm mới</Button></div>
     {error && <p role="alert">{error}</p>}
     {kind==='payments' && <p>Thanh toán trực tuyến chưa được cấu hình. Đơn thanh toán tại khách sạn chỉ là xác nhận booking, không phải giao dịch đã thu tiền.</p>}

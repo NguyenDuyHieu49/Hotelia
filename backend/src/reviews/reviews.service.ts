@@ -53,7 +53,7 @@ export class ReviewsService {
 
   async ownerReviews(userId:string) {
     const hotels=await this.connection.db!.collection('hotels').find({ownerId:new Types.ObjectId(userId)}).toArray();
-    return this.reviewModel.find({hotelId:{$in:hotels.map(h=>h._id)}}).sort({createdAt:-1});
+    return this.reviewModel.find({hotelId:{$in:hotels.map(h=>h._id)}}).populate('userId','name avatar').sort({createdAt:-1});
   }
   async reply(id:string,userId:string,reply:string) {
     const review=await this.reviewModel.findById(id);

@@ -84,11 +84,19 @@ export class AdminService {
     return hotel;
   }
 
-  async getAllUsers(page = 1, limit = 20) {
+  async getAllUsers(page = 1, limit = 20, search = '', role = '') {
+    page = Math.max(1, Number(page) || 1);
+    limit = Math.min(100, Math.max(1, Number(limit) || 20));
+    const query: Record<string, unknown> = {};
+    if (['USER', 'OWNER', 'ADMIN'].includes(role)) query.role = role;
+    if (search.trim()) {
+      const safeSearch = search.trim().slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.$or = [{ name: { $regex: safeSearch, $options: 'i' } }, { email: { $regex: safeSearch, $options: 'i' } }];
+    }
     const skip = (page - 1) * limit;
     const [users, total] = await Promise.all([
-      this.userModel.find().select('-passwordHash -refreshToken -refreshTokenExpiry').skip(skip).limit(limit).sort({ createdAt: -1 }),
-      this.userModel.countDocuments(),
+      this.userModel.find(query).select('-passwordHash -refreshToken -refreshTokenExpiry').skip(skip).limit(limit).sort({ createdAt: -1 }),
+      this.userModel.countDocuments(query),
     ]);
     return { users, total, page, limit };
   }

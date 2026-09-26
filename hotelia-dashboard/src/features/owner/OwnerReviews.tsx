@@ -41,6 +41,7 @@ export function OwnerReviews() {
   const filteredReviews = filter === 'all' 
     ? reviews 
     : reviews.filter(r => r.rating === parseInt(filter));
+  const visibleReviews = reviews.filter(r => r.isVisible);
 
   if (loading) {
     return (
@@ -63,7 +64,7 @@ export function OwnerReviews() {
           <div className="flex items-center gap-1">
             <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
             <span className="text-xl font-bold">
-              {(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length || 0).toFixed(1)}
+              {(visibleReviews.reduce((acc, r) => acc + r.rating, 0) / visibleReviews.length || 0).toFixed(1)}
             </span>
           </div>
         </div>
@@ -96,6 +97,7 @@ export function OwnerReviews() {
         ) : (
           filteredReviews.map((review) => (
             <Card key={review.id}>
+              {!review.isVisible && <p className="mb-3 text-sm text-amber-700">Đánh giá đã bị ẩn, không tính vào điểm công khai.</p>}
               <div className="flex gap-4">
                 {/* Avatar */}
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">

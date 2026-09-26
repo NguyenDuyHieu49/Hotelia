@@ -1,37 +1,21 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../lib/auth/AuthContext';
 
 export function SimpleLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('/api/v1/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await response.json();
-
-      if (data.accessToken) {
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('refreshToken', data.refreshToken);
-
-        // Direct page redirect
-        const baseUrl = window.location.origin;
-        const redirectUrl = data.user.role === 'ADMIN'
-          ? baseUrl + '/admin/dashboard'
-          : baseUrl + '/owner/dashboard';
-        window.location.href = redirectUrl;
-        return;
-      } else {
-        setError('Login failed: ' + (data.message || 'Unknown error'));
-      }
+      const user = await login(email, password);
+      navigate(user.role === 'ADMIN' ? '/admin/dashboard' : '/owner/dashboard', { replace: true });
     } catch (err) {
       console.error('Login error:', err);
-      setError('Network error');
+      setError(err instanceof Error ? err.message : 'Đăng nhập thất bại');
     }
   };
 

@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+let refreshInFlight: Promise<{ accessToken: string; refreshToken: string }> | null = null;
+
 const api = axios.create({
   baseURL: '/api/v1',
   headers: {
@@ -41,20 +43,23 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     // Handle 401 - try refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !originalRequest.url?.includes('/auth/')) {
       originalRequest._retry = true;
 
       const refreshToken = localStorage.getItem('refreshToken');
       if (refreshToken) {
         try {
-          const res = await axios.post(`${api.defaults.baseURL}/auth/refresh`, {
-            refreshToken,
-          });
-
-          localStorage.setItem('accessToken', res.data.accessToken);
-          localStorage.setItem('refreshToken', res.data.refreshToken);
-
-          originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
+          if (!refreshInFlight) {
+            refreshInFlight = axios.post(`${api.defaults.baseURL}/auth/refresh`, { refreshToken })
+              .then(res => {
+                localStorage.setItem('accessToken', res.data.accessToken);
+                localStorage.setItem('refreshToken', res.data.refreshToken);
+                return res.data;
+              })
+              .finally(() => { refreshInFlight = null; });
+          }
+          const tokens = await refreshInFlight;
+          originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`;
           return api(originalRequest);
         } catch {
           // Refresh failed, logout
@@ -92,7 +97,7 @@ export const userApi = {
 // Admin API
 export const adminApi = {
   getStats: () => api.get('/admin/stats'),
-  getUsers: (params?: { page?: number; limit?: number; role?: string }) =>
+  getUsers: (params?: { page?: number; limit?: number; role?: string; search?: string }) =>
     api.get('/admin/users', { params }),
   getOwners: () => api.get('/admin/owners'),
   approveOwner: (id: string) => api.post(`/admin/owners/${id}/approve`),

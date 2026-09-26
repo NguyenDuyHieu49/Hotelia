@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -25,19 +25,27 @@ export function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | 'ALL'>('ALL');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [error, setError] = useState('');
+  const requestId = useRef(0);
+  const pageSize = 20;
 
   useEffect(() => {
-    loadUsers();
-  }, []);
+    const timer = setTimeout(() => { loadUsers(); }, 250);
+    return () => { clearTimeout(timer); requestId.current++; };
+  }, [page, search, roleFilter]);
 
   const loadUsers = async () => {
+    const id = ++requestId.current;
+    setLoading(true);
     try {
-      const res = await adminApi.getUsers({ limit: 100 });
-      setUsers(res.data.users || res.data);
+      const res = await adminApi.getUsers({ page, limit: pageSize, search, role: roleFilter === 'ALL' ? undefined : roleFilter });
+      if (id === requestId.current) { setUsers(res.data.users); setTotal(res.data.total); setError(''); }
     } catch (error) {
-      console.error('Error loading users:', error);
+      if (id === requestId.current) setError('Không thể tải danh sách người dùng.');
     }
-    setLoading(false);
+    if (id === requestId.current) setLoading(false);
   };
 
   const handleSuspend = async (id: string) => {
@@ -63,8 +71,7 @@ export function AdminUsers() {
   const filteredUsers = users.filter(u => {
     const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase());
-    const matchesRole = roleFilter === 'ALL' || u.role === roleFilter;
-    return matchesSearch && matchesRole;
+    return matchesSearch;
   });
 
   if (loading) {
@@ -82,6 +89,7 @@ export function AdminUsers() {
         <h1 className="text-2xl font-bold text-gray-900">Quản lý người dùng</h1>
         <p className="text-gray-500 mt-1">Xem và quản lý tài khoản người dùng</p>
       </div>
+      {error && <p role="alert" className="text-red-600">{error}</p>}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4">
@@ -89,7 +97,7 @@ export function AdminUsers() {
           <Input
             placeholder="Tìm kiếm theo tên, email..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             icon={<Search className="w-5 h-5" />}
           />
         </div>
@@ -97,7 +105,7 @@ export function AdminUsers() {
           {(['ALL', 'USER', 'OWNER', 'ADMIN'] as const).map((role) => (
             <button
               key={role}
-              onClick={() => setRoleFilter(role)}
+              onClick={() => { setRoleFilter(role); setPage(1); }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                 roleFilter === role 
                   ? 'bg-blue-600 text-white' 
@@ -179,6 +187,10 @@ export function AdminUsers() {
           </table>
         </div>
       </Card>
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm text-gray-600">{total} tài khoản · Trang {page}/{Math.max(1, Math.ceil(total / pageSize))}</span>
+        <div className="flex gap-2"><Button disabled={page <= 1} onClick={() => setPage(page - 1)}>Trước</Button><Button disabled={page >= Math.ceil(total / pageSize)} onClick={() => setPage(page + 1)}>Sau</Button></div>
+      </div>
     </div>
   );
 }

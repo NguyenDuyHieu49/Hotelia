@@ -6,7 +6,8 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  refreshUser: () => Promise<void>;
   logout: () => void;
 }
 
@@ -17,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('refreshToken');
     if (token) {
       loadUser();
     } else {
@@ -27,10 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUser = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      console.log('AuthContext: Loading user with token:', token ? 'token exists' : 'no token');
       const res = await userApi.getMe();
-      console.log('AuthContext: User loaded:', res.data);
       setUser(res.data);
     } catch (err) {
       console.error('AuthContext: Error loading user:', err);
@@ -42,11 +40,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const res = await authApi.login(email, password);
+    if (!['ADMIN', 'OWNER'].includes(res.data.user.role)) {
+      throw new Error('Tài khoản này không có quyền truy cập trang quản trị.');
+    }
     localStorage.setItem('accessToken', res.data.accessToken);
     if (res.data.refreshToken) {
       localStorage.setItem('refreshToken', res.data.refreshToken);
     }
     setUser(res.data.user);
+    return res.data.user;
   };
 
   const logout = () => {
@@ -63,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         isLoading,
         login,
+        refreshUser: loadUser,
         logout,
       }}
     >

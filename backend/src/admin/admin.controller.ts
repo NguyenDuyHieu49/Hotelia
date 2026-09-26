@@ -37,8 +37,8 @@ export class AdminController {
 
   @Get('users')
   @ApiOperation({ summary: 'Get all users' })
-  async getUsers(@Query('page') page?: number, @Query('limit') limit?: number) {
-    return this.adminService.getAllUsers(page, limit);
+  async getUsers(@Query('page') page?: number, @Query('limit') limit?: number, @Query('search') search?: string, @Query('role') role?: string) {
+    return this.adminService.getAllUsers(page, limit, search, role);
   }
 
   @Get('owners/pending')
