@@ -10,6 +10,7 @@ build/
 # IDE
 .idea/
 .vscode/
+*.xcuserstate
 *.swp
 *.swo
 
@@ -42,3 +43,6 @@ research/data/raw/
 research/data/processed/
 research/venv/
 .pytest_cache/
+
+# Local database snapshots (may contain ownership identifiers)
+backend/backups/
