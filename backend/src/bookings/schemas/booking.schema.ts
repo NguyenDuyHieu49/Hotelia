@@ -59,6 +59,15 @@ export class Booking extends Document {
   status: BookingStatus;
 
   @Prop()
+  holdExpiresAt?: Date;
+
+  @Prop()
+  hotelName?: string;
+
+  @Prop()
+  roomTypeName?: string;
+
+  @Prop()
   checkedInAt: Date;
 
   @Prop()

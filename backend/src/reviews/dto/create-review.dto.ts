@@ -1,9 +1,9 @@
-import { IsString, IsNumber, Min, Max, MinLength, MaxLength, IsOptional } from 'class-validator';
+import { IsString, IsInt, IsMongoId, Min, Max, MinLength, MaxLength, IsOptional } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateReviewDto {
   @ApiProperty()
-  @IsString()
+  @IsMongoId()
   hotelId: string;
 
   @ApiPropertyOptional()
@@ -12,7 +12,7 @@ export class CreateReviewDto {
   bookingId?: string;
 
   @ApiProperty({ example: 5, minimum: 1, maximum: 5 })
-  @IsNumber()
+  @IsInt()
   @Min(1)
   @Max(5)
   rating: number;

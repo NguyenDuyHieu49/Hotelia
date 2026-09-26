@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, ServiceUnavailableException, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -27,24 +27,24 @@ export class PaymentsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get payment by ID' })
-  async findById(@Param('id') id: string) {
-    return this.paymentsService.findById(id);
+  async findById(@Param('id') id: string,@CurrentUser('sub') user:string) {
+    const payment=await this.paymentsService.findById(id);
+    if(String(payment.userId)!==user) throw new ForbiddenException('Not your payment');
+    return payment;
   }
 
   @Get('booking/:bookingId')
   @ApiOperation({ summary: 'Get payment by booking ID' })
-  async findByBooking(@Param('bookingId') bookingId: string) {
-    return this.paymentsService.findByBooking(bookingId);
+  async findByBooking(@Param('bookingId') bookingId: string,@CurrentUser('sub') user:string) {
+    const payment=await this.paymentsService.findByBooking(bookingId);
+    if(payment && String(payment.userId)!==user) throw new ForbiddenException('Not your payment');
+    return payment;
   }
 
   @Public()
   @Post('callback/:method')
   @ApiOperation({ summary: 'Payment callback from provider' })
   async callback(@Param('method') method: string, @Body() body: any) {
-    // In production, verify signature and process callback
-    if (body.transactionId) {
-      return this.paymentsService.confirm(body.transactionId);
-    }
-    return { message: 'Callback received' };
+    throw new ServiceUnavailableException('Chưa cấu hình callback thanh toán đã xác thực chữ ký');
   }
 }

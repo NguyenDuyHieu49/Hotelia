@@ -1,8 +1,9 @@
+import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -12,7 +13,9 @@ import { PaymentsModule } from './payments/payments.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AdminModule } from './admin/admin.module';
+import { RecommendationsModule } from './recommendations/recommendations.module';
 import { OwnersModule } from './owners/owners.module';
+import { AccountModule } from './account/account.module';
 
 @Module({
   imports: [
@@ -41,7 +44,9 @@ import { OwnersModule } from './owners/owners.module';
     NotificationsModule,
     AdminModule,
     OwnersModule,
+    RecommendationsModule,
+    AccountModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard },{provide:APP_INTERCEPTOR,useClass:AuditInterceptor}],
 })
 export class AppModule {}

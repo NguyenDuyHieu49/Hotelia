@@ -1,3 +1,4 @@
+import { PasswordResetService, ForgotPasswordDto, ResetPasswordDto } from './password-reset.service';
 import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -11,7 +12,15 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService, private readonly passwords:PasswordResetService) {}
+
+  @Public()
+  @Post('forgot-password')
+  forgotPassword(@Body() dto:ForgotPasswordDto) {return this.passwords.request(dto.email);}
+
+  @Public()
+  @Post('reset-password')
+  resetPassword(@Body() dto:ResetPasswordDto) {return this.passwords.reset(dto);}
 
   @Public()
   @Post('register')

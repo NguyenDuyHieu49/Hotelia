@@ -32,8 +32,8 @@ export class BookingsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get booking by ID' })
-  async findById(@Param('id') id: string) {
-    return this.bookingsService.findById(id);
+  async findById(@Param('id') id: string, @CurrentUser('sub') user:string, @CurrentUser('role') role:string) {
+    return this.bookingsService.findAccessible(id,user,role);
   }
 
   @Post(':id/cancel')
@@ -44,6 +44,18 @@ export class BookingsController {
     @Body() dto: CancelBookingDto
   ) {
     return this.bookingsService.cancel(id, userId, dto);
+  }
+
+  @Post(':id/pay-at-hotel')
+  async payAtHotel(@Param('id') id:string,@CurrentUser('sub') userId:string) {
+    return this.bookingsService.confirmPayAtHotel(id,userId);
+  }
+
+  @Post(':id/resolve-cancellation')
+  @UseGuards(RolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN)
+  async resolveCancellation(@Param('id') id:string,@CurrentUser('sub') userId:string,@CurrentUser('role') role:string) {
+    return this.bookingsService.resolveCancellation(id,userId,role);
   }
 
   @ApiBearerAuth()

@@ -82,7 +82,7 @@ class RankingService:
         self.model_path: Optional[Path] = None
         self.model_version: str = "B6-v1.0"
         self.popularity_scores: dict = {}
-        self.fallback_used: bool = False
+        self.fallback_used: bool = True
 
     def load_model(self, model_path: Path):
         """Load ranking model."""
@@ -95,6 +95,11 @@ class RankingService:
 
         try:
             booster = lgb.Booster(model_file=str(model_path))
+            if not any(booster.feature_importance(importance_type="split")):
+                logger.warning("Rejecting constant model: no learned feature splits")
+                self.model = None
+                self.fallback_used = True
+                return
             self.model = booster
             self.model_path = model_path
             self.fallback_used = False
@@ -155,6 +160,7 @@ class RankingService:
             try:
                 score = self.model.predict([features])[0]
             except Exception:
+                self.fallback_used = True
                 score = self.popularity_scores.get(item_id, 0.0)
 
             scores.append((item_id, score))

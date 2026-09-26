@@ -1,0 +1,526 @@
+{
+  "version": "real-hotels-2026-09-25-v1",
+  "verifiedAt": "2026-09-25",
+  "notes": [
+    "Public catalog only; rooms, inventory, prices, ownership and reviews remain application demo data.",
+    "Amenities are a conservative confirmed subset, not an exhaustive absence/presence audit.",
+    "starRating=0 means unverified; missing coordinates are unknown, not random.",
+    "Images are empty until an official property image is verified.",
+    "City is retained as an application destination label; no administrative district is inferred.",
+    "Check-in/out not provided by sources retain existing demo policy and are explicitly unverified in provenance."
+  ],
+  "hotels": [
+    {
+      "id": "6ab44332b2c6d0b444f3b5cd",
+      "expectedName": "Khách Sạn 1 Stars",
+      "fields": {
+        "name": "Caravelle Saigon",
+        "address": "19–23 Công trường Lam Sơn, Phường Sài Gòn, TP Hồ Chí Minh",
+        "city": "TP HCM",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn tại Công trường Lam Sơn, gần Nhà hát Thành phố và đường Đồng Khởi.",
+        "amenities": [
+          "Pool",
+          "Spa",
+          "Restaurant"
+        ],
+        "images": [
+          "https://www.caravellehotel.com/wp-content/uploads/Caravelle-in-the-Heart-of-Saigon-2016-scaled.jpg"
+        ]
+      },
+      "sources": [
+        "https://www.caravellehotel.com/"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5ce",
+      "expectedName": "Khách Sạn 2 Stars",
+      "fields": {
+        "name": "HAIAN Beach Hotel & Spa",
+        "address": "278 Võ Nguyên Giáp, Đà Nẵng",
+        "city": "Đà Nẵng",
+        "country": "Việt Nam",
+        "starRating": 4,
+        "description": "Khách sạn ven biển với hồ bơi vô cực trên tầng 22, nhà hàng Cá Gỗ và khu spa.",
+        "amenities": [
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant"
+        ],
+        "images": [
+          "https://haianbeachhotelspa.com/wp-content/uploads/2023/11/Image-Home-HAB.webp"
+        ]
+      },
+      "sources": [
+        "https://haianbeachhotelspa.com/",
+        "https://haianbeachhotelspa.com/wellness/"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5cf",
+      "expectedName": "Khách Sạn 3 Stars",
+      "fields": {
+        "name": "Novotel Nha Trang",
+        "address": "50 Trần Phú, Nha Trang, Khánh Hòa",
+        "city": "Nha Trang",
+        "country": "Việt Nam",
+        "starRating": 4,
+        "description": "Khách sạn trên đường Trần Phú với hồ bơi ngoài trời, khu vực bãi biển và spa.",
+        "amenities": [
+          "Pool",
+          "Spa"
+        ],
+        "images": [
+          "https://www.ahstatic.com/photos/6033_ho_00_p_1024x768.jpg"
+        ],
+        "latitude": 12.237973,
+        "longitude": 109.196581
+      },
+      "sources": [
+        "https://all.accor.com/hotel/6033/index.en.shtml"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d0",
+      "expectedName": "Khách Sạn 4 Stars",
+      "fields": {
+        "name": "Pullman Phu Quoc Beach Resort",
+        "address": "Tổ 6 ấp Bàn Quy, khu vực Dương Bào, Phú Quốc, An Giang",
+        "city": "Phú Quốc",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khu nghỉ dưỡng ven biển phía tây nam Phú Quốc, thuộc khu vực Dương Bào.",
+        "amenities": [
+          "Wifi",
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant",
+          "Parking"
+        ],
+        "images": [
+          "https://www.ahstatic.com/photos/a248_ho_00_p_1024x768.jpg"
+        ],
+        "latitude": 10.120242,
+        "longitude": 103.983464,
+        "checkInTime": "15:00",
+        "checkOutTime": "12:00"
+      },
+      "sources": [
+        "https://all.accor.com/hotel/A248/index.en.shtml"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d1",
+      "expectedName": "Khách Sạn 5 Stars",
+      "fields": {
+        "name": "Sofitel Legend Metropole Hanoi",
+        "address": "15 Ngô Quyền, Hà Nội",
+        "city": "Hà Nội",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn di sản khai trương từ năm 1901, nằm trên đường Ngô Quyền và có các nhà hàng trong khuôn viên.",
+        "amenities": [
+          "Wifi",
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant"
+        ],
+        "images": [
+          "https://www.ahstatic.com/photos/1555_ho_00_p_1024x768.jpg"
+        ],
+        "latitude": 21.025616,
+        "longitude": 105.856115,
+        "checkInTime": "14:00",
+        "checkOutTime": "12:00"
+      },
+      "sources": [
+        "https://all.accor.com/hotel/1555/index.en.shtml"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d2",
+      "expectedName": "Khách Sạn 6 Stars",
+      "fields": {
+        "name": "Rex Hotel Saigon",
+        "address": "141 Nguyễn Huệ, Phường Sài Gòn, TP Hồ Chí Minh",
+        "city": "TP HCM",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn trên đường Nguyễn Huệ với nhà hàng, hồ bơi và khu chăm sóc sức khỏe.",
+        "amenities": [
+          "Wifi",
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant",
+          "Parking"
+        ],
+        "images": []
+      },
+      "sources": [
+        "https://www.rexhotelsaigon.com/",
+        "https://csdl.vietnamtourism.gov.vn/cslt/?item=2051"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d3",
+      "expectedName": "Khách Sạn 7 Stars",
+      "fields": {
+        "name": "Hilton Da Nang",
+        "address": "50 Bạch Đằng, Phường Hải Châu, Đà Nẵng",
+        "city": "Đà Nẵng",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn trên đường Bạch Đằng có hồ bơi ngoài trời, phòng tập và nhà hàng.",
+        "amenities": [
+          "Wifi",
+          "Pool",
+          "Gym",
+          "Restaurant",
+          "Parking"
+        ],
+        "images": [],
+        "checkInTime": "15:00",
+        "checkOutTime": "12:00"
+      },
+      "sources": [
+        "https://www.hilton.com/en-gb/hotels/daddvhi-hilton-da-nang/",
+        "https://danangfantasticity.com/en/khach-san-hilton-da-nang"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d4",
+      "expectedName": "Khách Sạn 8 Stars",
+      "fields": {
+        "name": "Sheraton Nha Trang Hotel & Spa",
+        "address": "26–28 Trần Phú, Nha Trang, Khánh Hòa",
+        "city": "Nha Trang",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn trên đường Trần Phú có nhà hàng, hồ bơi, phòng tập và spa.",
+        "amenities": [
+          "Wifi",
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant"
+        ],
+        "images": []
+      },
+      "sources": [
+        "https://www.marriott.com/en-us/hotels/nhasi-sheraton-nha-trang-hotel-and-spa/overview/",
+        "https://www.marriott.com/en-us/hotels/nhasi-sheraton-nha-trang-hotel-and-spa/rooms/"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d5",
+      "expectedName": "Khách Sạn 9 Stars",
+      "fields": {
+        "name": "Novotel Phu Quoc Resort",
+        "address": "Sonasea Villas and Resort, khu vực Dương Bào, Phú Quốc, An Giang",
+        "city": "Phú Quốc",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khu nghỉ dưỡng tại Bãi Trường với hồ bơi, spa và câu lạc bộ trẻ em.",
+        "amenities": [
+          "Wifi",
+          "Pool",
+          "Gym",
+          "Spa",
+          "Parking"
+        ],
+        "images": [
+          "https://www.ahstatic.com/photos/9770_ho_00_p_1024x768.jpg"
+        ],
+        "latitude": 10.12892,
+        "longitude": 103.982711
+      },
+      "sources": [
+        "https://all.accor.com/hotel/9770/index.en.shtml"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d6",
+      "expectedName": "Khách Sạn 10 Stars",
+      "fields": {
+        "name": "Meliá Hanoi",
+        "address": "44B Lý Thường Kiệt, Phường Cửa Nam, Hà Nội",
+        "city": "Hà Nội",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn trên đường Lý Thường Kiệt với hồ bơi ngoài trời, nhà hàng, phòng tập và spa.",
+        "amenities": [
+          "Wifi",
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant",
+          "Parking"
+        ],
+        "images": [],
+        "checkInTime": "14:00",
+        "checkOutTime": "12:00"
+      },
+      "sources": [
+        "https://www.melia.com/en/hotels/vietnam/hanoi/melia-hanoi"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d7",
+      "expectedName": "Khách Sạn 11 Stars",
+      "fields": {
+        "name": "Hotel Majestic Saigon",
+        "address": "1 Đồng Khởi, Phường Sài Gòn, TP Hồ Chí Minh",
+        "city": "TP HCM",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn mang kiến trúc Pháp bên sông Sài Gòn, có nhà hàng, hồ bơi và spa.",
+        "amenities": [
+          "Wifi",
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant",
+          "Parking"
+        ],
+        "images": []
+      },
+      "sources": [
+        "https://www.majesticsaigon.com/our-hotel/",
+        "https://csdl.vietnamtourism.gov.vn/cslt/?item=1803"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d8",
+      "expectedName": "Khách Sạn 12 Stars",
+      "fields": {
+        "name": "Novotel Danang Premier Han River",
+        "address": "36–38 Bạch Đằng, Đà Nẵng",
+        "city": "Đà Nẵng",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn bên sông Hàn với nhà hàng và khu giải trí, thể thao.",
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Pool"
+        ],
+        "images": [
+          "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/72/2025/05/05150616/Novotel-Ariel_2.jpg"
+        ]
+      },
+      "sources": [
+        "https://www.novotel-danang-premier.com/",
+        "https://www.novotel-danang-premier.com/official-site/contact-us/"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d9",
+      "expectedName": "Khách Sạn 13 Stars",
+      "fields": {
+        "name": "InterContinental Nha Trang",
+        "address": "32–34 Trần Phú, Nha Trang, Khánh Hòa",
+        "city": "Nha Trang",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn hướng ra vịnh Nha Trang trên đường Trần Phú, có hồ bơi, phòng tập và nhà hàng.",
+        "amenities": [
+          "Wifi",
+          "Pool",
+          "Gym",
+          "Restaurant",
+          "Parking"
+        ],
+        "images": [],
+        "checkInTime": "15:00",
+        "checkOutTime": "12:00"
+      },
+      "sources": [
+        "https://nhatrang.intercontinental.com/",
+        "https://www.ihg.com/intercontinental/hotels/us/en/nha-trang/nhach/hoteldetail"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5da",
+      "expectedName": "Khách Sạn 14 Stars",
+      "fields": {
+        "name": "Salinda Resort Phu Quoc Island",
+        "address": "Ấp Cửa Lấp, Đặc khu Phú Quốc, An Giang",
+        "city": "Phú Quốc",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khu nghỉ dưỡng tại Cửa Lấp với hồ bơi nước mặn, phòng tập, spa và câu lạc bộ trẻ em.",
+        "amenities": [
+          "Pool",
+          "Gym",
+          "Spa"
+        ],
+        "images": [
+          "https://www.salindaresort.com/uploads/banners/1/salinda-resort-phu-quoc-island-vietnam-5-star-luxury-boutique-resort-hotel-spa.jpg"
+        ]
+      },
+      "sources": [
+        "https://www.salindaresort.com/",
+        "https://salindaresort.com/vi/contact",
+        "https://www.salindaresort.com/explore"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5db",
+      "expectedName": "Khách Sạn 15 Stars",
+      "fields": {
+        "name": "Pan Pacific Hanoi",
+        "address": "1 Thanh Niên, Hà Nội",
+        "city": "Hà Nội",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn trên đường Thanh Niên với hồ bơi trong nhà có mái che, nhà hàng, phòng tập và spa.",
+        "amenities": [
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant",
+          "Parking"
+        ],
+        "images": [
+          "https://www.panpacific.com/content/dam/pphg-revamp/zh/pphan/pphg2-0/homepage/PPHAN_Masthead2.jpg"
+        ]
+      },
+      "sources": [
+        "https://www.panpacific.com/en/hotels-and-resorts/pp-hanoi/the-hotel.html",
+        "https://www.panpacific.com/en/hotels-and-resorts/pp-hanoi.html"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5dc",
+      "expectedName": "Khách Sạn 16 Stars",
+      "fields": {
+        "name": "Hotel Nikko Saigon",
+        "address": "235 Nguyễn Văn Cừ, Phường Cầu Ông Lãnh, TP Hồ Chí Minh",
+        "city": "TP HCM",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn trên đường Nguyễn Văn Cừ với nhà hàng, hồ bơi ngoài trời, phòng tập và spa.",
+        "amenities": [
+          "Wifi",
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant",
+          "Parking"
+        ],
+        "images": [
+          "https://hotelnikkosaigon.com.vn/wp-content/uploads/2026/05/1_Facade-2.avif"
+        ],
+        "checkInTime": "14:00",
+        "checkOutTime": "12:00"
+      },
+      "sources": [
+        "https://hotelnikkosaigon.com.vn/vi/",
+        "https://hotelnikkosaigon.com.vn/contact/",
+        "https://hotelnikkosaigon.com.vn/discover-a-world-of-elegance-and-refinement/"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5dd",
+      "expectedName": "Khách Sạn 17 Stars",
+      "fields": {
+        "name": "Four Points by Sheraton Danang",
+        "address": "118–120 Võ Nguyên Giáp, Phường An Hải, Đà Nẵng",
+        "city": "Đà Nẵng",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn trên đường Võ Nguyên Giáp với hồ bơi trên cao, spa, phòng tập và nhà hàng.",
+        "amenities": [
+          "Wifi",
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant",
+          "Parking"
+        ],
+        "images": [],
+        "checkInTime": "15:00",
+        "checkOutTime": "12:00"
+      },
+      "sources": [
+        "https://www.marriott.com/en-us/hotels/dadfp-four-points-danang/overview/"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5de",
+      "expectedName": "Khách Sạn 18 Stars",
+      "fields": {
+        "name": "Havana Nha Trang",
+        "address": "38 Trần Phú, Nha Trang, Khánh Hòa",
+        "city": "Nha Trang",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn có đường hầm riêng ra bãi biển, hồ bơi ngoài trời, nhà hàng và spa.",
+        "amenities": [
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant"
+        ],
+        "images": []
+      },
+      "sources": [
+        "https://havanahotel.vn/en",
+        "https://havanahotel.vn/en/lien-he"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5df",
+      "expectedName": "Khách Sạn 19 Stars",
+      "fields": {
+        "name": "InterContinental Phu Quoc Long Beach Resort",
+        "address": "Phu Quoc Marina, khu vực Dương Bào, Phú Quốc, An Giang",
+        "city": "Phú Quốc",
+        "country": "Việt Nam",
+        "starRating": 0,
+        "description": "Khu nghỉ dưỡng bên Bãi Trường với các hồ bơi ngoài trời, nhà hàng, phòng tập và HARNN Heritage Spa.",
+        "amenities": [
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant"
+        ],
+        "images": [],
+        "checkInTime": "15:00",
+        "checkOutTime": "12:00"
+      },
+      "sources": [
+        "https://phuquoc.intercontinental.com/",
+        "https://www.ihg.com/intercontinental/hotels/us/en/phu-quoc/pqccp/hoteldetail"
+      ]
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5e0",
+      "expectedName": "Khách Sạn 20 Stars",
+      "fields": {
+        "name": "LOTTE HOTEL HANOI",
+        "address": "54 Liễu Giai, Hà Nội",
+        "city": "Hà Nội",
+        "country": "Việt Nam",
+        "starRating": 5,
+        "description": "Khách sạn tại 54 Liễu Giai với hồ bơi trong nhà và ngoài trời, phòng tập, spa và nhà hàng.",
+        "amenities": [
+          "Pool",
+          "Gym",
+          "Spa",
+          "Restaurant"
+        ],
+        "images": []
+      },
+      "sources": [
+        "https://www.lottehotel.com/cms/asset/2026/01/22/36210/ServiceDirectory.pdf",
+        "https://www.lottehotel.com/cms/asset/2025/05/28/28274/Information%20Book.pdf"
+      ]
+    }
+  ]
+}

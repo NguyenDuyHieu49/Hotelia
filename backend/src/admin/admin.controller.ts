@@ -13,6 +13,22 @@ import { Roles, Role } from '../common/decorators/roles.decorator';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
+  @Get('payments')
+  payments() {return this.adminService.payments();}
+  @Get('audit-logs')
+  auditLogs() {return this.adminService.auditLogs();}
+  @Get('reviews')
+  reviews() {return this.adminService.reviews();}
+
+  @Get('hotels')
+  hotels() {return this.adminService.allHotels();}
+
+  @Get('bookings')
+  bookings() {return this.adminService.allBookings();}
+
+  @Get('owners')
+  owners() {return this.adminService.allOwners();}
+
   @Get('stats')
   @ApiOperation({ summary: 'Get dashboard statistics' })
   async getStats() {

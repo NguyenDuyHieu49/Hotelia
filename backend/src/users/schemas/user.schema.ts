@@ -48,6 +48,12 @@ export class User extends Document {
   @Prop()
   refreshTokenExpiry?: Date;
 
+  @Prop({default:0})
+  tokenVersion: number;
+
+  @Prop()
+  passwordChangedAt?: Date;
+
   @Prop()
   lastLoginAt?: Date;
 }

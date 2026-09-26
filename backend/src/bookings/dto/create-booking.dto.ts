@@ -1,13 +1,13 @@
-import { IsString, IsNumber, IsOptional, Min, Max, IsDateString, MinLength, IsEmail, Matches } from 'class-validator';
+import { IsString, IsInt, IsMongoId, IsOptional, Min, Max, IsDateString, MinLength, IsEmail, Matches } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateBookingDto {
   @ApiProperty({ example: '507f1f77bcf86cd799439011' })
-  @IsString()
+  @IsMongoId()
   hotelId: string;
 
   @ApiProperty({ example: '507f1f77bcf86cd799439012' })
-  @IsString()
+  @IsMongoId()
   roomTypeId: string;
 
   @ApiProperty({ example: '2026-09-10' })
@@ -19,7 +19,7 @@ export class CreateBookingDto {
   checkOut: string;
 
   @ApiProperty({ example: 2 })
-  @IsNumber()
+  @IsInt()
   @Min(1)
   @Max(10)
   guestCount: number;

@@ -1,3 +1,5 @@
+import { IsString, MinLength, MaxLength } from 'class-validator';
+class ReplyReviewDto { @IsString() @MinLength(2) @MaxLength(2000) reply:string; }
 import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { ReviewsService } from './reviews.service';
@@ -32,6 +34,16 @@ export class ReviewsController {
     return this.reviewsService.create(userId, dto);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN)
+  @Get('owner')
+  owner(@CurrentUser('sub') user:string) {return this.reviewsService.ownerReviews(user);}
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN)
+  @Post(':id/reply')
+  reply(@Param('id') id:string,@CurrentUser('sub') user:string,@Body() dto:ReplyReviewDto) {return this.reviewsService.reply(id,user,dto.reply);}
+
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('my-reviews')
@@ -49,9 +61,11 @@ export class ReviewsController {
     return this.reviewsService.hideReview(id);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post(':id/helpful')
   @ApiOperation({ summary: 'Mark review as helpful' })
-  async helpful(@Param('id') id: string) {
-    return this.reviewsService.helpful(id);
+  async helpful(@Param('id') id: string,@CurrentUser('sub') userId:string) {
+    return this.reviewsService.helpful(id,userId);
   }
 }

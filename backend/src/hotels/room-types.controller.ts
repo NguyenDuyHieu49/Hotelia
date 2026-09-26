@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/swagger';
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { RoomTypesService } from './room-types.service';
@@ -7,6 +8,8 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles, Role } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
+
+class UpdateRoomTypeDto extends PartialType(CreateRoomTypeDto) {}
 
 @ApiTags('room-types')
 @Controller('room-types')
@@ -29,13 +32,20 @@ export class RoomTypesController {
   @Public()
   @Get('hotel/:hotelId')
   @ApiOperation({ summary: 'Get room types by hotel' })
-  async findByHotel(@Param('hotelId') hotelId: string) {
-    return this.roomTypesService.findByHotel(hotelId);
+  async findByHotel(@Param('hotelId') hotelId: string,@Query('checkIn') checkIn?:string,@Query('checkOut') checkOut?:string) {
+    return this.roomTypesService.findByHotel(hotelId,checkIn,checkOut);
   }
 
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN)
+  remove(@Param('id') id:string,@CurrentUser('sub') user:string) {return this.roomTypesService.updateRoomType(user,id,{isActive:false});}
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN)
   @Put(':id')
   @ApiOperation({ summary: 'Update room type' })
-  async update(@Param('id') id: string, @CurrentUser('sub') userId: string, @Body() data: any) {
+  async update(@Param('id') id: string, @CurrentUser('sub') userId: string, @Body() data: UpdateRoomTypeDto) {
     return this.roomTypesService.updateRoomType(userId, id, data);
   }
 

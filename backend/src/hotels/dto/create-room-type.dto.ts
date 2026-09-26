@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsArray, IsOptional, Min } from 'class-validator';
+import { IsString, IsNumber, IsInt, IsArray, IsOptional, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateRoomTypeDto {
@@ -12,26 +12,28 @@ export class CreateRoomTypeDto {
 
   @ApiProperty({ example: 500000 })
   @IsNumber()
-  @Min(0)
+  @Min(1)
   basePrice: number;
 
   @ApiProperty({ example: 2 })
-  @IsNumber()
+  @IsInt()
   @Min(1)
   maxGuests: number;
 
   @ApiProperty({ example: 10 })
-  @IsNumber()
+  @IsInt()
   @Min(1)
   totalRooms: number;
 
   @ApiProperty({ example: ['wifi', 'tv', 'ac'], required: false })
   @IsArray()
+  @IsString({each:true})
   @IsOptional()
   amenities?: string[];
 
   @ApiProperty({ example: [], required: false })
   @IsArray()
+  @IsString({each:true})
   @IsOptional()
   images?: string[];
 }

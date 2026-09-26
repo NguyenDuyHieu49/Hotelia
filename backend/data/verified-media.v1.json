@@ -1,0 +1,905 @@
+{
+  "version": "verified-media-2026-09-25-v1",
+  "hotels": [
+    {
+      "id": "6ab44332b2c6d0b444f3b5cf",
+      "name": "Novotel Nha Trang",
+      "source": "https://all.accor.com/hotel/6033/index.en.shtml",
+      "image": "https://www.ahstatic.com/photos/6033_ho_00_p_1024x768.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b5fc",
+          "expectedName": "Standard Room",
+          "name": "Standard Room with 1 king-size bed",
+          "image": "https://www.ahstatic.com/photos/6033_rokgc_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/6033/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5fc.jpg",
+          "sha256": "6c4b4bbe322c02d3377fef251984a2a841f454f23e062e9bc65515dbd0b38eb1",
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b5fd",
+          "expectedName": "Deluxe Room",
+          "name": "Deluxe Room with 1 king-size bed",
+          "image": "https://www.ahstatic.com/photos/6033_rokga_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/6033/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5fd.jpg",
+          "sha256": "e6a476b5bf30f6c074b8db957a497f6563fa344aa17fbd374fef744de4a5b541",
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b5fe",
+          "expectedName": "Suite Room",
+          "name": "Junior Suite with 1 king-size bed Ocean View",
+          "image": "https://www.ahstatic.com/photos/6033_roskd_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/6033/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5fe.jpg",
+          "sha256": "4450edbb663609a097ba39f046a84ed4e7506cde146d3c3a3e2cd46afd957061",
+          "width": 1024,
+          "height": 768
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5cf.jpg",
+      "sha256": "242fdb3546ba0d3282150e99e3feb90ddb7228f1fa631d5240370c2b0a474afd",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d0",
+      "name": "Pullman Phu Quoc Beach Resort",
+      "source": "https://all.accor.com/hotel/A248/index.en.shtml",
+      "image": "https://www.ahstatic.com/photos/a248_ho_00_p_1024x768.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b5ff",
+          "expectedName": "Standard Room",
+          "name": "SUPERIOR ROOM, 2 Zip-Beds, Balcony",
+          "image": "https://www.ahstatic.com/photos/a248_rokgb_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/A248/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5ff.jpg",
+          "sha256": "edcfbd78e8d49f673384ac4c80a7b9c160629d89ac4e1a83290b609f503f84fd",
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b600",
+          "expectedName": "Deluxe Room",
+          "name": "DELUXE ROOM, 1 King Size Bed, Garden View",
+          "image": "https://www.ahstatic.com/photos/a248_rokgaps_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/A248/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b600.jpg",
+          "sha256": "1db56ca8d92eac3f093040a7f4b8ddd859c412dea66d9cc5037456a678ad18ac",
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b601",
+          "expectedName": "Suite Room",
+          "name": "SUITE, Executive Privilege Pass, 1 King Size Bed, Ocean View",
+          "image": "https://www.ahstatic.com/photos/a248_roskd_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/A248/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b601.jpg",
+          "sha256": "b4a5e9c7050316a3247a142254d2c0f277ccec8d65025a0f4b02b53b6fc2a711",
+          "width": 1024,
+          "height": 768
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5d0.jpg",
+      "sha256": "93122348e4158565f866c9d80799758839d8db8bb5dd5321ae30970c8af400ab",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d5",
+      "name": "Novotel Phu Quoc Resort",
+      "source": "https://all.accor.com/hotel/9770/index.en.shtml",
+      "image": "https://www.ahstatic.com/photos/9770_ho_00_p_1024x768.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b60e",
+          "expectedName": "Standard Room",
+          "name": "Superior Room, 1 Double Bed",
+          "image": "https://www.ahstatic.com/photos/9770_rodbb_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/9770/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b60e.jpg",
+          "sha256": "3898174309b2b01e4b80c10dc11af6e2da65f601c70575ad5f69a35a1a4656b4",
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b60f",
+          "expectedName": "Deluxe Room",
+          "name": "Deluxe Double",
+          "image": "https://www.ahstatic.com/photos/9770_rodba_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/9770/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b60f.jpg",
+          "sha256": "6fbaa28c6b8c16604ff5ca6bcee11a76951cb4ee1e2fff42ec8cf0de66160b1c",
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b610",
+          "expectedName": "Suite Room",
+          "name": "Superior Suite, 1 Double Bed",
+          "image": "https://www.ahstatic.com/photos/9770_rosdc_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/9770/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b610.jpg",
+          "sha256": "2731e508b2747e472f4659464d4c9821adac07df141de5a00d2eb19465c23095",
+          "width": 1024,
+          "height": 768
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5d5.jpg",
+      "sha256": "2612045b2d6d4dc6a16ff7f5767799261ec8c2174b2c40f72334d5b443a9eb8e",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d1",
+      "name": "Sofitel Legend Metropole Hanoi",
+      "source": "https://all.accor.com/hotel/1555/index.en.shtml",
+      "image": "https://www.ahstatic.com/photos/1555_ho_00_p_1024x768.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b602",
+          "expectedName": "Standard Room",
+          "name": "OPERA WING, PREMIUM ROOM, QUEEN BED",
+          "image": "https://www.ahstatic.com/photos/1555_roqed_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/1555/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b602.jpg",
+          "sha256": "5a4aed4875a1e62143027c66a25e8b05404e7a4140edfcde743e54b7aeb7af58",
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b603",
+          "expectedName": "Deluxe Room",
+          "name": "HERITAGE WING, LUXURY ROOM, QUEEN BED",
+          "image": "https://www.ahstatic.com/photos/1555_roqec_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/1555/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b603.jpg",
+          "sha256": "7ca99f7bfae53f8bbc11dc6439d3eabf48d6c33c7c0aefa1db6ec1e894636d05",
+          "width": 1024,
+          "height": 768
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b604",
+          "expectedName": "Suite Room",
+          "name": "OPERA WING, PRESTIGE SUITE WITH CLUB LOUNGE BENEFITS, KING BED",
+          "image": "https://www.ahstatic.com/photos/1555_roskc_00_p_1024x768.jpg",
+          "source": "https://all.accor.com/hotel/1555/index.en.shtml",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b604.jpg",
+          "sha256": "0a679466bb4f204efcc99698c64879e65e7684271c41917a455c2efe3ff5344d",
+          "width": 1024,
+          "height": 768
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5d1.jpg",
+      "sha256": "9a0ffeb47c5d946a1835b232997b83313de416a3647282a31fe9a545ec6ccf1e",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5cd",
+      "name": "Caravelle Saigon",
+      "source": "https://www.caravellehotel.com/rooms-suites/",
+      "image": "https://www.caravellehotel.com/wp-content/uploads/Caravelle-in-the-Heart-of-Saigon-2016-scaled.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b5f6",
+          "expectedName": "Standard Room",
+          "name": "Deluxe",
+          "image": "https://www.caravellehotel.com/wp-content/uploads/Caravelle-Saigon-Deluxe-rooms.jpg",
+          "source": "https://www.caravellehotel.com/rooms-suites/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5f6.jpg",
+          "sha256": "b5eb68db46b96ca86b519a68c4e394c628b123644bcd449d95e4de0301249c54",
+          "width": 900,
+          "height": 600
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b5f7",
+          "expectedName": "Deluxe Room",
+          "name": "Signature",
+          "image": "https://www.caravellehotel.com/wp-content/uploads/Caravelle-Saigon-Signature-rooms.jpg",
+          "source": "https://www.caravellehotel.com/rooms-suites/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5f7.jpg",
+          "sha256": "1db5da231be0817a370bfb26288015b0e1276172057ca3845e203691b9708815",
+          "width": 900,
+          "height": 600
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b5f8",
+          "expectedName": "Suite Room",
+          "name": "Executive Suite",
+          "image": "https://www.caravellehotel.com/wp-content/uploads/Caravelle-Saigon-Executive-Suite-1.jpg",
+          "source": "https://www.caravellehotel.com/rooms-suites/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5f8.jpg",
+          "sha256": "46fcef3afd17813ed831271c5f4467dc39df66dd43b84fcef0973949b98122e5",
+          "width": 900,
+          "height": 600
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5cd.jpg",
+      "sha256": "664cbfc4f966ff90ef657f020aafd6955c91dfb5a4ddce7f2f432f76a8a65b58",
+      "width": 2560,
+      "height": 1722
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5ce",
+      "name": "HAIAN Beach Hotel & Spa",
+      "source": "https://haianbeachhotelspa.com/",
+      "image": "https://haianbeachhotelspa.com/wp-content/uploads/2023/11/Image-Home-HAB.webp",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b5f9",
+          "expectedName": "Standard Room",
+          "name": "City View Oasis",
+          "image": "https://haianbeachhotelspa.com/wp-content/uploads/2023/10/CITY-VIEW-1.webp",
+          "source": "https://haianbeachhotelspa.com/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5f9.jpg",
+          "sha256": "9e84e1d1489557227f6fba900296f40b6735194833edd34a31596f02488c44e8",
+          "width": 1920,
+          "height": 1154
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b5fa",
+          "expectedName": "Deluxe Room",
+          "name": "Partial Sea View Oasis",
+          "image": "https://haianbeachhotelspa.com/wp-content/uploads/2023/10/PARTIAL-SEA-VIEW-2.webp",
+          "source": "https://haianbeachhotelspa.com/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5fa.jpg",
+          "sha256": "18eb5e166a2a1d2146d5a9c528ba9eaf2329091c71dca8579a99e3ffbda2eb03",
+          "width": 1920,
+          "height": 1173
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b5fb",
+          "expectedName": "Suite Room",
+          "name": "Beachfront 1 Bedroom Apartment",
+          "image": "https://haianbeachhotelspa.com/wp-content/uploads/2023/10/Edited-haianbeach-interior-2.webp",
+          "source": "https://haianbeachhotelspa.com/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5fb.jpg",
+          "sha256": "644f09034d1d62586f58d91896a7c2dd30d29c3319a259ed4658e5d970f3ffaa",
+          "width": 1920,
+          "height": 1284
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5ce.jpg",
+      "sha256": "13cf8a1d8641181821f4e3e93640665fd221b504f533bce31b1b308872ab12c3",
+      "width": 2400,
+      "height": 1600
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d2",
+      "name": "Rex Hotel Saigon",
+      "source": "https://www.rexhotelsaigon.com/accommodation/",
+      "image": "https://www.rexhotelsaigon.com/wp-content/uploads/sites/174/2017/08/1-700x490.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b605",
+          "expectedName": "Standard Room",
+          "name": "Deluxe",
+          "image": "https://d2ile4x3f22snf.cloudfront.net/wp-content/uploads/sites/174/2017/08/10060013/Deluxe-3091.jpg",
+          "source": "https://www.rexhotelsaigon.com/accommodation/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b605.jpg",
+          "sha256": "53be9bf7f4f18be13f928f5fb8b323a70ae301b18512d564fb238bff6c3773d3",
+          "width": 1200,
+          "height": 800
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b606",
+          "expectedName": "Deluxe Room",
+          "name": "Premium",
+          "image": "https://d2ile4x3f22snf.cloudfront.net/wp-content/uploads/sites/174/2017/08/10061640/Premium-21.jpg",
+          "source": "https://www.rexhotelsaigon.com/accommodation/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b606.jpg",
+          "sha256": "f3c4f164db8bb3f80c416e8f665f8ec90eea16cff2453fb34f179851f7b5a9bb",
+          "width": 1200,
+          "height": 800
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b607",
+          "expectedName": "Suite Room",
+          "name": "Rex Suite",
+          "image": "https://d2ile4x3f22snf.cloudfront.net/wp-content/uploads/sites/174/2017/08/10060927/Rex-Suite-11.jpg",
+          "source": "https://www.rexhotelsaigon.com/accommodation/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b607.jpg",
+          "sha256": "a49a7822b02d17ac5a9de1a043918e49ab6f260bd4e8b6eac965663439531378",
+          "width": 1200,
+          "height": 800
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5d2.jpg",
+      "sha256": "754d277c38f292b83bca6859fe02b5e649019d68d90495ac0b19b5d155ce0310",
+      "width": 700,
+      "height": 490
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d8",
+      "name": "Novotel Danang Premier Han River",
+      "source": "https://www.novotel-danang-premier.com/rooms/",
+      "image": "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/72/2025/05/05150616/Novotel-Ariel_2.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b617",
+          "expectedName": "Standard Room",
+          "name": "Superior",
+          "image": "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/72/2026/08/18131455/Room-2705_12156_1-370x276.jpg",
+          "source": "https://www.novotel-danang-premier.com/rooms/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b617.jpg",
+          "sha256": "761f66604af4df3c0f07210e4ab0382b4706dc851fb39a41a2c223cc7e0e6f9a",
+          "width": 370,
+          "height": 276
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b618",
+          "expectedName": "Deluxe Room",
+          "name": "Deluxe",
+          "image": "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/72/2025/04/23164842/Novotel-Danang-Premier-Han-River-Superior-room-2-370x276.jpg",
+          "source": "https://www.novotel-danang-premier.com/rooms/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b618.jpg",
+          "sha256": "194787e9064c799d4ec88e5b51ecadb0685f037bb2aa34a98c3c3bd54fc72b8d",
+          "width": 370,
+          "height": 276
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b619",
+          "expectedName": "Suite Room",
+          "name": "Suite",
+          "image": "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/72/2023/12/15102655/Novotel-Danang-Premier-Han-River-Corner-Suite-1-370x276.jpg",
+          "source": "https://www.novotel-danang-premier.com/rooms/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b619.jpg",
+          "sha256": "c966aa537ea4802d4a02e0518bafae272e22edce07351f61f1acd1f8451ccb74",
+          "width": 370,
+          "height": 276
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5d8.jpg",
+      "sha256": "91705eb436946530146f4d0631c64b8c926ac9b29a75a12a5f06b79ebaab7892",
+      "width": 1601,
+      "height": 1200
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5de",
+      "name": "Havana Nha Trang",
+      "source": "https://havanahotel.vn/en/rooms",
+      "image": "https://havanahotel.vn/storage/menu/ho-boi-havana-nha-trang-4-380x280.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b629",
+          "expectedName": "Standard Room",
+          "name": "Deluxe City View",
+          "image": "https://havanahotel.vn/storage/2024-room/11-deluxe-queen-city-view-380x280.jpg",
+          "source": "https://havanahotel.vn/en/rooms",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b629.jpg",
+          "sha256": "28335bb6204e5ab9e8e62c0c1c6fb93c7c1b3d3fccb398cf149dec038183d1bc",
+          "width": 380,
+          "height": 280
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b62a",
+          "expectedName": "Deluxe Room",
+          "name": "Deluxe Ocean View",
+          "image": "https://havanahotel.vn/storage/2024-room/1deluxe-queen-ocean-view-1-380x280.jpg",
+          "source": "https://havanahotel.vn/en/rooms",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b62a.jpg",
+          "sha256": "c9462c7003fc09602cc2b1643b8834141a28720f85f9fe8a8bc7fba90d00a633",
+          "width": 380,
+          "height": 280
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b62b",
+          "expectedName": "Suite Room",
+          "name": "Junior Suite Queen",
+          "image": "https://havanahotel.vn/storage/2024-room/1-junior-suite-queen-380x280.jpg",
+          "source": "https://havanahotel.vn/en/rooms",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b62b.jpg",
+          "sha256": "bf72a6fcb2bcf89430f0970afba9d3307d0d94b59e64fea0d5b3ae88cf0676b8",
+          "width": 380,
+          "height": 280
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5de.jpg",
+      "sha256": "dbf5b3f23751bd91de612c048ed14526370948f48c1a18c20515c21ee7cf9abb",
+      "width": 380,
+      "height": 280
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5da",
+      "name": "Salinda Resort Phu Quoc Island",
+      "source": "https://www.salindaresort.com/accommodation/deluxe-room",
+      "image": "https://www.salindaresort.com/uploads/banners/1/salinda-resort-phu-quoc-island-vietnam-5-star-luxury-boutique-resort-hotel-spa.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b61d",
+          "expectedName": "Standard Room",
+          "name": "Deluxe Room",
+          "image": "https://www.salindaresort.com/uploads/products/3/deluxe-garden-view_11.jpg",
+          "source": "https://www.salindaresort.com/accommodation/deluxe-room",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b61d.jpg",
+          "sha256": "903afe92ba8eb24e2fe698ee0c23ebea7725454b7b4da0a78b982689cee2966a",
+          "width": 1654,
+          "height": 1042
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b61e",
+          "expectedName": "Deluxe Room",
+          "name": "Deluxe Sea View",
+          "image": "https://www.salindaresort.com/uploads/products/2/deluxe-sea-view_14.jpg",
+          "source": "https://www.salindaresort.com/accommodation/deluxe-room",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b61e.jpg",
+          "sha256": "d875e34955f381bf0cc7b6c41a3de94cffa2d234152bea2c38a9249df8161269",
+          "width": 1772,
+          "height": 1097
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b61f",
+          "expectedName": "Suite Room",
+          "name": "Suite Sea View",
+          "image": "https://www.salindaresort.com/uploads/products/6/suite-sea-view-hotel_14.jpg",
+          "source": "https://www.salindaresort.com/accommodation/deluxe-room",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b61f.jpg",
+          "sha256": "081a946b011c48dba4cdf15b29b5c1f3aa8579c2381c37a69206eba92b727f6b",
+          "width": 1181,
+          "height": 810
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5da.jpg",
+      "sha256": "f0d5686ecb6a64e0e2e9896bcf16fe42ef51c89c7be33e4983ff6c610cceba6b",
+      "width": 1200,
+      "height": 801
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5db",
+      "name": "Pan Pacific Hanoi",
+      "source": "https://www.panpacific.com/en/hotels-and-resorts/pp-hanoi/rooms.html",
+      "image": "https://www.panpacific.com/content/dam/pphg-revamp/zh/pphan/pphg2-0/homepage/PPHAN_Masthead2.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b620",
+          "expectedName": "Standard Room",
+          "name": "Deluxe Room",
+          "image": "https://www.panpacific.com/content/dam/pphg-revamp/en/pphan/pphg2-0/rooms/deluxe-room/PPHAN_DeluxeRoom_Listing_Image.jpg",
+          "source": "https://www.panpacific.com/en/hotels-and-resorts/pp-hanoi/rooms.html",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b620.jpg",
+          "sha256": "22481c08088aa622bcd2e215ba6b368a5d0294fc84b11104cad2cd3a3b03fbb6",
+          "width": 2160,
+          "height": 900
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b621",
+          "expectedName": "Deluxe Room",
+          "name": "Deluxe Lakeview Room",
+          "image": "https://www.panpacific.com/content/dam/pphg-revamp/en/pphan/pphg2-0/rooms/deluxe-lakeview-room/PPHAN_DeluxeLakeView_Listing_Image.jpg",
+          "source": "https://www.panpacific.com/en/hotels-and-resorts/pp-hanoi/rooms.html",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b621.jpg",
+          "sha256": "c85388817ead77075f28d7b3e749fdcf31051149ef82c0eddeca549b1febc574",
+          "width": 2160,
+          "height": 900
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b622",
+          "expectedName": "Suite Room",
+          "name": "Studio Suite",
+          "image": "https://www.panpacific.com/content/dam/pphg-revamp/en/pphan/pphg2-0/rooms/studio-suite/PPHAN_StudioSuite_Listing_Image.jpg",
+          "source": "https://www.panpacific.com/en/hotels-and-resorts/pp-hanoi/rooms.html",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b622.jpg",
+          "sha256": "ddcf54366dfb39447e7c694a613a34c87a71fa4d2d507e617578d3bcbf1a2b74",
+          "width": 2160,
+          "height": 900
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5db.jpg",
+      "sha256": "eef0729cc82f772ded9814cea8a589058234f13547490823ac6f703550be5a38",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5dc",
+      "name": "Hotel Nikko Saigon",
+      "source": "https://hotelnikkosaigon.com.vn/accommodations/",
+      "image": "https://hotelnikkosaigon.com.vn/wp-content/uploads/2026/05/1_Facade-2.avif",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b623",
+          "expectedName": "Standard Room",
+          "name": "Deluxe",
+          "image": "https://hotelnikkosaigon.com.vn/wp-content/uploads/2026/05/BIM_3416-Edit-1024x682.avif",
+          "source": "https://hotelnikkosaigon.com.vn/accommodations/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b623.jpg",
+          "sha256": "9e4007e65b09ec1e3531ec23f3196596096cf86f515ab7b3749e672e5db6f65a",
+          "width": 1024,
+          "height": 682
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b624",
+          "expectedName": "Deluxe Room",
+          "name": "Deluxe Premium",
+          "image": "https://hotelnikkosaigon.com.vn/wp-content/uploads/2026/05/BIM_3185-Edit-1024x682.avif",
+          "source": "https://hotelnikkosaigon.com.vn/accommodations/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b624.jpg",
+          "sha256": "c7f4a591f5cff9c6459b048b1d56c7b518fe2fc3fad4494823e0d0df631b7ccb",
+          "width": 1024,
+          "height": 682
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b625",
+          "expectedName": "Suite Room",
+          "name": "Nikko Club Junior Suite",
+          "image": "https://hotelnikkosaigon.com.vn/wp-content/uploads/2026/05/5_Room_Junior-Suite-1-4-1-1024x683.avif",
+          "source": "https://hotelnikkosaigon.com.vn/accommodations/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b625.jpg",
+          "sha256": "0a9eb8006df1c82f11b2d3f84fe0f556714e0a9223068ad909e2b7e271d30347",
+          "width": 1024,
+          "height": 683
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5dc.jpg",
+      "sha256": "459b5e169d96236ffe891c50775d60804b1ba59ce3cb165865d03d4b7389b41d",
+      "width": 1920,
+      "height": 1280
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5df",
+      "name": "InterContinental Phu Quoc Long Beach Resort",
+      "source": "https://phuquoc.intercontinental.com/resort-collection/",
+      "image": "https://cdn-fkijd.nitrocdn.com/kYlkPKkCbsFqnBnMSDEtmezHGEEEsTul/assets/images/optimized/rev-1032469/phuquoc.intercontinental.com/wp-content/uploads/2026/03/resort_classic_hero.webp",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b62c",
+          "expectedName": "Standard Room",
+          "name": "Resort Classic",
+          "image": "https://cdn-fkijd.nitrocdn.com/kYlkPKkCbsFqnBnMSDEtmezHGEEEsTul/assets/images/optimized/rev-1032469/phuquoc.intercontinental.com/wp-content/uploads/2026/03/resort_classic_hero.webp",
+          "source": "https://phuquoc.intercontinental.com/resort-collection/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b62c.jpg",
+          "sha256": "9df41c6f868af1c3e285a75b2d982ce695de58fda55d4707a026c346e3e5582c",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b62d",
+          "expectedName": "Deluxe Room",
+          "name": "Resort Classic Ocean View",
+          "image": "https://cdn-fkijd.nitrocdn.com/kYlkPKkCbsFqnBnMSDEtmezHGEEEsTul/assets/images/optimized/rev-1032469/phuquoc.intercontinental.com/wp-content/uploads/2026/03/resort_classic_ocean_view_hero.webp",
+          "source": "https://phuquoc.intercontinental.com/resort-collection/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b62d.jpg",
+          "sha256": "8ba063443df2014d5d349e6984415b96207a3356631181c2d5e815e4f1c4eef4",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b62e",
+          "expectedName": "Suite Room",
+          "name": "Junior Suite",
+          "image": "https://cdn-fkijd.nitrocdn.com/kYlkPKkCbsFqnBnMSDEtmezHGEEEsTul/assets/images/optimized/rev-1032469/phuquoc.intercontinental.com/wp-content/uploads/2026/03/junior_suite_hero-1.webp",
+          "source": "https://phuquoc.intercontinental.com/resort-collection/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b62e.jpg",
+          "sha256": "f5831b2294b9ae1252df3ab49539c03718d9e24bbac9ad66070c1ff2a9ab868f",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5df.jpg",
+      "sha256": "9df41c6f868af1c3e285a75b2d982ce695de58fda55d4707a026c346e3e5582c",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5dd",
+      "name": "Four Points by Sheraton Danang",
+      "source": "https://www.marriott.com/en-us/hotels/dadfp-four-points-danang/photos/",
+      "image": "https://cache.marriott.com/is/image/marriotts7prod/fp-dadfp-beach-hotel-view-12932%3AWide-Hor?fit=constrain&wid=375",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b626",
+          "expectedName": "Standard Room",
+          "name": "Superior King Ocean View",
+          "image": "https://cache.marriott.com/is/image/marriotts7prod/fp-dadfp-superior-king-39208%3AWide-Hor?fit=constrain&wid=750",
+          "source": "https://www.marriott.com/en-us/hotels/dadfp-four-points-danang/photos/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b626.jpg",
+          "sha256": "2d51e8d15290bef3ef49138fcbacefe0d2dbe45f3878a5166f787c4a7539b6a5",
+          "width": 750,
+          "height": 422
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b627",
+          "expectedName": "Deluxe Room",
+          "name": "Deluxe King Ocean View",
+          "image": "https://cache.marriott.com/is/image/marriotts7prod/fp-dadfp-king-view-11916%3AWide-Hor?fit=constrain&wid=375",
+          "source": "https://www.marriott.com/en-us/hotels/dadfp-four-points-danang/photos/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b627.jpg",
+          "sha256": "f5c88324a92083d91821c7ec2831bf2097725584f4791f435208733622ba63a0",
+          "width": 375,
+          "height": 211
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b628",
+          "expectedName": "Suite Room",
+          "name": "Corner Suite",
+          "image": "https://cache.marriott.com/is/image/marriotts7prod/fp-dadfp-corner-king-30870%3AWide-Hor?fit=constrain&wid=750",
+          "source": "https://www.marriott.com/en-us/hotels/dadfp-four-points-danang/photos/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b628.jpg",
+          "sha256": "36c8cc291e79a2b18fe750129fa6588747339f48f4c2fda879aa22341c882a52",
+          "width": 750,
+          "height": 421
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5dd.jpg",
+      "sha256": "e967af62b5839b1c270e85211219b0bee0db87ba882241622ae242e726c3d1f1",
+      "width": 375,
+      "height": 212
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d4",
+      "name": "Sheraton Nha Trang Hotel & Spa",
+      "source": "https://www.marriott.com/en-us/hotels/nhasi-sheraton-nha-trang-hotel-and-spa/photos/",
+      "image": "https://cache.marriott.com/is/image/marriotts7prod/nhasi-exterior-7572%3AClassic-Ver?fit=constrain&wid=377",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b60b",
+          "expectedName": "Standard Room",
+          "name": "Deluxe King",
+          "image": "https://cache.marriott.com/is/image/marriotts7prod/si-nhasi-deluxe-room---bedroo34867-18013%3AClassic-Hor?fit=constrain&wid=1336",
+          "source": "https://www.marriott.com/en-us/hotels/nhasi-sheraton-nha-trang-hotel-and-spa/photos/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b60b.jpg",
+          "sha256": "0227caf903696c7e0c4b7426a14859ff54b3b90a565482d7d8fb62e7f2ad742c",
+          "width": 1336,
+          "height": 892
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b60c",
+          "expectedName": "Deluxe Room",
+          "name": "Premium Room",
+          "image": "https://cache.marriott.com/content/dam/marriott-renditions/NHASI/nhasi-grand-deluxe-7116-hor-clsc.jpg?downsize=1336px%3A%2A&interpolation=progressive-bilinear&output-quality=70",
+          "source": "https://www.marriott.com/en-us/hotels/nhasi-sheraton-nha-trang-hotel-and-spa/photos/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b60c.jpg",
+          "sha256": "ed5e3fc42523fd8559beda529bc5fe3512ee716948601908db9d7c57bc101095",
+          "width": 1336,
+          "height": 890
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b60d",
+          "expectedName": "Suite Room",
+          "name": "Junior Suite",
+          "image": "https://cache.marriott.com/is/image/marriotts7prod/si-nhasi-junior-suite---bedr-30262-07865%3AClassic-Hor?fit=constrain&wid=1920",
+          "source": "https://www.marriott.com/en-us/hotels/nhasi-sheraton-nha-trang-hotel-and-spa/photos/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b60d.jpg",
+          "sha256": "710a6016da748ebb1180a35edc23148d515bae6f1f7eaf26c74e1ad1b7f5f9fb",
+          "width": 1920,
+          "height": 1281
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5d4.jpg",
+      "sha256": "36d14a03947a6e9d6b3c548f7c156fd887bbb9a7a7a94157b4e9d0d9aa26d2e9",
+      "width": 377,
+      "height": 566
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d6",
+      "name": "Meliá Hanoi",
+      "source": "https://www.melia.com/en/hotels/vietnam/hanoi/melia-hanoi",
+      "image": "https://dam.melia.com/melia/accounts/f8/4000018/projects/127/assets/34/105875/bce6e678f4c5ad404eee151af9ca53c2-1657873949.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b611",
+          "expectedName": "Standard Room",
+          "name": "Deluxe Room",
+          "image": "https://dam.melia.com/melia/file/66y7tmB6ZKxiPuogoSJo.JPG",
+          "source": "https://www.melia.com/en/hotels/vietnam/hanoi/melia-hanoi",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b611.jpg",
+          "width": 4300,
+          "height": 2868,
+          "sha256": "fdb8d73a331813ef2bbb30b106d2cac0b8837ec892c413c31eb88b3aafeba05a"
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b612",
+          "expectedName": "Deluxe Room",
+          "name": "Premium Room",
+          "image": "https://dam.melia.com/melia/file/5oyjE1wkEh8RZA8ufQtw.JPG",
+          "source": "https://www.melia.com/en/hotels/vietnam/hanoi/melia-hanoi",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b612.jpg",
+          "width": 4300,
+          "height": 2868,
+          "sha256": "3ddf9e88b16abe26cd745afd2b6cb6fa8e46ac850216374b532aa01d68496ef9"
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b613",
+          "expectedName": "Suite Room",
+          "name": "Suite",
+          "image": "https://dam.melia.com/melia/file/q2bCfvo2ueTcqrTsEQBv.JPG",
+          "source": "https://www.melia.com/en/hotels/vietnam/hanoi/melia-hanoi",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b613.jpg",
+          "width": 4300,
+          "height": 2868,
+          "sha256": "9ed3939ddd61d8f9c35c6467c087f5ea3329e38c292d49c0e9282e2a0a502f07"
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5d6.jpg",
+      "width": 2362,
+      "height": 3543,
+      "sha256": "8f9aa750b1a5eda0a68f124128b2dcb89577d9fbd9c1350672ebb5592f8754d4"
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d9",
+      "name": "InterContinental Nha Trang",
+      "source": "https://nhatrang.intercontinental.com/rooms/",
+      "image": "https://nhatrang.intercontinental.com/wp-content/uploads/sites/100/2025/05/Classic-King-3.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b61a",
+          "expectedName": "Standard Room",
+          "name": "2 Single Classic City View",
+          "image": "https://nhatrang.intercontinental.com/wp-content/uploads/sites/100/2025/05/Deluxe-Twin-3.jpg",
+          "source": "https://nhatrang.intercontinental.com/rooms/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b61a.jpg",
+          "sha256": "1ee3cc9fa1cd9b2b6bd963c6cbeeffbc0d22b55f0b8da4d8ef18fa9013c815ca",
+          "width": 2200,
+          "height": 1200
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b61b",
+          "expectedName": "Deluxe Room",
+          "name": "1 King Premium City View",
+          "image": "https://nhatrang.intercontinental.com/wp-content/uploads/sites/100/2025/05/Classic-King-4.jpg",
+          "source": "https://nhatrang.intercontinental.com/rooms/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b61b.jpg",
+          "sha256": "1d012c426679897f43ec938a3f2776ce93619b4125454e015ba2557c1348082f",
+          "width": 2200,
+          "height": 1200
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b61c",
+          "expectedName": "Suite Room",
+          "name": "1 King Junior Suite Ocean View",
+          "image": "https://nhatrang.intercontinental.com/wp-content/uploads/sites/100/2025/05/Junior-Suites-2.jpg",
+          "source": "https://nhatrang.intercontinental.com/rooms/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b61c.jpg",
+          "sha256": "8b91900f8a75fcf698cedd0100d7e6861a454a5fa585ac53fe9517c38dabd3ef",
+          "width": 2200,
+          "height": 1200
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5d9.jpg",
+      "sha256": "ba17472c106c29ce6ceb2aec3841eee2efc765ab60fc1697d09b67363bd7d77e",
+      "width": 2200,
+      "height": 1200
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d3",
+      "name": "Hilton Da Nang",
+      "source": "https://www.hilton.com/en/hotels/daddvhi-hilton-da-nang/gallery/",
+      "image": "https://www.hilton.com/im/en/DADDVHI/21507422/daddv-lobby-2-.png?ch=3000&cw=4500&gravity=NorthWest&impolicy=crop&rh=427&rw=640&xposition=0&yposition=0",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b608",
+          "expectedName": "Standard Room",
+          "name": "King Guest Room Ocean View",
+          "image": "https://www.hilton.com/im/en/DADDVHI/23941484/daddvhi-king-guest-room-ocean-view-2-.jpg?ch=3260&cw=4890&gravity=NorthWest&impolicy=crop&rh=427&rw=640&xposition=55&yposition=0",
+          "source": "https://www.hilton.com/en/hotels/daddvhi-hilton-da-nang/gallery/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b608.jpg",
+          "sha256": "c70599de5ba97370a410a381e6c5d82ca2e0243549f8ffdfcf1a4714a63c3612",
+          "width": 640,
+          "height": 427
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b609",
+          "expectedName": "Deluxe Room",
+          "name": "Twin Guest Room River View",
+          "image": "https://www.hilton.com/im/en/DADDVHI/27582908/daddvhi-twin-river-view-2-.jpg?ch=4397&cw=6595&gravity=NorthWest&impolicy=crop&rh=427&rw=640&xposition=62&yposition=0",
+          "source": "https://www.hilton.com/en/hotels/daddvhi-hilton-da-nang/gallery/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b609.jpg",
+          "sha256": "bf1df5d45eaae0f60710aa4e817bca6cec6233aa7286f20b84f0055da01c81d9",
+          "width": 640,
+          "height": 427
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b60a",
+          "expectedName": "Suite Room",
+          "name": "King Suite River View",
+          "image": "https://www.hilton.com/im/en/DADDVHI/23941288/daddvhi-suite-river-view-3-.jpg?ch=3333&cw=5000&gravity=NorthWest&impolicy=crop&rh=427&rw=640&xposition=0&yposition=-1",
+          "source": "https://www.hilton.com/en/hotels/daddvhi-hilton-da-nang/gallery/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b60a.jpg",
+          "sha256": "3b290f82b0967fff8c528c175f407fc1d9aacf47a59666439adca485c95bd886",
+          "width": 640,
+          "height": 427
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5d3.jpg",
+      "sha256": "37c5ba4b78d2a2c3eb1277fc6db524db4a84189aed1bc2af2afd3818c195f38b",
+      "width": 640,
+      "height": 427
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5d7",
+      "name": "Hotel Majestic Saigon",
+      "source": "https://www.majesticsaigon.com/our-deluxes-suites/",
+      "image": "https://www.majesticsaigon.com/wp-content/uploads/sites/258/2023/10/Noble-Summer-Camp-Closing-Ceremony-at-Chi-Bu-Aug-11-30-2200x1200.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b614",
+          "expectedName": "Standard Room",
+          "name": "Century Deluxe",
+          "image": "https://www.majesticsaigon.com/wp-content/uploads/sites/258/2023/10/Noble-Summer-Camp-Closing-Ceremony-at-Chi-Bu-Aug-11-92-2200x1200.jpg",
+          "source": "https://www.majesticsaigon.com/our-deluxes-suites/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b614.jpg",
+          "sha256": "348586b3550b935348692eb0e521fdef312e0034f36820184a1649a55b44da1f",
+          "width": 2200,
+          "height": 1200
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b615",
+          "expectedName": "Deluxe Room",
+          "name": "Century River Deluxe",
+          "image": "https://www.majesticsaigon.com/wp-content/uploads/sites/258/2023/10/Noble-Summer-Camp-Closing-Ceremony-at-Chi-Bu-Aug-11-30-2200x1200.jpg",
+          "source": "https://www.majesticsaigon.com/our-deluxes-suites/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b615.jpg",
+          "sha256": "7117f994dc500137368467b8a0188cef97231a3a424d9bce1bf758ae5250f1c5",
+          "width": 2200,
+          "height": 1200
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b616",
+          "expectedName": "Suite Room",
+          "name": "Century Suite",
+          "image": "https://www.majesticsaigon.com/wp-content/uploads/sites/258/2023/10/Noble-Summer-Camp-Closing-Ceremony-at-Chi-Bu-Aug-11-78-2200x1200.jpg",
+          "source": "https://www.majesticsaigon.com/our-deluxes-suites/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b616.jpg",
+          "sha256": "9ef1e78103d2ac0340796fcbef8e8e4113de964e8181a411b6ddbc9187625d37",
+          "width": 2200,
+          "height": 1200
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5d7.jpg",
+      "sha256": "7117f994dc500137368467b8a0188cef97231a3a424d9bce1bf758ae5250f1c5",
+      "width": 2200,
+      "height": 1200
+    },
+    {
+      "id": "6ab44332b2c6d0b444f3b5e0",
+      "name": "LOTTE HOTEL HANOI",
+      "source": "https://www.lottecenter.com.vn/vn/hotel/",
+      "image": "https://www.lottecenter.com.vn/vn/wp-content/themes/coralis/images/hotel/img/6.%20Indoor%20swimming%20pool.jpg",
+      "rooms": [
+        {
+          "id": "6ab44332b2c6d0b444f3b62f",
+          "expectedName": "Standard Room",
+          "name": "Standard",
+          "image": "https://www.lottecenter.com.vn/vn/wp-content/themes/coralis/images/hotel/img/1.%20Standard%201.jpg",
+          "source": "https://www.lottecenter.com.vn/vn/hotel/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b62f.jpg",
+          "sha256": "5199566fb58992bd5d8a3a48d3958ddb1356827b94d4f340c79b5adac938e566",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b630",
+          "expectedName": "Deluxe Room",
+          "name": "Club Floor",
+          "image": "https://www.lottecenter.com.vn/vn/wp-content/themes/coralis/images/hotel/img/2.%20Club%20floor%201.jpg",
+          "source": "https://www.lottecenter.com.vn/vn/hotel/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b630.jpg",
+          "sha256": "20f8b2cd58ec85128c6a582621331bbf3017f6669240600b9bb19b758f667da1",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "id": "6ab44332b2c6d0b444f3b631",
+          "expectedName": "Suite Room",
+          "name": "Suite",
+          "image": "https://www.lottecenter.com.vn/vn/wp-content/themes/coralis/images/hotel/img/3.%20Suite%201.jpg",
+          "source": "https://www.lottecenter.com.vn/vn/hotel/",
+          "localPath": "/media/hotels/6ab44332b2c6d0b444f3b631.jpg",
+          "sha256": "111da28512670d974aec00ce75db4c7baf953e83d3e45092e635a9165601bff9",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "localPath": "/media/hotels/6ab44332b2c6d0b444f3b5e0.jpg",
+      "sha256": "ded16c9568b8d230d1393d6460893b31139c92a6505b7616992a6510c6255f76",
+      "width": 1200,
+      "height": 675
+    }
+  ]
+}

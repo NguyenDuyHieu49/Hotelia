@@ -9,6 +9,7 @@ import { ApplyOwnerDto } from './dto/apply-owner.dto';
 
 @ApiTags('owners')
 @Controller('owners')
+@UseGuards(JwtAuthGuard)
 export class OwnersController {
   constructor(private readonly ownersService: OwnersService) {}
 
@@ -27,6 +28,11 @@ export class OwnersController {
   async getDashboard(@CurrentUser('sub') userId: string) {
     return this.ownersService.getDashboard(userId);
   }
+
+  @Get('bookings')
+  @UseGuards(RolesGuard)
+  @Roles(Role.OWNER,Role.ADMIN)
+  bookings(@CurrentUser('sub') userId:string) {return this.ownersService.getBookings(userId);}
 
   @Get('hotels/:hotelId/bookings')
   @ApiOperation({ summary: 'Get bookings for a hotel' })

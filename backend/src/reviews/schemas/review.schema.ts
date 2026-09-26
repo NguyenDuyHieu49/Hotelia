@@ -21,6 +21,9 @@ export class Review extends Document {
   @Prop({ required: true })
   content: string;
 
+  @Prop()
+  ownerReply?: string;
+
   @Prop({ default: 0 })
   helpfulCount: number;
 

@@ -18,6 +18,7 @@ export class BookingStateService {
   private readonly transitions: Record<BookingStatus, BookingStatus[]> = {
     [BookingStatus.PENDING_PAYMENT]: [
       BookingStatus.PAID,
+      BookingStatus.CONFIRMED,
       BookingStatus.CANCELLED,
       BookingStatus.EXPIRED,
     ],

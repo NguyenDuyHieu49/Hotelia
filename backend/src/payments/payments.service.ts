@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ServiceUnavailableException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Payment, PaymentDocument, PaymentStatus, PaymentMethod } from './schemas/payment.schema';
@@ -32,48 +32,10 @@ export class PaymentsService {
   }
 
   async create(userId: string, dto: CreatePaymentDto): Promise<PaymentDocument> {
-    const booking = await this.bookingsService.findById(dto.bookingId);
+    // Existing provider classes are placeholders, not payment gateway integrations.
+    // Pay-at-hotel is a booking confirmation, never a claim that money was received.
+    throw new ServiceUnavailableException('Thanh toán trực tuyến chưa được cấu hình. Hãy chọn thanh toán tại khách sạn.');
 
-    if (booking.userId.toString() !== userId) {
-      throw new BadRequestException('Not your booking');
-    }
-
-    if (booking.status !== BookingStatus.PENDING_PAYMENT) {
-      throw new BadRequestException('Booking is not pending payment');
-    }
-
-    const provider = this.providers.get(dto.method);
-    if (!provider) {
-      throw new BadRequestException('Invalid payment method');
-    }
-
-    const payment = new this.paymentModel({
-      bookingId: new Types.ObjectId(dto.bookingId),
-      userId: new Types.ObjectId(userId),
-      amount: booking.totalPrice,
-      method: dto.method,
-      status: PaymentStatus.PENDING,
-      returnUrl: dto.returnUrl,
-    });
-
-    const result = await provider.createPayment({
-      amount: booking.totalPrice,
-      bookingId: dto.bookingId,
-      returnUrl: dto.returnUrl,
-    });
-
-    if (!result.success) {
-      payment.status = PaymentStatus.FAILED;
-      await payment.save();
-      throw new BadRequestException(result.message || 'Payment creation failed');
-    }
-
-    payment.transactionId = result.transactionId || '';
-    payment.paymentUrl = result.paymentUrl || '';
-    payment.status = PaymentStatus.PROCESSING;
-    await payment.save();
-
-    return payment;
   }
 
   async findById(id: string): Promise<PaymentDocument> {

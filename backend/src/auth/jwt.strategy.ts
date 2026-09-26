@@ -20,6 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: any) {
     const user = await this.usersService.findById(payload.sub);
     if (!user.isActive) throw new UnauthorizedException('Account deactivated');
-    return { sub: payload.sub, email: payload.email, role: payload.role };
+    if((payload.tokenVersion || 0)!==(user.tokenVersion || 0)) throw new UnauthorizedException('Password changed');
+    return { sub: payload.sub, email: user.email, role: user.role };
   }
 }
