@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @EnvironmentObject var auth: AuthViewModel
     @State private var selectedTab = 0
 
     var body: some View {
@@ -18,6 +19,13 @@ struct MainTabView: View {
                     Label("Đặt phòng", systemImage: "calendar")
                 }
                 .tag(1)
+
+            if auth.currentUser?.role == "OWNER" {
+                OwnerDashboardView().tabItem { Label("Quản lý", systemImage: "building.2") }.tag(3)
+            }
+            if auth.currentUser?.role == "ADMIN" {
+                AdminDashboardView().tabItem { Label("Quản trị", systemImage: "checkmark.shield") }.tag(4)
+            }
 
             // Profile Tab
             ProfileView()

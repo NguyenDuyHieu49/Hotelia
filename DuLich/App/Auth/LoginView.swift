@@ -67,7 +67,7 @@ struct LoginView: View {
                     .padding(.horizontal, AppSpacing.base)
 
                     // Forgot Password
-                    Button(action: {}) {
+                    NavigationLink { PasswordRecoveryView() } label: {
                         Text("Quên mật khẩu?")
                             .font(AppTypography.subheadline)
                             .foregroundColor(AppColors.primary)
@@ -81,7 +81,7 @@ struct LoginView: View {
                             .font(AppTypography.subheadline)
                             .foregroundColor(AppColors.textSecondary)
 
-                        Button(action: {}) {
+                        NavigationLink { RegisterView() } label: {
                             Text("Đăng ký")
                                 .font(AppTypography.subheadline)
                                 .fontWeight(.semibold)

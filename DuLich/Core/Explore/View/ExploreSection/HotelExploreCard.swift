@@ -22,70 +22,47 @@ struct HotelExploreCard: View {
                 spacing: 10
             ) {
 
-                HStack(
-                    alignment: .top
-                ) {
+                Text(hotel.name)
+                    .font(.headline)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                    VStack(
-                        alignment: .leading,
-                        spacing: 5
-                    ) {
-
-                        Text(hotel.name)
-                            .font(.headline)
-                            .lineLimit(2)
-
-                        HStack(spacing: 5) {
-
-                            Image(
-                                systemName:
-                                    "mappin.and.ellipse"
-                            )
-
-                            Text(locationText)
-                        }
+                HStack(spacing: 8) {
+                    Label(locationText, systemImage: "mappin.and.ellipse")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    }
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
-                    Spacer()
-
-                    if let rating = hotel.averageRating {
+                    if let rating = hotel.guestRating {
                         ratingView(rating)
+                            .fixedSize(horizontal: true, vertical: false)
+                    } else {
+                        Text("Chưa có đánh giá")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
                 }
 
                 if let amenities = hotel.amenities,
                    !amenities.isEmpty {
 
-                    HStack(spacing: 8) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
 
-                        ForEach(
-                            amenities.prefix(3),
-                            id: \.self
-                        ) { amenity in
+                            ForEach(amenities.prefix(3), id: \.self) { amenity in
 
-                            Text(amenity)
-                                .font(.caption2)
-                                .foregroundStyle(
-                                    .secondary
-                                )
-                                .padding(
-                                    .horizontal,
-                                    9
-                                )
-                                .padding(
-                                    .vertical,
-                                    6
-                                )
-                                .background(
-                                    Color.gray.opacity(
-                                        0.08
-                                    )
-                                )
-                                .clipShape(
-                                    Capsule()
-                                )
+                                Text(amenity)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                    .padding(.horizontal, 9)
+                                    .padding(.vertical, 6)
+                                    .background(Color.gray.opacity(0.08))
+                                    .clipShape(Capsule())
+                            }
                         }
                     }
                 }
@@ -115,8 +92,7 @@ struct HotelExploreCard: View {
 
                     Spacer()
 
-                    if let reviewCount =
-                        hotel.reviewCount {
+                    if let reviewCount = hotel.reviewCount, reviewCount > 0 {
 
                         Text(
                             "\(reviewCount) đánh giá"
@@ -130,7 +106,8 @@ struct HotelExploreCard: View {
             }
             .padding(16)
         }
-        .background(.white)
+        .frame(maxWidth: .infinity)
+        .background(Color(.secondarySystemGroupedBackground))
         .clipShape(
             RoundedRectangle(
                 cornerRadius: 22
@@ -145,77 +122,30 @@ struct HotelExploreCard: View {
 
     private var imageSection: some View {
 
-        ZStack(alignment: .topTrailing) {
-
+        GeometryReader { geometry in
             Group {
-
-                if let imageURL =
-                    hotel.images?.first,
-                   let url = URL(
-                    string: imageURL
-                   ) {
-
-                    AsyncImage(
-                        url: url
-                    ) { phase in
-
+                if let imageURL = hotel.images?.first,
+                   let url = APIClient.shared.mediaURL(imageURL) {
+                    AsyncImage(url: url) { phase in
                         switch phase {
-
                         case .empty:
-                            ProgressView()
-                                .frame(
-                                    maxWidth: .infinity
-                                )
-
+                            placeholderImage.overlay { ProgressView() }
                         case .success(let image):
-                            image
-                                .resizable()
-                                .scaledToFill()
-
+                            image.resizable().scaledToFill()
                         case .failure:
                             placeholderImage
-
                         @unknown default:
                             placeholderImage
                         }
                     }
-
                 } else {
                     placeholderImage
                 }
             }
-            .frame(
-                maxWidth: .infinity,
-                minHeight: 220,
-                maxHeight: 220
-            )
+            .frame(width: geometry.size.width, height: 220)
             .clipped()
-
-            Button {
-                // TODO: Favorite
-            } label: {
-
-                Image(
-                    systemName: "heart"
-                )
-                .font(
-                    .system(
-                        size: 17,
-                        weight: .semibold
-                    )
-                )
-                .foregroundStyle(.primary)
-                .frame(
-                    width: 42,
-                    height: 42
-                )
-                .background(
-                    .white.opacity(0.92)
-                )
-                .clipShape(Circle())
-            }
-            .padding(14)
         }
+        .frame(height: 220)
     }
 
     private var placeholderImage: some View {
@@ -286,5 +216,16 @@ struct HotelExploreCard: View {
         .clipShape(
             Capsule()
         )
+    }
+}
+
+struct HotelCardPressStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .contentShape(RoundedRectangle(cornerRadius: 22))
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.985 : 1)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: configuration.isPressed)
     }
 }

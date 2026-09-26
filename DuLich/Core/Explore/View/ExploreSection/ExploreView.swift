@@ -4,6 +4,7 @@ struct ExploreView: View {
 
     @StateObject private var viewModel = ExploreViewModel()
 
+    @State private var showFilters = false
     @State private var searchText = ""
     @State private var selectedDestination = "Tất cả"
 
@@ -13,7 +14,7 @@ struct ExploreView: View {
         "TP. Hồ Chí Minh",
         "Đà Nẵng",
         "Nha Trang",
-        "Đà Lạt"
+        "Phú Quốc"
     ]
 
     var body: some View {
@@ -29,7 +30,9 @@ struct ExploreView: View {
 
                         ExploreSearchSection(
                             searchText: $searchText,
-                            onSearch: performSearch
+                            filters: viewModel.filters,
+                            onSearch: performSearch,
+                            onFilter: { showFilters = true }
                         )
 
                         ExploreDestinationSection(
@@ -42,18 +45,22 @@ struct ExploreView: View {
                             ExploreLoadingSection(
                                 isRanking: viewModel.isRanking
                             )
-                        } else if let error = viewModel.errorMessage {
+                        }
+
+                        if let error = viewModel.errorMessage {
                             ExploreErrorSection(
                                 message: error,
                                 onRetry: {
                                     Task {
-                                        await viewModel.loadHotels()
+                                        await viewModel.refreshRanking()
                                     }
                                 }
                             )
-                        } else if viewModel.hotels.isEmpty {
+                        }
+
+                        if !viewModel.isLoading && viewModel.hotels.isEmpty && viewModel.errorMessage == nil {
                             ExploreEmptySection()
-                        } else {
+                        } else if !viewModel.hotels.isEmpty {
 
                             ExploreRecommendationSection(
                                 hotels: viewModel.hotels,
@@ -65,7 +72,7 @@ struct ExploreView: View {
                                 hotels: viewModel.hotels
                             )
 
-                            ExplorePromotionSection()
+                            ExplorePromotionSection(hotels: viewModel.hotels)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -73,14 +80,19 @@ struct ExploreView: View {
                     .padding(.bottom, 40)
                 }
                 .refreshable {
-                    await viewModel.refreshRanking()
+                    await viewModel.refreshFromGesture()
+                }
+            }
+            .environment(\.hotelSearchFilters, viewModel.filters)
+            .sheet(isPresented: $showFilters) {
+                ExploreFiltersView(filters: viewModel.filters) { filters in
+                    Task { await viewModel.applyFilters(filters) }
                 }
             }
             .navigationBarHidden(true)
-        }
-        .task {
-            if viewModel.hotels.isEmpty {
-                await viewModel.loadHotels()
+            .task {
+                await viewModel.refreshRanking()
+                try? await FavoritesStore.shared.load()
             }
         }
     }

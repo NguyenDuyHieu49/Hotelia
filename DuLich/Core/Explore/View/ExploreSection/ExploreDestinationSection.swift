@@ -14,6 +14,7 @@ struct ExploreDestinationSection: View {
     @Binding var selectedDestination: String
 
     let onSelect: (String) -> Void
+    @State private var showAllDestinations = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -25,7 +26,7 @@ struct ExploreDestinationSection: View {
                 Spacer()
 
                 Button("Xem tất cả") {
-                    // TODO
+                    showAllDestinations = true
                 }
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.blue)
@@ -49,6 +50,36 @@ struct ExploreDestinationSection: View {
                         ) {
                             onSelect(destination)
                         }
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showAllDestinations) {
+            NavigationStack {
+                List(destinations, id: \.self) { destination in
+                    Button {
+                        onSelect(destination)
+                        showAllDestinations = false
+                    } label: {
+                        HStack {
+                            Text(destination)
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            if selectedDestination == destination {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                .navigationTitle("Tất cả điểm đến")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Đóng") { showAllDestinations = false }
                     }
                 }
             }

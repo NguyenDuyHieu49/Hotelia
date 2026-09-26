@@ -134,7 +134,7 @@ struct RegisterView: View {
                             .font(AppTypography.subheadline)
                             .foregroundColor(AppColors.textSecondary)
 
-                        Button(action: {}) {
+                        NavigationLink { LoginView() } label: {
                             Text("Đăng nhập")
                                 .font(AppTypography.subheadline)
                                 .fontWeight(.semibold)

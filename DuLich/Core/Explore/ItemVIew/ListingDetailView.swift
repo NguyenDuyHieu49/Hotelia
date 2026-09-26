@@ -49,12 +49,17 @@ struct HotelDetailView: View {
             }
         }
         .background(AppColors.backgroundPrimary)
+        .navigationTitle("Chi tiết khách sạn")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
         .sheet(isPresented: $showBooking) {
             RoomBookingView(hotel: hotel)
         }
         .task {
             await loadReviews()
+        }
+        .task(id: hotel.id) {
+            await RecommendationService.shared.recordView(hotelId: hotel.id)
         }
     }
 
@@ -62,7 +67,7 @@ struct HotelDetailView: View {
     private var hotelImageSection: some View {
         ZStack(alignment: .bottomLeading) {
             if let images = hotel.images, !images.isEmpty, let firstImage = images.first {
-                AsyncImage(url: URL(string: firstImage)) { phase in
+                AsyncImage(url: APIClient.shared.mediaURL(firstImage)) { phase in
                     switch phase {
                     case .success(let image):
                         image
@@ -86,7 +91,7 @@ struct HotelDetailView: View {
 
             // Rating Badge
             HStack {
-                if let rating = hotel.averageRating {
+                if let rating = hotel.guestRating {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 4) {
                             Image(systemName: "star.fill")
@@ -137,6 +142,12 @@ struct HotelDetailView: View {
             Text(hotel.name)
                 .font(AppTypography.title1)
                 .foregroundColor(AppColors.textPrimary)
+
+            if hotel.guestRating == nil {
+                Text("Chưa có đánh giá")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
 
             HStack {
                 if let stars = hotel.starRating {
@@ -208,7 +219,7 @@ struct HotelDetailView: View {
             HStack {
                 SectionHeader(title: "Đánh giá")
                 Spacer()
-                Button(action: {}) {
+                NavigationLink { HotelReviewsView(hotel: hotel) } label: {
                     Text("Xem tất cả")
                         .font(AppTypography.subheadline)
                         .foregroundColor(AppColors.primary)
@@ -247,8 +258,8 @@ struct HotelDetailView: View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
             SectionHeader(title: "Chính sách")
 
-            PolicyRow(icon: "clock", title: "Nhận phòng", value: hotel.checkInTime ?? "14:00")
-            PolicyRow(icon: "clock.badge.checkmark", title: "Trả phòng", value: hotel.checkOutTime ?? "12:00")
+            PolicyRow(icon: "clock", title: "Nhận phòng", value: hotel.checkInTime ?? "Liên hệ khách sạn")
+            PolicyRow(icon: "clock.badge.checkmark", title: "Trả phòng", value: hotel.checkOutTime ?? "Liên hệ khách sạn")
         }
     }
 
@@ -313,16 +324,5 @@ struct PolicyRow: View {
         .padding(AppSpacing.base)
         .background(AppColors.backgroundSecondary)
         .cornerRadius(AppSpacing.radiusSmall)
-    }
-}
-
-// Add checkInTime and checkOutTime to Hotel model
-extension Hotel {
-    var checkInTime: String? {
-        return "14:00"
-    }
-
-    var checkOutTime: String? {
-        return "12:00"
     }
 }

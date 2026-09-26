@@ -6,6 +6,9 @@ struct AdminDashboardView: View {
     @State private var pendingHotels: [Hotel] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
+    @State private var rejectHotelId: String?
+    @State private var rejectionReason = ""
+    @State private var showRejectHotel = false
 
     var body: some View {
         NavigationView {
@@ -40,7 +43,12 @@ struct AdminDashboardView: View {
                                 OwnerApprovalCard(owner: owner) {
                                     approveOwner(id: owner.id)
                                 } onReject: {
-                                    // TODO: Reject owner
+                                    Task {
+                                        do {
+                                            try await APIClient.shared.requestVoid(endpoint: "/admin/owners/\(owner.id)/reject")
+                                            await loadData()
+                                        } catch { errorMessage = error.localizedDescription }
+                                    }
                                 }
                             }
                         }
@@ -64,7 +72,9 @@ struct AdminDashboardView: View {
                                 HotelApprovalCard(hotel: hotel) {
                                     approveHotel(id: hotel.id)
                                 } onReject: {
-                                    // TODO: Reject hotel
+                                    rejectHotelId = hotel.id
+                                    rejectionReason = ""
+                                    showRejectHotel = true
                                 }
                             }
                         }
@@ -73,6 +83,20 @@ struct AdminDashboardView: View {
                 .padding(.vertical)
             }
             .navigationTitle("Admin Dashboard")
+            .alert("Lý do từ chối", isPresented: $showRejectHotel) {
+                TextField("Lý do", text: $rejectionReason)
+                Button("Từ chối", role: .destructive) {
+                    guard let id = rejectHotelId else { return }
+                    Task {
+                        do { _ = try await AdminService.shared.rejectHotel(id: id, reason: rejectionReason); await loadData() }
+                        catch { errorMessage = error.localizedDescription }
+                    }
+                }.disabled(rejectionReason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                Button("Bỏ qua", role: .cancel) { }
+            }
+            .overlay(alignment: .bottom) {
+                if let errorMessage { Text(errorMessage).foregroundStyle(.red).padding().background(.regularMaterial) }
+            }
             .refreshable {
                 await loadData()
             }

@@ -1,7 +1,10 @@
 import SwiftUI
 
 struct BookingDetailView: View {
-    let booking: Booking
+    @State var booking: Booking
+    @State private var showCancel = false
+    @State private var showSupport = false
+    @State private var actionError: String?
     @State private var isCancelling = false
 
     var body: some View {
@@ -30,6 +33,15 @@ struct BookingDetailView: View {
         .background(AppColors.backgroundSecondary)
         .navigationTitle("Chi tiết đặt phòng")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showSupport) { NavigationStack { SupportView(bookingId: booking.id).toolbar { Button("Đóng") { showSupport = false } } } }
+        .confirmationDialog("Hủy đặt phòng?", isPresented: $showCancel, titleVisibility: .visible) {
+            Button("Xác nhận yêu cầu hủy", role: .destructive) { cancelBooking() }
+            Button("Giữ đặt phòng", role: .cancel) { }
+        } message: { Text("Đơn đã xác nhận sẽ được gửi yêu cầu hủy để chủ khách sạn xử lý.") }
+        .task {
+            do { booking = try await BookingService.shared.getBooking(id: booking.id) }
+            catch { actionError = error.localizedDescription }
+        }
     }
 
     // MARK: - Status Card
@@ -85,7 +97,7 @@ struct BookingDetailView: View {
         case "CONFIRMED": return "Đã xác nhận"
         case "PENDING_PAYMENT": return "Chờ thanh toán"
         case "CANCELLED": return "Đã hủy"
-        default: return booking.status
+        default: return booking.statusDisplayName
         }
     }
 
@@ -217,17 +229,44 @@ struct BookingDetailView: View {
     // MARK: - Action Buttons
     private var actionButtons: some View {
         VStack(spacing: AppSpacing.base) {
+            if let actionError { Text(actionError).foregroundStyle(.red) }
+            if booking.status == "PENDING_PAYMENT" {
+                PrimaryButton(title: "Thanh toán tại khách sạn", action: {
+                    isCancelling = true
+                    Task {
+                        do {
+                            booking = try await APIClient.shared.request(endpoint: "/bookings/\(booking.id)/pay-at-hotel", method: "POST")
+                            actionError = nil
+                        } catch { actionError = error.localizedDescription }
+                        isCancelling = false
+                    }
+                }, isLoading: isCancelling)
+                Text("Xác nhận giữ phòng và thanh toán khi đến. Chưa thu tiền trực tuyến.").font(.caption).foregroundStyle(.secondary)
+            }
             // Cancel Button (only for pending bookings)
             if booking.status == "PENDING_PAYMENT" || booking.status == "CONFIRMED" {
                 SecondaryButton(title: "Hủy đặt phòng", action: {
-                    // Cancel action
+                    showCancel = true
                 }, isDisabled: isCancelling)
+            }
+
+            if ["CHECKED_OUT", "COMPLETED"].contains(booking.status) {
+                NavigationLink("Đánh giá chuyến đi") { WriteReviewView(booking: booking) }
             }
 
             // Contact Button
             PrimaryButton(title: "Liên hệ hỗ trợ", action: {
-                // Contact action
+                showSupport = true
             })
+        }
+    }
+
+    private func cancelBooking() {
+        isCancelling = true
+        Task {
+            do { booking = try await BookingService.shared.cancelBooking(id: booking.id); actionError = nil }
+            catch { actionError = error.localizedDescription }
+            isCancelling = false
         }
     }
 

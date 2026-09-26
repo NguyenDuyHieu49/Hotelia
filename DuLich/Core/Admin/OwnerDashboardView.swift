@@ -43,7 +43,7 @@ struct OwnerDashboardView: View {
                             .padding(.vertical, 40)
                         } else {
                             ForEach(hotels) { hotel in
-                                MyHotelCard(hotel: hotel)
+                                NavigationLink { OwnerHotelEditorView(hotel: hotel) } label: { MyHotelCard(hotel: hotel) }.buttonStyle(.plain)
                             }
                         }
                     }
@@ -51,6 +51,7 @@ struct OwnerDashboardView: View {
                 .padding(.vertical)
             }
             .navigationTitle("Quản lý")
+            .overlay(alignment: .bottom) { if let errorMessage { Text(errorMessage).foregroundStyle(.red).padding().background(.regularMaterial) } }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showAddHotel = true }) {

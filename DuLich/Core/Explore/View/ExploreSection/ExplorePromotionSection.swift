@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ExplorePromotionSection: View {
+    let hotels: [Hotel]
 
     var body: some View {
 
@@ -34,7 +35,7 @@ struct ExplorePromotionSection: View {
                     spacing: 8
                 ) {
 
-                    Text("ƯU ĐÃI CUỐI TUẦN")
+                    Text("GỢI Ý CHO CHUYẾN ĐI")
                         .font(
                             .caption.weight(
                                 .bold
@@ -54,8 +55,8 @@ struct ExplorePromotionSection: View {
                     )
                     .foregroundStyle(.white)
 
-                    Button {
-                        // TODO
+                    NavigationLink {
+                        ExploreHotelListView(hotels: hotels)
                     } label: {
 
                         Text("Khám phá ngay")

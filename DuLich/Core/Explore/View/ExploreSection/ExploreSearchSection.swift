@@ -10,8 +10,19 @@ import SwiftUI
 struct ExploreSearchSection: View {
 
     @Binding var searchText: String
+    let filters: HotelSearchFilters
 
     let onSearch: () -> Void
+    let onFilter: () -> Void
+
+    private var dateLabel: String {
+        guard let start = filters.checkIn, let end = filters.checkOut else { return "Ngày" }
+        return "\(start.suffix(5).replacingOccurrences(of: "-", with: "/"))–\(end.suffix(5).replacingOccurrences(of: "-", with: "/"))"
+    }
+
+    private var extraFilterCount: Int {
+        [filters.minPrice != nil, filters.maxPrice != nil, filters.minRating != nil].filter { $0 }.count
+    }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -56,17 +67,18 @@ struct ExploreSearchSection: View {
 
                 SearchFilterButton(
                     icon: "calendar",
-                    title: "Ngày"
+                    title: dateLabel, isActive: filters.checkIn != nil, action: onFilter
                 )
 
                 SearchFilterButton(
                     icon: "person.2",
-                    title: "Khách"
+                    title: "\(filters.guests) khách", isActive: filters.guests > 1, action: onFilter
                 )
 
                 SearchFilterButton(
                     icon: "slider.horizontal.3",
-                    title: "Bộ lọc"
+                    title: extraFilterCount > 0 ? "Lọc (\(extraFilterCount))" : "Bộ lọc",
+                    isActive: extraFilterCount > 0, action: onFilter
                 )
             }
         }
@@ -77,10 +89,12 @@ private struct SearchFilterButton: View {
 
     let icon: String
     let title: String
+    let isActive: Bool
+    let action: () -> Void
 
     var body: some View {
         Button {
-            // TODO: Search filter
+            action()
         } label: {
             HStack(spacing: 6) {
 
@@ -89,12 +103,15 @@ private struct SearchFilterButton: View {
 
                 Text(title)
                     .font(.caption.weight(.medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
-            .foregroundStyle(.primary)
+            .foregroundStyle(isActive ? Color.blue : Color.primary)
             .frame(maxWidth: .infinity)
-            .frame(height: 38)
-            .background(.white)
+            .frame(minHeight: 44)
+            .background(isActive ? Color.blue.opacity(0.12) : Color(.secondarySystemGroupedBackground))
             .clipShape(Capsule())
         }
+        .accessibilityValue(isActive ? "Đang áp dụng" : "Chưa áp dụng")
     }
 }

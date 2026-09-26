@@ -19,8 +19,6 @@ struct ExplorePopularSection: View {
                 >
                 ($1.averageRating ?? 0)
             }
-            .prefix(5)
-            .map { $0 }
     }
 
     var body: some View {
@@ -34,8 +32,10 @@ struct ExplorePopularSection: View {
 
                 Spacer()
 
-                Button("Xem tất cả") {
-                    // TODO
+                NavigationLink {
+                    ExploreHotelListView(hotels: popularHotels)
+                } label: {
+                    Text("Xem tất cả")
                 }
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.blue)
@@ -43,13 +43,48 @@ struct ExplorePopularSection: View {
 
             LazyVStack(spacing: 16) {
 
-                ForEach(popularHotels) { hotel in
+                ForEach(popularHotels.prefix(5)) { hotel in
 
-                    HotelExploreCard(
-                        hotel: hotel
-                    )
+                    NavigationLink {
+                        HotelDetailView(hotel: hotel)
+                    } label: {
+                        HotelExploreCard(hotel: hotel)
+                    }
+                    .buttonStyle(HotelCardPressStyle())
+                    .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.ratingSummary)")
+                    .overlay(alignment: .topTrailing) { FavoriteHotelButton(hotel: hotel).padding(12) }
                 }
             }
         }
+    }
+}
+
+struct ExploreHotelListView: View {
+    let hotels: [Hotel]
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 16) {
+                Text("\(hotels.count) khách sạn")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                ForEach(hotels) { hotel in
+                    NavigationLink {
+                        HotelDetailView(hotel: hotel)
+                    } label: {
+                        HotelExploreCard(hotel: hotel)
+                    }
+                    .buttonStyle(HotelCardPressStyle())
+                    .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.ratingSummary)")
+                    .overlay(alignment: .topTrailing) { FavoriteHotelButton(hotel: hotel).padding(12) }
+                }
+            }
+            .padding(20)
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle("Tất cả khách sạn")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
     }
 }

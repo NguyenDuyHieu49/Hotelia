@@ -3,7 +3,6 @@ import Foundation
 class ExploreService {
     static let shared = ExploreService()
     private let client = APIClient.shared
-    private let recommendationService = RecommendationService.shared
 
     private init() {}
 
@@ -15,7 +14,7 @@ class ExploreService {
         minRating: Int? = nil,
         page: Int = 1,
         limit: Int = 20,
-        useMLRanking: Bool = true
+        filters: HotelSearchFilters = HotelSearchFilters()
     ) async throws -> [Hotel] {
         var queryParams = "?"
 
@@ -33,37 +32,15 @@ class ExploreService {
         }
         queryParams += "page=\(page)&limit=\(limit)"
 
+        var extras = URLComponents()
+        extras.queryItems = filters.queryItems
+        queryParams += "&" + (extras.percentEncodedQuery ?? "")
+
         let response: HotelsResponse = try await client.request(
             endpoint: "/hotels\(queryParams)"
         )
 
-        var hotels = response.hotels
-
-        // Apply ML Ranking if enabled
-        if useMLRanking, !hotels.isEmpty {
-            do {
-                // Use first hotel's cityId as proxy (in real app, get from destination)
-                let cityId = hotels.first?.id.hashValue ?? 1
-
-                // Get ranked hotel IDs
-                let rankedIds = try await recommendationService.rankHotels(
-                    hotels: hotels,
-                    cityId: cityId
-                )
-
-                // Reorder hotels based on ML ranking
-                let hotelDict = Dictionary(uniqueKeysWithValues: hotels.map { ($0.id, $0) })
-                hotels = rankedIds.compactMap { hotelDict[$0] }
-
-                print("[ExploreService] Hotels reordered using ML ranking")
-            } catch {
-                print("[ExploreService] ML ranking failed, using default order: \(error)")
-                // Fallback to popularity-based sorting
-                hotels = recommendationService.getPopularityRanking(hotels: hotels)
-            }
-        }
-
-        return hotels
+        return response.hotels
     }
 
     // MARK: - Get Hotel by ID
@@ -72,7 +49,11 @@ class ExploreService {
     }
 
     // MARK: - Get Room Types by Hotel
-    func getRoomTypes(hotelId: String) async throws -> [RoomType] {
-        return try await client.request(endpoint: "/room-types/hotel/\(hotelId)")
+    func getRoomTypes(hotelId: String, checkIn: String? = nil, checkOut: String? = nil) async throws -> [RoomType] {
+        var endpoint = "/room-types/hotel/\(hotelId)"
+        if let checkIn, let checkOut {
+            endpoint += "?checkIn=\(checkIn)&checkOut=\(checkOut)"
+        }
+        return try await client.request(endpoint: endpoint)
     }
 }

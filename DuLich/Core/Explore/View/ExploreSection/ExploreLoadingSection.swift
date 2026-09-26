@@ -20,7 +20,7 @@ struct ExploreLoadingSection: View {
 
             Text(
                 isRanking
-                ? "AI đang tìm khách sạn phù hợp..."
+                ? "Đang tìm khách sạn phù hợp..."
                 : "Đang tải khách sạn..."
             )
             .font(.subheadline)

@@ -18,12 +18,14 @@ struct Hotel: Codable, Identifiable {
     let images: [String]?
     let status: String?
     let ownerId: String?
+    let checkInTime: String?
+    let checkOutTime: String?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case name, description, address, city, district, country
         case latitude, longitude, starRating, averageRating, reviewCount
-        case amenities, images, status, ownerId
+        case amenities, images, status, ownerId, checkInTime, checkOutTime
     }
 }
 
@@ -69,5 +71,18 @@ struct RoomType: Codable, Identifiable {
         case id = "_id"
         case hotelId, name, description, basePrice, maxGuests
         case totalRooms, availableRooms, amenities, images, isActive
+    }
+}
+
+// Zero with no reviews means unrated, not a guest score of zero.
+extension Hotel {
+    var guestRating: Double? {
+        guard (reviewCount ?? 0) > 0, let averageRating,
+              averageRating.isFinite, averageRating > 0, averageRating <= 5 else { return nil }
+        return averageRating
+    }
+    var ratingSummary: String {
+        guard let rating = guestRating else { return "Chưa có đánh giá" }
+        return String(format: "%.1f · %d đánh giá", rating, reviewCount ?? 0)
     }
 }

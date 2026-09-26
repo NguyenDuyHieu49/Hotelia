@@ -18,11 +18,11 @@ struct HotelRecommendationCard: View {
 
                 hotelImage
 
-                if let rating = hotel.averageRating {
+                if let rating = hotel.guestRating {
                     ratingBadge(rating)
                 }
 
-                favoriteButton
+
             }
 
             VStack(alignment: .leading, spacing: 5) {
@@ -30,6 +30,13 @@ struct HotelRecommendationCard: View {
                 Text(hotel.name)
                     .font(.subheadline.weight(.semibold))
                     .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                if hotel.guestRating == nil {
+                    Text("Chưa có đánh giá")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
 
                 HStack(spacing: 4) {
 
@@ -42,39 +49,34 @@ struct HotelRecommendationCard: View {
                 .lineLimit(1)
             }
         }
-        .frame(width: 235)
+        .frame(width: 235, alignment: .leading)
     }
 
     private var hotelImage: some View {
-        Group {
-            if let imageURL = hotel.images?.first,
-               let url = URL(string: imageURL) {
-
-                AsyncImage(url: url) { phase in
-                    switch phase {
-
-                    case .empty:
-                        ProgressView()
-
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-
-                    case .failure:
-                        placeholderImage
-
-                    @unknown default:
-                        placeholderImage
+        GeometryReader { geometry in
+            Group {
+                if let imageURL = hotel.images?.first,
+                   let url = APIClient.shared.mediaURL(imageURL) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            placeholderImage.overlay { ProgressView() }
+                        case .success(let image):
+                            image.resizable().scaledToFill()
+                        case .failure:
+                            placeholderImage
+                        @unknown default:
+                            placeholderImage
+                        }
                     }
+                } else {
+                    placeholderImage
                 }
-
-            } else {
-                placeholderImage
             }
+            .frame(width: geometry.size.width, height: 160)
+            .clipped()
         }
         .frame(width: 235, height: 160)
-        .clipped()
         .clipShape(
             RoundedRectangle(cornerRadius: 20)
         )
@@ -110,38 +112,6 @@ struct HotelRecommendationCard: View {
         .background(.black.opacity(0.7))
         .clipShape(Capsule())
         .padding(10)
-    }
-
-    private var favoriteButton: some View {
-        VStack {
-            HStack {
-                Spacer()
-
-                Button {
-                    // TODO: Favorite
-                } label: {
-                    Image(systemName: "heart")
-                        .font(
-                            .system(
-                                size: 16,
-                                weight: .semibold
-                            )
-                        )
-                        .foregroundStyle(.primary)
-                        .frame(
-                            width: 38,
-                            height: 38
-                        )
-                        .background(
-                            .white.opacity(0.92)
-                        )
-                        .clipShape(Circle())
-                }
-                .padding(10)
-            }
-
-            Spacer()
-        }
     }
 
     private var locationText: String {

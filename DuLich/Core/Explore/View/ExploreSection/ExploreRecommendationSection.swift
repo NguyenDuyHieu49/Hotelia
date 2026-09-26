@@ -34,7 +34,7 @@ struct ExploreRecommendationSection: View {
                     }
 
                     Text(
-                        "Lựa chọn phù hợp dựa trên sở thích của bạn"
+                        rankingInfo ?? "Khám phá khách sạn phù hợp với chuyến đi"
                     )
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -60,21 +60,20 @@ struct ExploreRecommendationSection: View {
                             recommendedHotels
                         ) { hotel in
 
-                            HotelRecommendationCard(
-                                hotel: hotel
-                            )
+                            NavigationLink {
+                                HotelDetailView(hotel: hotel)
+                            } label: {
+                                HotelRecommendationCard(hotel: hotel)
+                            }
+                            .buttonStyle(HotelCardPressStyle())
+                            .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.ratingSummary)")
+                            .overlay(alignment: .topTrailing) { FavoriteHotelButton(hotel: hotel).padding(12) }
                         }
                     }
                 }
             }
 
-            #if DEBUG
-            if let rankingInfo {
-                Text(rankingInfo)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-            #endif
+
         }
     }
 }

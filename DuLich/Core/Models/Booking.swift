@@ -20,13 +20,15 @@ struct Booking: Codable, Identifiable {
     let holdExpiresAt: String?
     let createdAt: String?
     let updatedAt: String?
+    let hotelName: String?
+    let roomTypeName: String?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case userId, hotelId, roomTypeId, checkIn, checkOut
         case guestCount, guestName, guestEmail, guestPhone
         case specialRequests, roomPrice, totalPrice, nights
-        case status, holdExpiresAt, createdAt, updatedAt
+        case status, holdExpiresAt, createdAt, updatedAt, hotelName, roomTypeName
     }
 
     var statusDisplayName: String {
@@ -136,6 +138,5 @@ struct Booking: Codable, Identifiable {
     }
 
     // Extended properties for UI
-    var hotelName: String? { return nil }
-    var roomTypeName: String? { return nil }
+
 }

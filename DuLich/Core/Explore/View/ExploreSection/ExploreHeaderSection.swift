@@ -28,8 +28,8 @@ struct ExploreHeaderSection: View {
 
             Spacer()
 
-            Button {
-                // TODO: Notification
+            NavigationLink {
+                NotificationsView()
             } label: {
                 Image(systemName: "bell")
                     .font(.system(size: 17, weight: .semibold))

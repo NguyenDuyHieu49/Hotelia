@@ -10,14 +10,22 @@ class APIClient {
         loadToken()
     }
 
+    // Catalog images can be served by the API or a verified external source.
+    func mediaURL(_ value: String) -> URL? {
+        if value.hasPrefix("/media/") {
+            return URL(string: value, relativeTo: URL(string: baseURL))?.absoluteURL
+        }
+        guard let url = URL(string: value),
+              ["https", "http"].contains(url.scheme?.lowercased() ?? "") else { return nil }
+        return url
+    }
+
     // MARK: - Headers - Always read fresh token from UserDefaults
     private var headers: [String: String] {
         var headers = ["Content-Type": "application/json"]
         if let token = UserDefaults.standard.string(forKey: "accessToken") {
             headers["Authorization"] = "Bearer \(token)"
-            print("[DEBUG-APIClient] Token: \(token.prefix(30))...")
         } else {
-            print("[DEBUG-APIClient] No token!")
         }
         return headers
     }
@@ -55,25 +63,43 @@ class APIClient {
             request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         }
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await perform(request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
         }
 
-        print("[DEBUG-API] Status: \(httpResponse.statusCode)")
-        print("[DEBUG-API] Data: \(String(data: data, encoding: .utf8)?.prefix(200) ?? "none")")
 
         if httpResponse.statusCode == 401 {
             throw APIError.unauthorized
         }
 
         guard (200...299).contains(httpResponse.statusCode) else {
-            throw APIError.serverError(httpResponse.statusCode)
+            throw responseError(data, status: httpResponse.statusCode)
         }
 
         let decoder = JSONDecoder()
         return try decoder.decode(T.self, from: data)
+    }
+
+    private func responseError(_ data: Data, status: Int) -> APIError {
+        if let envelope = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            let body = envelope["error"] as? [String: Any] ?? envelope
+            if let message = body["message"] as? String { return .message(message) }
+            if let messages = body["message"] as? [String] { return .message(messages.joined(separator: "\n")) }
+        }
+        return .serverError(status)
+    }
+
+    private func perform(_ request: URLRequest) async throws -> (Data, URLResponse) {
+        let response = try await URLSession.shared.data(for: request)
+        guard (response.1 as? HTTPURLResponse)?.statusCode == 401,
+              !request.url!.path.contains("/auth/"),
+              let token = UserDefaults.standard.string(forKey: "refreshToken") else { return response }
+        let access = try await AccessTokenRefresher.shared.refresh(baseURL: baseURL, token: token)
+        var retry = request
+        retry.setValue("Bearer \(access)", forHTTPHeaderField: "Authorization")
+        return try await URLSession.shared.data(for: retry)
     }
 
     // MARK: - Void Request (no response body)
@@ -94,7 +120,7 @@ class APIClient {
             request.httpBody = try? JSONSerialization.data(withJSONObject: body)
         }
 
-        let (_, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await perform(request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
@@ -105,14 +131,49 @@ class APIClient {
         }
 
         guard (200...299).contains(httpResponse.statusCode) else {
-            throw APIError.serverError(httpResponse.statusCode)
+            throw responseError(data, status: httpResponse.statusCode)
         }
     }
 }
 
-enum APIError: Error {
+enum APIError: LocalizedError {
+    case message(String)
+    var errorDescription: String? {
+        switch self {
+        case .message(let value): return value
+        case .unauthorized: return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+        case .invalidURL, .invalidResponse: return "Không thể đọc phản hồi máy chủ."
+        case .serverError(let code): return "Yêu cầu thất bại (\(code)). Vui lòng thử lại."
+        }
+    }
     case invalidURL
     case invalidResponse
     case unauthorized
     case serverError(Int)
+}
+
+private actor AccessTokenRefresher {
+    static let shared = AccessTokenRefresher()
+    private var pending: Task<String, Error>?
+    func refresh(baseURL: String, token: String) async throws -> String {
+        if let pending { return try await pending.value }
+        let job = Task<String, Error> {
+            var request = URLRequest(url: URL(string: baseURL + "/auth/refresh")!)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONSerialization.data(withJSONObject: ["refreshToken": token])
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard (response as? HTTPURLResponse)?.statusCode == 200,
+                  let body = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let access = body["accessToken"] as? String,
+                  let refresh = body["refreshToken"] as? String,
+                  UserDefaults.standard.string(forKey: "refreshToken") == token else { throw APIError.unauthorized }
+            UserDefaults.standard.set(access, forKey: "accessToken")
+            UserDefaults.standard.set(refresh, forKey: "refreshToken")
+            return access
+        }
+        pending = job
+        defer { pending = nil }
+        return try await job.value
+    }
 }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RoomBookingView: View {
     let hotel: Hotel
+    @Environment(\.hotelSearchFilters) private var searchFilters
     @Environment(\.dismiss) private var dismiss
 
     @State private var roomTypes: [RoomType] = []
@@ -51,6 +52,13 @@ struct RoomBookingView: View {
                         .cornerRadius(AppSpacing.radiusSmall)
                     }
 
+                    if let reason = bookingBlockReason, errorMessage == nil {
+                        Text(reason)
+                            .font(AppTypography.subheadline)
+                            .foregroundColor(AppColors.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
                     // Book Button
                     PrimaryButton(
                         title: "Xác nhận đặt phòng",
@@ -73,16 +81,29 @@ struct RoomBookingView: View {
                     }
                 }
             }
-            .task {
-                await loadRoomTypes()
+            .sheet(item: $bookingResult, onDismiss: { dismiss() }) { booking in
+                NavigationStack { BookingDetailView(booking: booking).toolbar { Button("Đóng") { bookingResult = nil } } }
             }
             .onAppear {
+                if let value = searchFilters.checkIn, let date = formatter.date(from: value) { checkIn = date }
+                if let value = searchFilters.checkOut, let date = formatter.date(from: value) { checkOut = date }
+                guestCount = searchFilters.guests
                 if let user = AuthService.shared.getCurrentUser() {
                     guestName = user.name
                     guestEmail = user.email
                     guestPhone = user.phone ?? ""
                 }
             }
+            .task(id: stayKey) {
+                errorMessage = nil
+                await loadRoomTypes()
+            }
+            .onChange(of: checkIn) { _, newValue in
+                if Calendar.current.startOfDay(for: checkOut) <= Calendar.current.startOfDay(for: newValue) {
+                    checkOut = Calendar.current.date(byAdding: .day, value: 1, to: newValue) ?? newValue
+                }
+            }
+            .onChange(of: guestCount) { _, _ in selectFirstBookableRoom() }
         }
     }
 
@@ -91,7 +112,7 @@ struct RoomBookingView: View {
         HStack(spacing: AppSpacing.base) {
             // Hotel Image
             if let images = hotel.images, !images.isEmpty {
-                AsyncImage(url: URL(string: images[0])) { image in
+                AsyncImage(url: APIClient.shared.mediaURL(images[0])) { image in
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
@@ -122,7 +143,7 @@ struct RoomBookingView: View {
                         .foregroundColor(AppColors.textSecondary)
                 }
 
-                if let rating = hotel.averageRating {
+                if let rating = hotel.guestRating {
                     HStack(spacing: AppSpacing.xxs) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 12))
@@ -163,7 +184,7 @@ struct RoomBookingView: View {
                     Image(systemName: "bed.double")
                         .font(.system(size: 40))
                         .foregroundColor(AppColors.textTertiary)
-                    Text("Không có phòng trống")
+                    Text("Khách sạn chưa mở bán loại phòng nào")
                         .font(AppTypography.subheadline)
                         .foregroundColor(AppColors.textSecondary)
                 }
@@ -175,6 +196,7 @@ struct RoomBookingView: View {
                         RoomTypeCard(
                             roomType: roomType,
                             isSelected: selectedRoomType?.id == roomType.id,
+                            guestCount: guestCount,
                             onSelect: { selectedRoomType = roomType }
                         )
                     }
@@ -309,17 +331,43 @@ struct RoomBookingView: View {
     }
 
     // MARK: - Computed Properties
-    private var isFormValid: Bool {
-        selectedRoomType != nil &&
-        !guestName.isEmpty &&
-        !guestEmail.isEmpty &&
-        !guestPhone.isEmpty &&
-        guestPhone.count >= 10
+    private var formatter: DateFormatter {
+        let value = DateFormatter()
+        value.locale = Locale(identifier: "en_US_POSIX")
+        value.dateFormat = "yyyy-MM-dd"
+        return value
+    }
+
+    private var stayKey: String {
+        "\(formatter.string(from: checkIn))|\(formatter.string(from: checkOut))"
+    }
+
+    private var isFormValid: Bool { bookingBlockReason == nil }
+
+    private var bookingBlockReason: String? {
+        if hotel.status != "PUBLISHED" { return "Khách sạn hiện chưa nhận đặt phòng." }
+        if isLoading { return "Đang kiểm tra phòng trống theo ngày đã chọn." }
+        if Calendar.current.startOfDay(for: checkOut) <= Calendar.current.startOfDay(for: checkIn) {
+            return "Ngày trả phòng phải sau ngày nhận phòng."
+        }
+        if numberOfNights > 90 { return "Chỉ được đặt tối đa 90 đêm." }
+        if roomTypes.isEmpty { return "Khách sạn chưa có loại phòng đang mở bán." }
+        guard let room = selectedRoomType else {
+            if roomTypes.allSatisfy({ $0.availableRooms == 0 }) { return "Đã hết phòng trong kỳ lưu trú đã chọn. Hãy đổi ngày." }
+            return "Không có phòng phù hợp với \(guestCount) khách. Hãy giảm số khách hoặc chọn loại phòng khác."
+        }
+        if room.availableRooms < 1 { return "Loại phòng này đã hết trong kỳ lưu trú đã chọn." }
+        if guestCount > room.maxGuests { return "Loại phòng này chỉ nhận tối đa \(room.maxGuests) khách." }
+        if guestName.trimmingCharacters(in: .whitespacesAndNewlines).count < 2 { return "Vui lòng nhập họ và tên khách." }
+        if !guestEmail.contains("@") { return "Vui lòng nhập email hợp lệ." }
+        let phone = guestPhone.hasPrefix("+") ? String(guestPhone.dropFirst()) : guestPhone
+        if !(10...15).contains(phone.count) || !phone.allSatisfy(\.isNumber) { return "Số điện thoại cần 10–15 chữ số." }
+        return nil
     }
 
     private var numberOfNights: Int {
         let calendar = Calendar.current
-        let components = calendar.dateComponents([.day], from: checkIn, to: checkOut)
+        let components = calendar.dateComponents([.day], from: calendar.startOfDay(for: checkIn), to: calendar.startOfDay(for: checkOut))
         return max(1, components.day ?? 1)
     }
 
@@ -327,14 +375,27 @@ struct RoomBookingView: View {
     private func loadRoomTypes() async {
         isLoading = true
         do {
-            roomTypes = try await ExploreService.shared.getRoomTypes(hotelId: hotel.id)
-            if let first = roomTypes.first {
-                selectedRoomType = first
-            }
+            let rooms = try await ExploreService.shared.getRoomTypes(hotelId: hotel.id,
+                checkIn: formatter.string(from: checkIn), checkOut: formatter.string(from: checkOut))
+            guard !Task.isCancelled else { return }
+            roomTypes = rooms
+            selectFirstBookableRoom()
         } catch {
-            errorMessage = "Không thể tải loại phòng"
+            guard !Task.isCancelled else { return }
+            roomTypes = []
+            selectedRoomType = nil
+            errorMessage = error.localizedDescription
         }
         isLoading = false
+    }
+
+    private func selectFirstBookableRoom() {
+        if let selected = selectedRoomType,
+           let current = roomTypes.first(where: { $0.id == selected.id && $0.availableRooms > 0 && $0.maxGuests >= guestCount }) {
+            selectedRoomType = current
+        } else {
+            selectedRoomType = roomTypes.first(where: { $0.availableRooms > 0 && $0.maxGuests >= guestCount })
+        }
     }
 
     private func bookRoom() {
@@ -342,9 +403,6 @@ struct RoomBookingView: View {
 
         isBooking = true
         errorMessage = nil
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
 
         Task {
             do {
@@ -359,9 +417,10 @@ struct RoomBookingView: View {
                     guestPhone: guestPhone,
                     specialRequests: specialRequests.isEmpty ? nil : specialRequests
                 )
-                dismiss()
+                // Show the created booking so the guest can confirm payment at hotel.
             } catch {
-                errorMessage = "Không thể đặt phòng. Vui lòng thử lại."
+                errorMessage = error.localizedDescription
+                await loadRoomTypes()
             }
             isBooking = false
         }
@@ -372,7 +431,10 @@ struct RoomBookingView: View {
 struct RoomTypeCard: View {
     let roomType: RoomType
     let isSelected: Bool
+    let guestCount: Int
     let onSelect: () -> Void
+
+    private var isBookable: Bool { roomType.availableRooms > 0 && guestCount <= roomType.maxGuests }
 
     var body: some View {
         Button(action: onSelect) {
@@ -380,7 +442,7 @@ struct RoomTypeCard: View {
                 // Room Image
                 ZStack(alignment: .topTrailing) {
                     if let images = roomType.images, !images.isEmpty, let firstImage = images.first {
-                        AsyncImage(url: URL(string: firstImage)) { image in
+                        AsyncImage(url: APIClient.shared.mediaURL(firstImage)) { image in
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -392,13 +454,13 @@ struct RoomTypeCard: View {
                     }
 
                     // Availability Badge
-                    Text("\(roomType.availableRooms) phòng")
+                    Text(roomType.availableRooms == 0 ? "Hết phòng" : "\(roomType.availableRooms) phòng trống")
                         .font(AppTypography.caption2)
                         .fontWeight(.medium)
                         .foregroundColor(.white)
                         .padding(.horizontal, AppSpacing.sm)
                         .padding(.vertical, AppSpacing.xxs)
-                        .background(AppColors.success)
+                        .background(roomType.availableRooms == 0 ? AppColors.error : AppColors.success)
                         .cornerRadius(AppSpacing.radiusSmall)
                         .padding(AppSpacing.sm)
                 }
@@ -426,6 +488,12 @@ struct RoomTypeCard: View {
                     }
                     .font(AppTypography.caption1)
                     .foregroundColor(AppColors.textSecondary)
+
+                    if guestCount > roomType.maxGuests {
+                        Text("Không đủ sức chứa cho \(guestCount) khách")
+                            .font(AppTypography.caption1)
+                            .foregroundColor(AppColors.error)
+                    }
 
                     // Amenities Horizontal Scroll
                     if let amenities = roomType.amenities, !amenities.isEmpty {
@@ -471,6 +539,8 @@ struct RoomTypeCard: View {
             .cornerRadius(AppSpacing.radiusMedium)
         }
         .buttonStyle(.plain)
+        .disabled(!isBookable)
+        .opacity(isBookable ? 1 : 0.7)
     }
 
     private var roomImagePlaceholder: some View {

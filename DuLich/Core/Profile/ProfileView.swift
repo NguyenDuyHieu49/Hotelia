@@ -2,6 +2,11 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @State private var route: AccountRoute?
+    private enum AccountRoute: String, Identifiable {
+        case profile, history, notifications, security, support, about, saved, applyOwner
+        var id: String { rawValue }
+    }
 
     var body: some View {
         NavigationView {
@@ -20,6 +25,22 @@ struct ProfileView: View {
             }
             .background(AppColors.backgroundSecondary)
             .navigationTitle("Tài khoản")
+            .sheet(item: $route) { item in
+                NavigationStack {
+                    Group {
+                        switch item {
+                        case .profile: EditProfileView()
+                        case .history: HistoryView()
+                        case .notifications: NotificationsView()
+                        case .security: ChangePasswordView()
+                        case .support: SupportView()
+                        case .about: AboutHoteliaView()
+                        case .saved: SavedHotelsView()
+                        case .applyOwner: ApplyOwnerView()
+                        }
+                    }.toolbar { ToolbarItem(placement: .cancellationAction) { Button("Đóng") { route = nil } } }
+                }
+            }
         }
     }
 
@@ -65,12 +86,18 @@ struct ProfileView: View {
     // MARK: - Menu Section
     private var menuSection: some View {
         VStack(spacing: 0) {
+            MenuItemView(icon: "heart.fill", title: "Khách sạn đã lưu", subtitle: "Danh sách yêu thích", action: { route = .saved })
+
+            if authViewModel.currentUser?.role == "USER" {
+                MenuItemView(icon: "building.2", title: "Trở thành đối tác", subtitle: "Đăng ký chủ khách sạn", action: { route = .applyOwner })
+            }
+
             // Personal Info
             MenuItemView(
                 icon: "person.fill",
                 title: "Thông tin cá nhân",
                 subtitle: "Cập nhật hồ sơ",
-                action: {}
+                action: { route = .profile }
             )
 
             Divider().padding(.leading, 56)
@@ -80,7 +107,7 @@ struct ProfileView: View {
                 icon: "calendar",
                 title: "Lịch sử đặt phòng",
                 subtitle: "Xem các đặt phòng của bạn",
-                action: {}
+                action: { route = .history }
             )
 
             Divider().padding(.leading, 56)
@@ -89,8 +116,8 @@ struct ProfileView: View {
             MenuItemView(
                 icon: "bell.fill",
                 title: "Thông báo",
-                subtitle: "Cài đặt thông báo",
-                action: {}
+                subtitle: "Xem thông báo của bạn",
+                action: { route = .notifications }
             )
 
             Divider().padding(.leading, 56)
@@ -100,7 +127,7 @@ struct ProfileView: View {
                 icon: "lock.fill",
                 title: "Bảo mật",
                 subtitle: "Đổi mật khẩu",
-                action: {}
+                action: { route = .security }
             )
 
             Divider().padding(.leading, 56)
@@ -110,7 +137,7 @@ struct ProfileView: View {
                 icon: "questionmark.circle.fill",
                 title: "Trợ giúp",
                 subtitle: "Liên hệ hỗ trợ",
-                action: {}
+                action: { route = .support }
             )
 
             Divider().padding(.leading, 56)
@@ -121,7 +148,7 @@ struct ProfileView: View {
                 title: "Về chúng tôi",
                 subtitle: "Phiên bản 1.0.0",
                 showDivider: false,
-                action: {}
+                action: { route = .about }
             )
         }
         .background(Color.white)
