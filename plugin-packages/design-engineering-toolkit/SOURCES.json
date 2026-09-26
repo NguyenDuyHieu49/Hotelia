@@ -1,0 +1,243 @@
+{
+  "skills": [
+    {
+      "name": "impeccable",
+      "archive": "impeccable-main.zip",
+      "source": "impeccable-main/.agents/skills/impeccable/",
+      "destination": "skills/impeccable"
+    },
+    {
+      "name": "brandkit",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/brandkit/",
+      "destination": "skills/brandkit"
+    },
+    {
+      "name": "industrial-brutalist-ui",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/brutalist-skill/",
+      "destination": "skills/industrial-brutalist-ui"
+    },
+    {
+      "name": "gpt-taste",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/gpt-tasteskill/",
+      "destination": "skills/gpt-taste"
+    },
+    {
+      "name": "image-to-code",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/image-to-code-skill/",
+      "destination": "skills/image-to-code"
+    },
+    {
+      "name": "imagegen-frontend-mobile",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/imagegen-frontend-mobile/",
+      "destination": "skills/imagegen-frontend-mobile"
+    },
+    {
+      "name": "imagegen-frontend-web",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/imagegen-frontend-web/",
+      "destination": "skills/imagegen-frontend-web"
+    },
+    {
+      "name": "minimalist-ui",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/minimalist-skill/",
+      "destination": "skills/minimalist-ui"
+    },
+    {
+      "name": "full-output-enforcement",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/output-skill/",
+      "destination": "skills/full-output-enforcement"
+    },
+    {
+      "name": "redesign-existing-projects",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/redesign-skill/",
+      "destination": "skills/redesign-existing-projects"
+    },
+    {
+      "name": "high-end-visual-design",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/soft-skill/",
+      "destination": "skills/high-end-visual-design"
+    },
+    {
+      "name": "stitch-design-taste",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/stitch-skill/",
+      "destination": "skills/stitch-design-taste"
+    },
+    {
+      "name": "design-taste-frontend-v1",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/taste-skill-v1/",
+      "destination": "skills/design-taste-frontend-v1"
+    },
+    {
+      "name": "design-taste-frontend",
+      "archive": "taste-skill-main.zip",
+      "source": "taste-skill-main/skills/taste-skill/",
+      "destination": "skills/design-taste-frontend"
+    },
+    {
+      "name": "ask-matt",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/ask-matt/",
+      "destination": "skills/ask-matt"
+    },
+    {
+      "name": "diagnosing-bugs",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/diagnosing-bugs/",
+      "destination": "skills/diagnosing-bugs"
+    },
+    {
+      "name": "grill-with-docs",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/grill-with-docs/",
+      "destination": "skills/grill-with-docs"
+    },
+    {
+      "name": "triage",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/triage/",
+      "destination": "skills/triage"
+    },
+    {
+      "name": "improve-codebase-architecture",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/improve-codebase-architecture/",
+      "destination": "skills/improve-codebase-architecture"
+    },
+    {
+      "name": "setup-matt-pocock-skills",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/setup-matt-pocock-skills/",
+      "destination": "skills/setup-matt-pocock-skills"
+    },
+    {
+      "name": "tdd",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/tdd/",
+      "destination": "skills/tdd"
+    },
+    {
+      "name": "to-spec",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/to-spec/",
+      "destination": "skills/to-spec"
+    },
+    {
+      "name": "to-tickets",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/to-tickets/",
+      "destination": "skills/to-tickets"
+    },
+    {
+      "name": "wayfinder",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/wayfinder/",
+      "destination": "skills/wayfinder"
+    },
+    {
+      "name": "implement",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/implement/",
+      "destination": "skills/implement"
+    },
+    {
+      "name": "prototype",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/prototype/",
+      "destination": "skills/prototype"
+    },
+    {
+      "name": "research",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/research/",
+      "destination": "skills/research"
+    },
+    {
+      "name": "domain-modeling",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/domain-modeling/",
+      "destination": "skills/domain-modeling"
+    },
+    {
+      "name": "codebase-design",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/codebase-design/",
+      "destination": "skills/codebase-design"
+    },
+    {
+      "name": "code-review",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/code-review/",
+      "destination": "skills/code-review"
+    },
+    {
+      "name": "resolving-merge-conflicts",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/resolving-merge-conflicts/",
+      "destination": "skills/resolving-merge-conflicts"
+    },
+    {
+      "name": "wizard",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/engineering/wizard/",
+      "destination": "skills/wizard"
+    },
+    {
+      "name": "grill-me",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/productivity/grill-me/",
+      "destination": "skills/grill-me"
+    },
+    {
+      "name": "grilling",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/productivity/grilling/",
+      "destination": "skills/grilling"
+    },
+    {
+      "name": "handoff",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/productivity/handoff/",
+      "destination": "skills/handoff"
+    },
+    {
+      "name": "teach",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/productivity/teach/",
+      "destination": "skills/teach"
+    },
+    {
+      "name": "to-questionnaire",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/productivity/to-questionnaire/",
+      "destination": "skills/to-questionnaire"
+    },
+    {
+      "name": "wait-what",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/productivity/wait-what/",
+      "destination": "skills/wait-what"
+    },
+    {
+      "name": "writing-for-agents",
+      "archive": "skills-main.zip",
+      "source": "skills-main/skills/productivity/writing-for-agents/",
+      "destination": "skills/writing-for-agents"
+    }
+  ],
+  "archives": {
+    "impeccable-main.zip": "233491f2a8258ba06099f4f2d664d39b027c92e371de370b1c4722a2a9655a9a",
+    "taste-skill-main.zip": "a28dfab449fe3ff20a75a4f62e4a87d0ac6e81c6bc1f2b84d640fa62903893a7",
+    "skills-main.zip": "56d5185931423c3249e8e785ac6990e1468853277e4d789b6191ec53023c6b05"
+  }
+}

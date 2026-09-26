@@ -1,0 +1,28 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "design-engineering-toolkit",
+  "version": "1.0.0",
+  "description": "Reusable UI design and software engineering workflows from Impeccable, Taste, and Matt Pocock skills.",
+  "author": {
+    "name": "Plugin owner"
+  },
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Design Engineering Toolkit",
+        "shortDescription": "UI design, implementation, testing, and review",
+        "longDescription": "A reusable collection of 40 skills combining Impeccable UI workflows, Taste design directions, Matt Pocock engineering practices, and a focused workflow router. Includes upstream references and licenses. Optional external tools must be available separately.",
+        "developerName": "Plugin owner",
+        "category": "Productivity",
+        "capabilities": [
+          "Interactive"
+        ],
+        "defaultPrompt": [
+          "Dùng các skill phù hợp để thiết kế và triển khai project này.",
+          "Đánh giá và cải thiện UI/UX hiện tại, giữ nguyên chức năng.",
+          "Lập kế hoạch, triển khai và kiểm thử tính năng này."
+        ]
+      }
+    }
+  }
+}
