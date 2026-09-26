@@ -19,10 +19,25 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Normalize Mongo document IDs while retaining original fields.
+function normalize(value: any): any {
+  if (Array.isArray(value)) return value.map(normalize);
+  if (!value || typeof value !== 'object') return value;
+  const result: any = Object.fromEntries(Object.entries(value).map(([k,v]) => [k,normalize(v)]));
+  if (result._id && typeof result._id === 'string') result.id = result._id;
+  if (typeof result.isActive === 'boolean' && result.email) result.status = result.isActive ? 'ACTIVE' : 'SUSPENDED';
+  for (const key of ['user','hotel','roomType']) {
+    const item = result[key + 'Id'];
+    if (item && typeof item === 'object') { result[key] = item; result[key + 'Id'] = item.id; }
+  }
+  return result;
+}
+
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response,
+  (response) => { response.data = normalize(response.data); return response; },
   async (error) => {
+    if(error.response?.data?.error?.message) error.response.data.message = error.response.data.error.message;
     const originalRequest = error.config;
 
     // Handle 401 - try refresh token
@@ -79,12 +94,12 @@ export const adminApi = {
   getStats: () => api.get('/admin/stats'),
   getUsers: (params?: { page?: number; limit?: number; role?: string }) =>
     api.get('/admin/users', { params }),
-  getOwners: () => api.get('/admin/owners/pending'),
+  getOwners: () => api.get('/admin/owners'),
   approveOwner: (id: string) => api.post(`/admin/owners/${id}/approve`),
   rejectOwner: (id: string, reason: string) =>
     api.post(`/admin/owners/${id}/reject`, { reason }),
   getHotels: (params?: { status?: string }) =>
-    api.get('/admin/hotels/pending', { params }),
+    api.get('/admin/hotels', { params }),
   getPendingHotels: () => api.get('/admin/hotels/pending'),
   approveHotel: (id: string) => api.post(`/admin/hotels/${id}/approve`),
   rejectHotel: (id: string, reason: string) =>
@@ -132,6 +147,9 @@ export const roomTypeApi = {
 
 // Booking API
 export const bookingApi = {
+  getOwnerBookings: () => api.get('/owners/bookings'),
+  getAdminBookings: () => api.get('/admin/bookings'),
+  resolveCancellation: (id:string) => api.post(`/bookings/${id}/resolve-cancellation`),
   getMyBookings: () => api.get('/bookings'),
   getBooking: (id: string) => api.get(`/bookings/${id}`),
   cancelBooking: (id: string, reason?: string) =>
@@ -144,6 +162,7 @@ export const bookingApi = {
 export const reviewApi = {
   getByHotel: (hotelId: string) => api.get(`/reviews/hotel/${hotelId}`),
   getMyReviews: () => api.get('/reviews/my-reviews'),
+  getOwnerReviews: () => api.get('/reviews/owner'),
   create: (data: { hotelId: string; rating: number; title?: string; content: string }) =>
     api.post('/reviews', data),
   reply: (id: string, reply: string) =>

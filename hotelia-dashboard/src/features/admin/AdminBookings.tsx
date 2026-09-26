@@ -3,7 +3,7 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Input } from '../../components/ui/Input';
 import { bookingApi } from '../../lib/api/client';
-import { Search, Calendar, User, DollarSign } from 'lucide-react';
+import { Search, Calendar, User } from 'lucide-react';
 import type { Booking, BookingStatus } from '../../types';
 
 const statusConfig: Record<BookingStatus, { label: string; variant: 'default' | 'success' | 'warning' | 'danger' | 'info' }> = {
@@ -31,7 +31,7 @@ export function AdminBookings() {
 
   const loadBookings = async () => {
     try {
-      const res = await bookingApi.getMyBookings();
+      const res = await bookingApi.getAdminBookings();
       setBookings(res.data);
     } catch (error) {
       console.error('Error loading bookings:', error);

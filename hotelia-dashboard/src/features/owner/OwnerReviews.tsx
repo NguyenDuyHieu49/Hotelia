@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Card } from '../../components/ui/Card';
-import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { reviewApi } from '../../lib/api/client';
 import { Star, ThumbsUp, MessageSquare } from 'lucide-react';
@@ -19,7 +18,7 @@ export function OwnerReviews() {
 
   const loadReviews = async () => {
     try {
-      const res = await reviewApi.getMyReviews();
+      const res = await reviewApi.getOwnerReviews();
       setReviews(res.data);
     } catch (error) {
       console.error('Error loading reviews:', error);

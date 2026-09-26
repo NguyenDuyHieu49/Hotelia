@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export function SimpleLogin() {
-  const [email, setEmail] = useState('manager@hotelia.com');
-  const [password, setPassword] = useState('OwnerPass123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -16,20 +14,16 @@ export function SimpleLogin() {
       });
 
       const data = await response.json();
-      console.log('Login response:', data);
 
       if (data.accessToken) {
-        console.log('Saving token to localStorage...');
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
-        console.log('Token saved!');
 
         // Direct page redirect
-        const baseUrl = 'http://localhost:5174';
+        const baseUrl = window.location.origin;
         const redirectUrl = data.user.role === 'ADMIN'
           ? baseUrl + '/admin/dashboard'
           : baseUrl + '/owner/dashboard';
-        console.log('Redirecting to:', redirectUrl);
         window.location.href = redirectUrl;
         return;
       } else {

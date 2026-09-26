@@ -1,3 +1,4 @@
+import { HotelEditor } from './HotelEditor';
 import { useState, useEffect } from 'react';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -15,6 +16,8 @@ const statusConfig: Record<HotelStatus, { label: string; variant: 'default' | 's
 };
 
 export function OwnerHotels() {
+  const [editor,setEditor]=useState<{hotel?:Hotel;readOnly?:boolean} | null>(null);
+  const [error,setError]=useState('');
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,13 +30,13 @@ export function OwnerHotels() {
       const res = await hotelApi.getMyHotels();
       setHotels(res.data);
     } catch (error) {
-      console.error('Error loading hotels:', error);
+      setError('Không thể tải khách sạn. Vui lòng làm mới.');
     }
     setLoading(false);
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Bạn có chắc muốn xóa khách sạn này?')) {
+    if (confirm('Ngừng đăng khách sạn này? Booking và dữ liệu được giữ lại.')) {
       try {
         await hotelApi.deleteHotel(id);
         loadHotels();
@@ -53,13 +56,15 @@ export function OwnerHotels() {
 
   return (
     <div className="space-y-6">
+      {error && <p role="alert">{error}</p>}
+      {editor && <HotelEditor {...editor} onClose={() => {setEditor(null);loadHotels();}} />}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Khách sạn của tôi</h1>
           <p className="text-gray-500 mt-1">Quản lý danh sách khách sạn</p>
         </div>
-        <Button>
+        <Button onClick={() => setEditor({})}>
           <Plus className="w-4 h-4 mr-2" />
           Thêm khách sạn
         </Button>
@@ -71,7 +76,7 @@ export function OwnerHotels() {
           <Building className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900">Chưa có khách sạn nào</h3>
           <p className="text-gray-500 mt-1">Bắt đầu bằng cách thêm khách sạn đầu tiên</p>
-          <Button className="mt-4">
+          <Button className="mt-4" onClick={() => setEditor({})}>
             <Plus className="w-4 h-4 mr-2" />
             Thêm khách sạn
           </Button>
@@ -84,43 +89,43 @@ export function OwnerHotels() {
               <Card key={hotel.id} padding="none" className="overflow-hidden">
                 {/* Image */}
                 <div className="h-40 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                  <Building className="w-12 h-12 text-gray-400" />
+                  {hotel.images?.[0] ? <img src={hotel.images[0]} alt={hotel.name} className="w-full h-full object-cover" /> : <Building className="w-12 h-12 text-gray-400" />}
                 </div>
-                
+
                 {/* Content */}
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-semibold text-gray-900 line-clamp-1">{hotel.name}</h3>
                     <Badge variant={status.variant}>{status.label}</Badge>
                   </div>
-                  
+
                   <div className="flex items-center gap-1 text-gray-500 text-sm mb-3">
                     <MapPin className="w-4 h-4" />
                     <span className="truncate">{hotel.address}, {hotel.city}</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-1 mb-4">
                     {Array(hotel.starRating || 0).fill(0).map((_, i) => (
                       <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                     ))}
                     <span className="text-sm text-gray-500 ml-2">
-                      {hotel.averageRating?.toFixed(1) || '0.0'} ({hotel.reviewCount || 0} đánh giá)
+                      {hotel.reviewCount ? `${hotel.averageRating.toFixed(1)} (${hotel.reviewCount} đánh giá)` : 'Chưa có đánh giá'}
                     </span>
                   </div>
-                  
+
                   {/* Actions */}
                   <div className="flex items-center gap-2 pt-3 border-t">
-                    <Button variant="ghost" size="sm" className="flex-1">
+                    <Button variant="ghost" size="sm" className="flex-1" onClick={() => setEditor({hotel,readOnly:true})}>
                       <Eye className="w-4 h-4 mr-1" />
                       Xem
                     </Button>
-                    <Button variant="secondary" size="sm" className="flex-1">
+                    <Button variant="secondary" size="sm" className="flex-1" onClick={() => setEditor({hotel})}>
                       <Edit className="w-4 h-4 mr-1" />
                       Sửa
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleDelete(hotel.id)}
                       className="text-red-600 hover:bg-red-50"
                     >

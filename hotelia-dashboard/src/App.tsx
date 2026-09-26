@@ -1,3 +1,6 @@
+import { SettingsPage } from './features/SettingsPage';
+import { AdminRecords } from './features/admin/AdminRecords';
+import { AdminSupport } from './features/admin/AdminSupport';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './lib/auth/AuthContext';
 import { Layout } from './components/layout/Layout';
@@ -55,6 +58,9 @@ export default function App() {
                   <Routes>
                     <Route path="dashboard" element={<OwnerDashboard />} />
                     <Route path="hotels" element={<OwnerHotels />} />
+                    <Route path="room-types" element={<OwnerHotels />} />
+                    <Route path="analytics" element={<OwnerDashboard />} />
+                    <Route path="settings" element={<SettingsPage />} />
                     <Route path="bookings" element={<OwnerBookings />} />
                     <Route path="reviews" element={<OwnerReviews />} />
                     <Route path="*" element={<Navigate to="/owner/dashboard" replace />} />
@@ -72,6 +78,12 @@ export default function App() {
                 <Layout type="admin">
                   <Routes>
                     <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="support" element={<AdminSupport />} />
+                    <Route path="payments" element={<AdminRecords kind="payments" />} />
+                    <Route path="reviews" element={<AdminRecords kind="reviews" />} />
+                    <Route path="audit-logs" element={<AdminRecords kind="audit-logs" />} />
+                    <Route path="complaints" element={<AdminSupport />} />
+                    <Route path="settings" element={<SettingsPage />} />
                     <Route path="users" element={<AdminUsers />} />
                     <Route path="owners" element={<AdminOwners />} />
                     <Route path="hotels" element={<AdminHotels />} />

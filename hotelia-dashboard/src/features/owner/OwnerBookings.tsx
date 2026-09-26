@@ -3,7 +3,7 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Input } from '../../components/ui/Input';
 import { bookingApi } from '../../lib/api/client';
-import { Search, Calendar, User, Phone, Mail, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Calendar, User, Phone, Mail, CheckCircle } from 'lucide-react';
 import type { Booking, BookingStatus } from '../../types';
 
 const statusConfig: Record<BookingStatus, { label: string; variant: 'default' | 'success' | 'warning' | 'danger' | 'info' }> = {
@@ -22,6 +22,8 @@ const statusConfig: Record<BookingStatus, { label: string; variant: 'default' | 
 export function OwnerBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionBusy,setActionBusy]=useState(false);
+  const [actionError,setActionError]=useState('');
   const [search, setSearch] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
@@ -31,12 +33,20 @@ export function OwnerBookings() {
 
   const loadBookings = async () => {
     try {
-      const res = await bookingApi.getMyBookings();
+      const res = await bookingApi.getOwnerBookings();
       setBookings(res.data);
     } catch (error) {
       console.error('Error loading bookings:', error);
     }
     setLoading(false);
+  };
+
+  const act = async (kind:'checkIn'|'checkOut'|'resolveCancellation') => {
+    if(!selectedBooking || actionBusy) return;
+    setActionBusy(true); setActionError('');
+    try {const r=await bookingApi[kind](selectedBooking.id); setSelectedBooking(r.data);await loadBookings();}
+    catch(e:any) {setActionError(String(e.response?.data?.message || 'Không thể cập nhật booking'));}
+    finally {setActionBusy(false);}
   };
 
   const formatCurrency = (amount: number) => {
@@ -222,16 +232,18 @@ export function OwnerBookings() {
               )}
 
               <div className="flex gap-3 pt-4 border-t">
-                {selectedBooking.status === 'PAID' && (
-                  <button className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 flex items-center justify-center gap-2">
+                {selectedBooking.status === 'CANCEL_REQUESTED' && <button disabled={actionBusy} onClick={()=>act('resolveCancellation')} className="px-4 py-2 bg-red-600 text-white rounded">Chấp nhận hủy</button>}
+                {actionError && <p role="alert" className="text-red-600">{actionError}</p>}
+                {selectedBooking.status === 'CONFIRMED' && (
+                  <button disabled={actionBusy} onClick={()=>act('checkIn')} className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 flex items-center justify-center gap-2">
                     <CheckCircle className="w-4 h-4" />
-                    Xác nhận đặt phòng
+                    Nhận phòng
                   </button>
                 )}
-                {selectedBooking.status === 'CONFIRMED' && (
-                  <button className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 flex items-center justify-center gap-2">
+                {selectedBooking.status === 'CHECKED_IN' && (
+                  <button disabled={actionBusy} onClick={()=>act('checkOut')} className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 flex items-center justify-center gap-2">
                     <CheckCircle className="w-4 h-4" />
-                    Xác nhận nhận phòng
+                    Trả phòng
                   </button>
                 )}
               </div>

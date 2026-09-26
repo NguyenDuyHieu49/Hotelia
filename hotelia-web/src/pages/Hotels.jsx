@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Check, X, Eye } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import api from '../services/api'
 
 export default function Hotels() {
@@ -16,6 +16,7 @@ export default function Hotels() {
     try {
       const res = await api.get('/admin/hotels/pending')
       setPendingHotels(res.data)
+      setAllHotels((await api.get('/admin/hotels')).data)
     } catch (err) {
       console.error(err)
     }
@@ -90,6 +91,12 @@ export default function Hotels() {
             onApprove={handleApprove}
             onReject={handleReject}
           />
+        ))}
+        {activeTab === 'all' && allHotels.length === 0 && (
+          <div className="bg-white rounded-xl p-8 text-center text-gray-500">Chưa có khách sạn</div>
+        )}
+        {activeTab === 'all' && allHotels.map(hotel => (
+          <HotelCard key={hotel._id} hotel={hotel} onApprove={handleApprove} onReject={handleReject} />
         ))}
       </div>
     </div>

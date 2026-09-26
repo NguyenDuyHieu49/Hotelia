@@ -1,10 +1,11 @@
+import { HotelEditor } from '../owner/HotelEditor';
 import { useState, useEffect } from 'react';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { adminApi } from '../../lib/api/client';
-import { Building, CheckCircle, XCircle, Clock, Star, MapPin, Search, Eye } from 'lucide-react';
+import { Building, CheckCircle, XCircle, Clock, Star, MapPin, Search } from 'lucide-react';
 import type { Hotel, HotelStatus } from '../../types';
 
 const statusConfig: Record<HotelStatus, { label: string; variant: 'default' | 'success' | 'warning' | 'danger' | 'info' }> = {
@@ -16,6 +17,7 @@ const statusConfig: Record<HotelStatus, { label: string; variant: 'default' | 's
 };
 
 export function AdminHotels() {
+  const [selected,setSelected]=useState<Hotel | null>(null);
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -27,7 +29,7 @@ export function AdminHotels() {
 
   const loadHotels = async () => {
     try {
-      const res = await adminApi.getPendingHotels();
+      const res = await adminApi.getHotels();
       setHotels(res.data);
     } catch (error) {
       console.error('Error loading hotels:', error);
@@ -77,6 +79,7 @@ export function AdminHotels() {
 
   return (
     <div className="space-y-6">
+      {selected && <HotelEditor hotel={selected} readOnly onClose={()=>setSelected(null)} />}
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Quản lý Khách sạn</h1>
@@ -175,7 +178,7 @@ export function AdminHotels() {
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-lg font-semibold text-gray-900">{hotel.name}</h3>
+                          <button className="text-lg font-semibold text-blue-700 text-left" onClick={()=>setSelected(hotel)}>{hotel.name}</button>
                           <Badge variant={status.variant}>{status.label}</Badge>
                         </div>
                         <div className="flex items-center gap-1 text-gray-500 text-sm mb-2">
@@ -192,7 +195,7 @@ export function AdminHotels() {
                         ))}
                       </div>
                       <span className="text-sm text-gray-500">
-                        {hotel.averageRating?.toFixed(1) || '0.0'} ({hotel.reviewCount || 0} đánh giá)
+                        {hotel.reviewCount ? `${hotel.averageRating.toFixed(1)} (${hotel.reviewCount} đánh giá)` : 'Chưa có đánh giá'}
                       </span>
                     </div>
                     

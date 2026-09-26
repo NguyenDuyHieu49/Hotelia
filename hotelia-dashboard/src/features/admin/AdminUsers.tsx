@@ -3,8 +3,8 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { adminApi, userApi } from '../../lib/api/client';
-import { Search, User, Shield, Ban, CheckCircle, Mail } from 'lucide-react';
+import { adminApi } from '../../lib/api/client';
+import { Search, Ban, CheckCircle, Mail } from 'lucide-react';
 import type { User as UserType, UserRole, UserStatus } from '../../types';
 
 const roleConfig: Record<UserRole, { label: string; variant: 'default' | 'info' | 'success' }> = {

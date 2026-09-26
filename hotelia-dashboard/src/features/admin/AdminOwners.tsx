@@ -3,8 +3,8 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { adminApi } from '../../lib/api/client';
-import { Building, CheckCircle, XCircle, Clock, Shield, Mail, FileText } from 'lucide-react';
-import type { User, HotelUser } from '../../types';
+import { Building, CheckCircle, XCircle, Clock, Shield, Mail } from 'lucide-react';
+import type { User as HotelUser } from '../../types';
 
 export function AdminOwners() {
   const [owners, setOwners] = useState<HotelUser[]>([]);

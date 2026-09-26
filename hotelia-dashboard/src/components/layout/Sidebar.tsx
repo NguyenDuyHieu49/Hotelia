@@ -92,7 +92,8 @@ export function Sidebar({ type, userName = 'User', userEmail = '', onLogout }: S
             </Link>
           );
         })}
-      </nav>
+      {type === 'admin' && <Link to="/admin/support" className="block px-4 py-3 rounded-lg hover:bg-gray-100">Yêu cầu hỗ trợ</Link>}
+        </nav>
 
       {/* User */}
       <div className="p-4 border-t border-white/10">
