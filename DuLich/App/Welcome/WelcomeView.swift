@@ -104,10 +104,10 @@ struct FeatureRow: View {
                 .cornerRadius(AppSpacing.radiusMedium)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(AppTypography.headline)
                     .foregroundColor(AppColors.textPrimary)
-                Text(subtitle)
+                Text(LocalizedStringKey(subtitle))
                     .font(AppTypography.caption1)
                     .foregroundColor(AppColors.textSecondary)
             }

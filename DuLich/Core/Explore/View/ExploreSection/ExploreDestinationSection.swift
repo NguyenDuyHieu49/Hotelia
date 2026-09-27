@@ -62,7 +62,7 @@ struct ExploreDestinationSection: View {
                         showAllDestinations = false
                     } label: {
                         HStack {
-                            Text(destination)
+                            Text(LocalizedStringKey(destination))
                                 .foregroundStyle(.primary)
                             Spacer()
                             if selectedDestination == destination {

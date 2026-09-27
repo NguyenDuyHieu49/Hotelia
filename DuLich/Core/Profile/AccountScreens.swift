@@ -42,7 +42,7 @@ struct FavoriteHotelButton: View {
         }
         .buttonStyle(.plain)
         .disabled(store.busy.contains(hotel.id))
-        .accessibilityLabel(store.hotels.contains { $0.id == hotel.id } ? "Bỏ lưu \(hotel.name)" : "Lưu \(hotel.name)")
+        .accessibilityLabel(store.hotels.contains { $0.id == hotel.id } ? L10n.format("remove_saved_hotel_format", hotel.name) : L10n.format("save_hotel_format", hotel.name))
         .alert("Không thể cập nhật", isPresented: Binding(get: { error != nil }, set: { if !$0 { error = nil } })) {
             Button("Đóng", role: .cancel) { error = nil }
         } message: { Text(error ?? "") }
@@ -93,7 +93,7 @@ struct EditProfileView: View {
                         let user: User = try await APIClient.shared.request(endpoint: "/users/me", method: "PUT", body: ["name": name.trimmingCharacters(in: .whitespacesAndNewlines), "phone": phone])
                         auth.currentUser = user
                         if let data = try? JSONEncoder().encode(user) { UserDefaults.standard.set(data, forKey: "currentUser") }
-                        message = "Đã cập nhật hồ sơ"
+                        message = L10n.text("Đã cập nhật hồ sơ")
                     } catch { message = error.localizedDescription }
                     busy = false
                 }

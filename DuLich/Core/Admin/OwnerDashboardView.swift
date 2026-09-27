@@ -97,7 +97,7 @@ struct MiniStatCard: View {
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(color)
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
@@ -123,11 +123,11 @@ struct MyHotelCard: View {
 
     var statusText: String {
         switch hotel.status {
-        case "PUBLISHED": return "Đã đăng"
-        case "PENDING_APPROVAL": return "Chờ duyệt"
-        case "DRAFT": return "Bản nháp"
-        case "REJECTED": return "Bị từ chối"
-        default: return hotel.status ?? "Không xác định"
+        case "PUBLISHED": return L10n.text("Đã đăng")
+        case "PENDING_APPROVAL": return L10n.text("Chờ duyệt")
+        case "DRAFT": return L10n.text("Bản nháp")
+        case "REJECTED": return L10n.text("Bị từ chối")
+        default: return hotel.status ?? L10n.text("Không xác định")
         }
     }
 

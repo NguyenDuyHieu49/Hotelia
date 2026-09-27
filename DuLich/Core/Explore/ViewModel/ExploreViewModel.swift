@@ -80,7 +80,9 @@ class ExploreViewModel: ObservableObject {
             try Task.checkCancellation()
             guard version == requestVersion else { return }
             hotels = result.hotels
-            rankingInfo = result.ranking.description
+            rankingInfo = L10n.text(result.ranking.personalized
+                ? "recommendations_based_on_history"
+                : "recommendations_without_history")
         } catch {
             guard version == requestVersion, !isCancellation(error) else { return }
             // Keep browsing available if recommendation is unavailable.
@@ -89,10 +91,10 @@ class ExploreViewModel: ObservableObject {
                 try Task.checkCancellation()
                 guard version == requestVersion else { return }
                 hotels = fallback
-                rankingInfo = "Danh sách khách sạn — chưa áp dụng đề xuất cá nhân"
+                rankingInfo = L10n.text("Danh sách khách sạn — chưa áp dụng đề xuất cá nhân")
             } catch {
                 guard version == requestVersion, !isCancellation(error) else { return }
-                errorMessage = "Không thể tải khách sạn. Vui lòng thử lại."
+                errorMessage = L10n.text("Không thể tải khách sạn. Vui lòng thử lại.")
             }
         }
     }

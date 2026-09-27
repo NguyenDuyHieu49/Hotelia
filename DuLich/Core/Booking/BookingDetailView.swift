@@ -92,21 +92,15 @@ struct BookingDetailView: View {
     }
 
     private var statusTitle: String {
-        switch booking.status {
-        case "COMPLETED": return "Hoàn thành"
-        case "CONFIRMED": return "Đã xác nhận"
-        case "PENDING_PAYMENT": return "Chờ thanh toán"
-        case "CANCELLED": return "Đã hủy"
-        default: return booking.statusDisplayName
-        }
+        booking.statusDisplayName
     }
 
     private var statusSubtitle: String {
         switch booking.status {
-        case "COMPLETED": return "Cảm ơn bạn đã sử dụng dịch vụ!"
-        case "CONFIRMED": return "Phòng của bạn đã được xác nhận"
-        case "PENDING_PAYMENT": return "Vui lòng hoàn tất thanh toán"
-        case "CANCELLED": return "Đặt phòng đã bị hủy"
+        case "COMPLETED": return L10n.text("Cảm ơn bạn đã sử dụng dịch vụ!")
+        case "CONFIRMED": return L10n.text("Phòng của bạn đã được xác nhận")
+        case "PENDING_PAYMENT": return L10n.text("Vui lòng hoàn tất thanh toán")
+        case "CANCELLED": return L10n.text("Đặt phòng đã bị hủy")
         default: return ""
         }
     }
@@ -161,8 +155,8 @@ struct BookingDetailView: View {
 
             DetailRow(icon: "calendar", title: "Ngày nhận phòng", value: formatDateString(booking.checkIn))
             DetailRow(icon: "calendar.badge.checkmark", title: "Ngày trả phòng", value: formatDateString(booking.checkOut))
-            DetailRow(icon: "moon.fill", title: "Số đêm", value: "\(booking.nightsInt) đêm")
-            DetailRow(icon: "person.2.fill", title: "Số khách", value: "\(booking.guestCountInt) khách")
+            DetailRow(icon: "moon.fill", title: "Số đêm", value: L10n.format(booking.nightsInt == 1 ? "night_count_one_format" : "nights_count_format", booking.nightsInt))
+            DetailRow(icon: "person.2.fill", title: "Số khách", value: L10n.format(booking.guestCountInt == 1 ? "guest_count_one_format" : "guests_count_format", booking.guestCountInt))
         }
         .padding(AppSpacing.base)
         .background(Color.white)
@@ -273,6 +267,7 @@ struct BookingDetailView: View {
     // MARK: - Helpers
     private func formatDateString(_ dateString: String) -> String {
         let formatter = DateFormatter()
+        formatter.locale = AppLanguage.selected.locale
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         if let date = formatter.date(from: dateString) {
             formatter.dateFormat = "EEEE, dd/MM/yyyy"
@@ -288,6 +283,7 @@ struct BookingDetailView: View {
 
     private func formatPrice(_ price: Int) -> String {
         let formatter = NumberFormatter()
+        formatter.locale = AppLanguage.selected.locale
         formatter.numberStyle = .currency
         formatter.currencySymbol = "đ"
         formatter.maximumFractionDigits = 0
@@ -308,7 +304,7 @@ struct DetailRow: View {
                 .frame(width: 24)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(AppTypography.caption1)
                     .foregroundColor(AppColors.textSecondary)
 

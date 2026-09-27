@@ -101,7 +101,7 @@ struct HistoryView: View {
         do {
             bookings = try await BookingService.shared.getMyBookings()
         } catch {
-            errorMessage = "Không thể tải lịch sử đặt phòng"
+            errorMessage = L10n.text("Không thể tải lịch sử đặt phòng")
         }
 
         isLoading = false
@@ -116,7 +116,7 @@ struct FilterChip: View {
 
     var body: some View {
         Button(action: action) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(AppTypography.subheadline)
                 .fontWeight(isSelected ? .semibold : .regular)
                 .foregroundColor(isSelected ? .white : AppColors.textPrimary)
@@ -198,7 +198,7 @@ struct BookingCard: View {
                             .foregroundColor(AppColors.textPrimary)
                     }
 
-                    Text("\(booking.nightsInt) đêm")
+                    Text(L10n.format(booking.nightsInt == 1 ? "night_count_one_format" : "nights_count_format", booking.nightsInt))
                         .font(AppTypography.caption1)
                         .foregroundColor(AppColors.textSecondary)
                 }
@@ -224,12 +224,14 @@ struct BookingCard: View {
 
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
+        formatter.locale = AppLanguage.selected.locale
         formatter.dateFormat = "dd/MM"
         return formatter.string(from: date)
     }
 
     private func formatDateString(_ dateString: String) -> String {
         let formatter = DateFormatter()
+        formatter.locale = AppLanguage.selected.locale
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         if let date = formatter.date(from: dateString) {
             formatter.dateFormat = "dd/MM"
@@ -245,6 +247,7 @@ struct BookingCard: View {
 
     private func formatPrice(_ price: Int) -> String {
         let formatter = NumberFormatter()
+        formatter.locale = AppLanguage.selected.locale
         formatter.numberStyle = .currency
         formatter.currencySymbol = ""
         formatter.maximumFractionDigits = 0

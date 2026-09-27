@@ -82,7 +82,7 @@ extension Hotel {
         return averageRating
     }
     var ratingSummary: String {
-        guard let rating = guestRating else { return "Chưa có đánh giá" }
-        return String(format: "%.1f · %d đánh giá", rating, reviewCount ?? 0)
+        guard let rating = guestRating else { return L10n.text("Chưa có đánh giá") }
+        return L10n.format("hotel_rating_summary_format", rating, reviewCount ?? 0)
     }
 }

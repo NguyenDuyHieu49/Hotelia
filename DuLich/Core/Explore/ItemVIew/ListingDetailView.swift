@@ -293,7 +293,7 @@ struct SectionHeader: View {
     let title: String
 
     var body: some View {
-        Text(title)
+        Text(LocalizedStringKey(title))
             .font(AppTypography.headline)
             .foregroundColor(AppColors.textPrimary)
     }
@@ -311,7 +311,7 @@ struct PolicyRow: View {
                 .foregroundColor(AppColors.primary)
                 .frame(width: 24)
 
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(AppTypography.body)
                 .foregroundColor(AppColors.textSecondary)
 

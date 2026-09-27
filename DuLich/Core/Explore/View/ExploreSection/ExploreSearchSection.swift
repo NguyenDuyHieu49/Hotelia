@@ -72,12 +72,12 @@ struct ExploreSearchSection: View {
 
                 SearchFilterButton(
                     icon: "person.2",
-                    title: "\(filters.guests) khách", isActive: filters.guests > 1, action: onFilter
+                    title: L10n.format(filters.guests == 1 ? "guest_count_one_format" : "guests_count_format", filters.guests), isActive: filters.guests > 1, action: onFilter
                 )
 
                 SearchFilterButton(
                     icon: "slider.horizontal.3",
-                    title: extraFilterCount > 0 ? "Lọc (\(extraFilterCount))" : "Bộ lọc",
+                    title: extraFilterCount > 0 ? L10n.format("filters_count_format", extraFilterCount) : L10n.text("Bộ lọc"),
                     isActive: extraFilterCount > 0, action: onFilter
                 )
             }
@@ -101,7 +101,7 @@ private struct SearchFilterButton: View {
                 Image(systemName: icon)
                     .font(.caption)
 
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.caption.weight(.medium))
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)

@@ -92,7 +92,7 @@ struct ExploreErrorSection: View {
                 .orange
             )
 
-            Text(message)
+            Text(LocalizedStringKey(message))
                 .font(.headline)
 
             Button(

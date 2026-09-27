@@ -141,9 +141,9 @@ enum APIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .message(let value): return value
-        case .unauthorized: return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
-        case .invalidURL, .invalidResponse: return "Không thể đọc phản hồi máy chủ."
-        case .serverError(let code): return "Yêu cầu thất bại (\(code)). Vui lòng thử lại."
+        case .unauthorized: return L10n.text("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
+        case .invalidURL, .invalidResponse: return L10n.text("Không thể đọc phản hồi máy chủ.")
+        case .serverError(let code): return L10n.format("api_request_failed_format", code)
         }
     }
     case invalidURL

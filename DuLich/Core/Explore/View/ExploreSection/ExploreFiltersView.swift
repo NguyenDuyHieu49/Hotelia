@@ -28,7 +28,7 @@ struct ExploreFiltersView: View {
                         DatePicker("Trả phòng", selection: $end, in: start..., displayedComponents: .date)
                     }
                 }
-                Section("Số khách trong một phòng") { Stepper("\(filters.guests) khách", value: $filters.guests, in: 1...10) }
+                Section("Số khách trong một phòng") { Stepper(L10n.format(filters.guests == 1 ? "guest_count_one_format" : "guests_count_format", filters.guests), value: $filters.guests, in: 1...10) }
                 Section("Giá mỗi đêm (VND)") {
                     TextField("Giá thấp nhất", value: $filters.minPrice, format: .number).keyboardType(.numberPad)
                     TextField("Giá cao nhất", value: $filters.maxPrice, format: .number).keyboardType(.numberPad)

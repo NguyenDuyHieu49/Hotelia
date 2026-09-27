@@ -15,7 +15,7 @@ struct PrimaryButton: View {
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .scaleEffect(0.8)
                 }
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(AppTypography.headline)
                     .fontWeight(.semibold)
             }
@@ -44,7 +44,7 @@ struct SecondaryButton: View {
                         .progressViewStyle(CircularProgressViewStyle(tint: AppColors.primary))
                         .scaleEffect(0.8)
                 }
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(AppTypography.headline)
                     .fontWeight(.semibold)
             }
@@ -81,9 +81,9 @@ struct AppTextField: View {
                 }
 
                 if isSecure {
-                    SecureField(placeholder, text: $text)
+                    SecureField(LocalizedStringKey(placeholder), text: $text)
                 } else {
-                    TextField(placeholder, text: $text)
+                    TextField(LocalizedStringKey(placeholder), text: $text)
                         .keyboardType(keyboardType)
                 }
             }
@@ -97,7 +97,7 @@ struct AppTextField: View {
             )
 
             if let error = errorMessage {
-                Text(error)
+                Text(LocalizedStringKey(error))
                     .font(AppTypography.caption1)
                     .foregroundColor(AppColors.error)
             }
@@ -175,7 +175,7 @@ struct PriceTag: View {
                     .font(AppTypography.priceMedium)
                     .foregroundColor(AppColors.primary)
 
-                Text("/\(suffix)")
+                Text("/" + L10n.text(suffix))
                     .font(AppTypography.caption1)
                     .foregroundColor(AppColors.textSecondary)
             }
@@ -194,6 +194,7 @@ struct PriceTag: View {
         formatter.numberStyle = .currency
         formatter.currencySymbol = ""
         formatter.maximumFractionDigits = 0
+        formatter.locale = AppLanguage.selected.locale
         return formatter.string(from: NSNumber(value: price)) ?? "\(price)"
     }
 }
@@ -208,7 +209,7 @@ struct AmenityBadge: View {
             Image(systemName: iconName)
                 .font(.system(size: compact ? 10 : 12))
             if !compact {
-                Text(amenity.capitalized)
+                Text(LocalizedStringKey(amenity.capitalized))
                     .font(AppTypography.caption1)
             }
         }
@@ -265,7 +266,7 @@ struct StatusBadge: View {
     let status: String
 
     var body: some View {
-        Text(statusText)
+        Text(LocalizedStringKey(statusText))
             .font(AppTypography.caption1Medium)
             .foregroundColor(statusColor)
             .padding(.horizontal, AppSpacing.sm)
@@ -313,7 +314,7 @@ struct LoadingView: View {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: AppColors.primary))
                 .scaleEffect(1.5)
-            Text(message)
+            Text(LocalizedStringKey(message))
                 .font(AppTypography.subheadline)
                 .foregroundColor(AppColors.textSecondary)
         }
@@ -336,11 +337,11 @@ struct EmptyStateView: View {
                 .foregroundColor(AppColors.textTertiary)
 
             VStack(spacing: AppSpacing.sm) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(AppTypography.title2)
                     .foregroundColor(AppColors.textPrimary)
 
-                Text(message)
+                Text(LocalizedStringKey(message))
                     .font(AppTypography.subheadline)
                     .foregroundColor(AppColors.textSecondary)
                     .multilineTextAlignment(.center)

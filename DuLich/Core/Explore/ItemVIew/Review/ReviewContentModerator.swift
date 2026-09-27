@@ -9,13 +9,13 @@ enum ReviewModerationError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .profanity:
-            return String(localized: "review_moderation_profanity")
+            return L10n.text("review_moderation_profanity")
         case .tooShort:
-            return String(localized: "review_moderation_too_short")
+            return L10n.text("review_moderation_too_short")
         case .tooLong:
-            return String(localized: "review_moderation_too_long")
+            return L10n.text("review_moderation_too_long")
         case .spam:
-            return String(localized: "review_moderation_spam")
+            return L10n.text("review_moderation_spam")
         }
     }
 }

@@ -32,19 +32,21 @@ struct Booking: Codable, Identifiable {
     }
 
     var statusDisplayName: String {
+        let key: String
         switch status {
-        case "PENDING_PAYMENT", "HELD": return "Chờ thanh toán"
-        case "PAID": return "Đã thanh toán"
-        case "CONFIRMED": return "Đã xác nhận"
-        case "CHECKED_IN": return "Đã nhận phòng"
-        case "CHECKED_OUT": return "Đã trả phòng"
-        case "COMPLETED": return "Hoàn thành"
-        case "CANCEL_REQUESTED": return "Yêu cầu hủy"
-        case "CANCELLED": return "Đã hủy"
-        case "REFUNDED": return "Đã hoàn tiền"
-        case "EXPIRED": return "Hết hạn"
+        case "PENDING_PAYMENT", "HELD": key = "Chờ thanh toán"
+        case "PAID": key = "Đã thanh toán"
+        case "CONFIRMED": key = "Đã xác nhận"
+        case "CHECKED_IN": key = "Đã nhận phòng"
+        case "CHECKED_OUT": key = "Đã trả phòng"
+        case "COMPLETED": key = "Hoàn thành"
+        case "CANCEL_REQUESTED": key = "Yêu cầu hủy"
+        case "CANCELLED": key = "Đã hủy"
+        case "REFUNDED": key = "Đã hoàn tiền"
+        case "EXPIRED": key = "Hết hạn"
         default: return status
         }
+        return L10n.text(key)
     }
 
     // Booking lifecycle states (from PDF)

@@ -155,7 +155,7 @@ struct StatCard: View {
             Text(value)
                 .font(.title)
                 .fontWeight(.bold)
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.caption)
                 .foregroundColor(.secondary)
         }

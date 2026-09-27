@@ -29,7 +29,7 @@ class AuthViewModel: ObservableObject {
             currentUser = response.user
             isLoggedIn = true
         } catch {
-            errorMessage = "Đăng nhập thất bại. Vui lòng kiểm tra email và password."
+            errorMessage = L10n.text("Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu.")
         }
 
         isLoading = false
@@ -49,7 +49,7 @@ class AuthViewModel: ObservableObject {
             currentUser = response.user
             isLoggedIn = true
         } catch {
-            errorMessage = "Đăng ký thất bại. Email có thể đã được sử dụng."
+            errorMessage = L10n.text("Đăng ký thất bại. Email có thể đã được sử dụng.")
         }
 
         isLoading = false

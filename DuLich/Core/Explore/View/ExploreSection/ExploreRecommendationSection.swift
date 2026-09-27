@@ -33,9 +33,7 @@ struct ExploreRecommendationSection: View {
                             .font(.title3.weight(.bold))
                     }
 
-                    Text(
-                        rankingInfo ?? "Khám phá khách sạn phù hợp với chuyến đi"
-                    )
+                    Text(LocalizedStringKey(rankingInfo ?? "Khám phá khách sạn phù hợp với chuyến đi"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 }

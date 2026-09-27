@@ -28,7 +28,7 @@ struct PasswordRecoveryView: View {
         Task {
             do {
                 try await APIClient.shared.requestVoid(endpoint: "/auth/forgot-password", body: ["email": email.trimmingCharacters(in: .whitespacesAndNewlines)])
-                message = "Nếu email đã đăng ký, bạn sẽ nhận được mã có hiệu lực trong 15 phút."
+                message = L10n.text("Nếu email đã đăng ký, bạn sẽ nhận được mã có hiệu lực trong 15 phút.")
             } catch { message = error.localizedDescription }
             busy = false
         }
@@ -38,7 +38,7 @@ struct PasswordRecoveryView: View {
         Task {
             do {
                 try await APIClient.shared.requestVoid(endpoint: "/auth/reset-password", body: ["code": code.trimmingCharacters(in: .whitespacesAndNewlines), "password": password])
-                code = ""; password = ""; confirm = ""; message = "Đã đặt lại mật khẩu. Quay lại đăng nhập để tiếp tục."
+                code = ""; password = ""; confirm = ""; message = L10n.text("Đã đặt lại mật khẩu. Quay lại đăng nhập để tiếp tục.")
             } catch { message = error.localizedDescription }
             busy = false
         }

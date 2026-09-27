@@ -345,23 +345,23 @@ struct RoomBookingView: View {
     private var isFormValid: Bool { bookingBlockReason == nil }
 
     private var bookingBlockReason: String? {
-        if hotel.status != "PUBLISHED" { return "Khách sạn hiện chưa nhận đặt phòng." }
-        if isLoading { return "Đang kiểm tra phòng trống theo ngày đã chọn." }
+        if hotel.status != "PUBLISHED" { return L10n.text("Khách sạn hiện chưa nhận đặt phòng.") }
+        if isLoading { return L10n.text("Đang kiểm tra phòng trống theo ngày đã chọn.") }
         if Calendar.current.startOfDay(for: checkOut) <= Calendar.current.startOfDay(for: checkIn) {
-            return "Ngày trả phòng phải sau ngày nhận phòng."
+            return L10n.text("Ngày trả phòng phải sau ngày nhận phòng.")
         }
-        if numberOfNights > 90 { return "Chỉ được đặt tối đa 90 đêm." }
-        if roomTypes.isEmpty { return "Khách sạn chưa có loại phòng đang mở bán." }
+        if numberOfNights > 90 { return L10n.text("Chỉ được đặt tối đa 90 đêm.") }
+        if roomTypes.isEmpty { return L10n.text("Khách sạn chưa có loại phòng đang mở bán.") }
         guard let room = selectedRoomType else {
-            if roomTypes.allSatisfy({ $0.availableRooms == 0 }) { return "Đã hết phòng trong kỳ lưu trú đã chọn. Hãy đổi ngày." }
-            return "Không có phòng phù hợp với \(guestCount) khách. Hãy giảm số khách hoặc chọn loại phòng khác."
+            if roomTypes.allSatisfy({ $0.availableRooms == 0 }) { return L10n.text("Đã hết phòng trong kỳ lưu trú đã chọn. Hãy đổi ngày.") }
+            return L10n.format("booking_no_suitable_room_format", guestCount)
         }
-        if room.availableRooms < 1 { return "Loại phòng này đã hết trong kỳ lưu trú đã chọn." }
-        if guestCount > room.maxGuests { return "Loại phòng này chỉ nhận tối đa \(room.maxGuests) khách." }
-        if guestName.trimmingCharacters(in: .whitespacesAndNewlines).count < 2 { return "Vui lòng nhập họ và tên khách." }
-        if !guestEmail.contains("@") { return "Vui lòng nhập email hợp lệ." }
+        if room.availableRooms < 1 { return L10n.text("Loại phòng này đã hết trong kỳ lưu trú đã chọn.") }
+        if guestCount > room.maxGuests { return L10n.format("booking_room_capacity_format", room.maxGuests) }
+        if guestName.trimmingCharacters(in: .whitespacesAndNewlines).count < 2 { return L10n.text("Vui lòng nhập họ và tên khách.") }
+        if !guestEmail.contains("@") { return L10n.text("Vui lòng nhập email hợp lệ.") }
         let phone = guestPhone.hasPrefix("+") ? String(guestPhone.dropFirst()) : guestPhone
-        if !(10...15).contains(phone.count) || !phone.allSatisfy(\.isNumber) { return "Số điện thoại cần 10–15 chữ số." }
+        if !(10...15).contains(phone.count) || !phone.allSatisfy(\.isNumber) { return L10n.text("Số điện thoại cần 10–15 chữ số.") }
         return nil
     }
 
@@ -559,6 +559,7 @@ struct RoomTypeCard: View {
 
     private func formatPrice(_ price: Int) -> String {
         let formatter = NumberFormatter()
+        formatter.locale = AppLanguage.selected.locale
         formatter.numberStyle = .currency
         formatter.currencySymbol = ""
         formatter.maximumFractionDigits = 0

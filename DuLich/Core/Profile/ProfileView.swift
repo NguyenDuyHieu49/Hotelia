@@ -4,7 +4,7 @@ struct ProfileView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @State private var route: AccountRoute?
     private enum AccountRoute: String, Identifiable {
-        case profile, history, notifications, security, support, about, saved, applyOwner
+        case profile, history, notifications, security, support, about, saved, applyOwner, language
         var id: String { rawValue }
     }
 
@@ -37,6 +37,7 @@ struct ProfileView: View {
                         case .about: AboutHoteliaView()
                         case .saved: SavedHotelsView()
                         case .applyOwner: ApplyOwnerView()
+                        case .language: LanguageSettingsView()
                         }
                     }.toolbar { ToolbarItem(placement: .cancellationAction) { Button("Đóng") { route = nil } } }
                 }
@@ -132,6 +133,15 @@ struct ProfileView: View {
 
             Divider().padding(.leading, 56)
 
+            MenuItemView(
+                icon: "globe",
+                title: "Ngôn ngữ",
+                subtitle: "Tiếng Việt / English",
+                action: { route = .language }
+            )
+
+            Divider().padding(.leading, 56)
+
             // Help
             MenuItemView(
                 icon: "questionmark.circle.fill",
@@ -198,11 +208,11 @@ struct MenuItemView: View {
 
                 // Content
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
+                    Text(LocalizedStringKey(title))
                         .font(AppTypography.body)
                         .foregroundColor(AppColors.textPrimary)
 
-                    Text(subtitle)
+                    Text(LocalizedStringKey(subtitle))
                         .font(AppTypography.caption1)
                         .foregroundColor(AppColors.textSecondary)
                 }
@@ -215,5 +225,21 @@ struct MenuItemView: View {
             }
             .padding(AppSpacing.base)
         }
+    }
+}
+
+private struct LanguageSettingsView: View {
+    @AppStorage("appLanguage") private var appLanguage = AppLanguage.system.rawValue
+
+    var body: some View {
+        Form {
+            Picker("Ngôn ngữ ứng dụng", selection: $appLanguage) {
+                Text("Theo hệ thống").tag(AppLanguage.system.rawValue)
+                Text("Tiếng Việt").tag(AppLanguage.vietnamese.rawValue)
+                Text("English").tag(AppLanguage.english.rawValue)
+            }
+            .pickerStyle(.inline)
+        }
+        .navigationTitle("Ngôn ngữ")
     }
 }
