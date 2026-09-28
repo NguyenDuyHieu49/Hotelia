@@ -1,7 +1,13 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../lib/auth/AuthContext';
 import './SimpleLogin.css';
+
+const loginSlides = [
+  { src: '/login-hotel.jpg', label: 'Khách sạn bên thành phố lúc hoàng hôn' },
+  { src: '/login-pool.jpeg', label: 'Hồ bơi khách sạn bên biển' },
+  { src: '/login-lounge.jpg', label: 'Không gian lounge của khách sạn' },
+];
 
 export function SimpleLogin() {
   const [email, setEmail] = useState('');
@@ -9,8 +15,31 @@ export function SimpleLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [passwordChanged] = useState(() => sessionStorage.getItem('passwordChanged') === '1');
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [slidesPaused, setSlidesPaused] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (passwordChanged) sessionStorage.removeItem('passwordChanged');
+  }, [passwordChanged]);
+
+  useEffect(() => {
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const syncMotionPreference = () => setSlidesPaused(motionPreference.matches);
+    syncMotionPreference();
+    motionPreference.addEventListener('change', syncMotionPreference);
+    return () => motionPreference.removeEventListener('change', syncMotionPreference);
+  }, []);
+
+  useEffect(() => {
+    if (slidesPaused) return;
+    const timer = window.setInterval(() => {
+      if (!document.hidden) setActiveSlide(current => (current + 1) % loginSlides.length);
+    }, 6000);
+    return () => window.clearInterval(timer);
+  }, [slidesPaused, activeSlide]);
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -34,17 +63,39 @@ export function SimpleLogin() {
   return (
     <main className="login-page" id="main-content">
       <aside className="login-story" aria-label="Hotelia">
-        <div className="login-story__image" aria-hidden="true" />
+        <div className="login-story__slides" aria-hidden="true">
+          {loginSlides.map((slide, index) => (
+            <div
+              key={slide.src}
+              className={`login-story__image${index === activeSlide ? ' is-active' : ''}`}
+              style={{ backgroundImage: `url(${slide.src})` }}
+            />
+          ))}
+        </div>
         <div className="login-story__shade" aria-hidden="true" />
         <div className="login-story__content">
           <div className="login-brand login-brand--light">
             <span className="login-brand__mark" aria-hidden="true">H<span>.</span></span>
-            <span className="login-brand__name">hotelia</span>
+            <span className="login-brand__name">Hotelia</span>
           </div>
           <div className="login-story__copy">
             <span className="login-eyebrow">Không gian quản lý</span>
             <h1>Mỗi kỳ lưu trú<br />bắt đầu từ đây.</h1>
-            <p>Một nơi để chăm chút khách sạn, đặt phòng và trải nghiệm của khách.</p>
+            <p>Chất lượng vượt xa kì vọng của khách hàng.</p>
+          </div>
+          <div className="login-story__controls" aria-label="Chọn ảnh giới thiệu">
+            <div className="login-story__dots">
+              {loginSlides.map((slide, index) => (
+                <button
+                  key={slide.src}
+                  type="button"
+                  className={`login-story__dot${index === activeSlide ? ' is-active' : ''}`}
+                  aria-label={`Xem ảnh ${index + 1}: ${slide.label}`}
+                  aria-current={index === activeSlide ? 'true' : undefined}
+                  onClick={() => setActiveSlide(index)}
+                />
+              ))}
+            </div>
           </div>
           <div className="login-story__footer">
             <span>HOTELIA / MANAGEMENT</span>
@@ -57,7 +108,7 @@ export function SimpleLogin() {
         <div className="login-panel__inner">
           <div className="login-brand login-brand--mobile">
             <span className="login-brand__mark" aria-hidden="true">H<span>.</span></span>
-            <span className="login-brand__name">hotelia</span>
+            <span className="login-brand__name">Hotelia</span>
           </div>
           <div className="login-panel__heading">
             <span className="login-eyebrow">TÀI KHOẢN QUẢN LÝ</span>
@@ -66,6 +117,7 @@ export function SimpleLogin() {
           </div>
 
           <form className="login-form" onSubmit={handleLogin}>
+            {passwordChanged && <p className="login-success" role="status">Đã đổi mật khẩu. Vui lòng đăng nhập bằng mật khẩu mới.</p>}
             <div className="login-field">
               <label htmlFor="login-email">Email công việc</label>
               <input
