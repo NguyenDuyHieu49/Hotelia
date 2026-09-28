@@ -1,125 +1,109 @@
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, Building, Bed, Calendar, Star, 
-  BarChart3, Settings, LogOut, ChevronLeft, Menu,
-  Users, Shield, CreditCard, MessageSquare, FileText
+import {
+  BarChart3, BedDouble, Building2, CalendarDays, ChevronLeft, ChevronRight,
+  CreditCard, FileClock, Headphones, LayoutGrid, LogOut, MessageSquare,
+  Settings2, ShieldCheck, Star, Users, X,
 } from 'lucide-react';
-import { useState } from 'react';
+
+type NavItem = { path: string; label: string; icon: typeof LayoutGrid };
+
+const ownerNavigation: { label: string; items: NavItem[] }[] = [
+  { label: 'Vận hành', items: [
+    { path: '/owner/dashboard', label: 'Tổng quan', icon: LayoutGrid },
+    { path: '/owner/hotels', label: 'Khách sạn của tôi', icon: Building2 },
+    { path: '/owner/room-types', label: 'Loại phòng', icon: BedDouble },
+    { path: '/owner/bookings', label: 'Đơn đặt phòng', icon: CalendarDays },
+  ] },
+  { label: 'Theo dõi', items: [
+    { path: '/owner/reviews', label: 'Đánh giá', icon: Star },
+    { path: '/owner/analytics', label: 'Thống kê', icon: BarChart3 },
+    { path: '/owner/settings', label: 'Cài đặt', icon: Settings2 },
+  ] },
+];
+
+const adminNavigation: { label: string; items: NavItem[] }[] = [
+  { label: 'Điều hành', items: [
+    { path: '/admin/dashboard', label: 'Tổng quan', icon: LayoutGrid },
+    { path: '/admin/users', label: 'Người dùng', icon: Users },
+    { path: '/admin/owners', label: 'Chủ khách sạn', icon: ShieldCheck },
+    { path: '/admin/hotels', label: 'Khách sạn', icon: Building2 },
+    { path: '/admin/bookings', label: 'Đơn đặt phòng', icon: CalendarDays },
+  ] },
+  { label: 'Kiểm soát', items: [
+    { path: '/admin/payments', label: 'Thanh toán', icon: CreditCard },
+    { path: '/admin/reviews', label: 'Đánh giá', icon: Star },
+    { path: '/admin/complaints', label: 'Khiếu nại', icon: MessageSquare },
+    { path: '/admin/support', label: 'Yêu cầu hỗ trợ', icon: Headphones },
+    { path: '/admin/audit-logs', label: 'Nhật ký hoạt động', icon: FileClock },
+    { path: '/admin/settings', label: 'Cài đặt', icon: Settings2 },
+  ] },
+];
+
+export function navigationFor(type: 'owner' | 'admin') {
+  return type === 'owner' ? ownerNavigation : adminNavigation;
+}
 
 interface SidebarProps {
   type: 'owner' | 'admin';
   userName?: string;
   userEmail?: string;
   onLogout?: () => void;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
+  mobileOpen: boolean;
+  onCloseMobile: () => void;
 }
 
-const ownerMenuItems = [
-  { path: '/owner/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-  { path: '/owner/hotels', label: 'Khách sạn của tôi', icon: Building },
-  { path: '/owner/room-types', label: 'Loại phòng', icon: Bed },
-  { path: '/owner/bookings', label: 'Đơn đặt phòng', icon: Calendar },
-  { path: '/owner/reviews', label: 'Đánh giá', icon: Star },
-  { path: '/owner/analytics', label: 'Thống kê', icon: BarChart3 },
-  { path: '/owner/settings', label: 'Cài đặt', icon: Settings },
-];
-
-const adminMenuItems = [
-  { path: '/admin/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-  { path: '/admin/users', label: 'Người dùng', icon: Users },
-  { path: '/admin/owners', label: 'Hotel Owner', icon: Shield },
-  { path: '/admin/hotels', label: 'Khách sạn', icon: Building },
-  { path: '/admin/bookings', label: 'Đơn đặt phòng', icon: Calendar },
-  { path: '/admin/payments', label: 'Thanh toán', icon: CreditCard },
-  { path: '/admin/reviews', label: 'Đánh giá', icon: Star },
-  { path: '/admin/complaints', label: 'Khiếu nại', icon: MessageSquare },
-  { path: '/admin/audit-logs', label: 'Audit Logs', icon: FileText },
-  { path: '/admin/settings', label: 'Cài đặt', icon: Settings },
-];
-
-export function Sidebar({ type, userName = 'User', userEmail = '', onLogout }: SidebarProps) {
-  const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const menuItems = type === 'owner' ? ownerMenuItems : adminMenuItems;
+export function Sidebar({
+  type, userName = 'Người dùng', userEmail = '', onLogout,
+  collapsed, onToggleCollapsed, mobileOpen, onCloseMobile,
+}: SidebarProps) {
+  const { pathname } = useLocation();
+  const groups = navigationFor(type);
 
   return (
-    <aside
-      className={`
-        fixed top-0 left-0 h-full bg-admin-sidebar flex flex-col
-        transition-all duration-300 z-40
-        ${isCollapsed ? 'w-20' : 'w-64'}
-      `}
-    >
-      {/* Logo */}
-      <div className="p-5 border-b border-white/10">
-        <div className="flex items-center justify-between">
-          {!isCollapsed && (
-            <div>
-              <h1 className="text-xl font-bold text-white">🏨 Hotelia</h1>
-              <p className="text-xs text-gray-400 mt-0.5">
-                {type === 'owner' ? 'Owner Dashboard' : 'Admin Panel'}
-              </p>
-            </div>
-          )}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition"
-          >
-            {isCollapsed ? <Menu className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-          </button>
+    <>
+      {mobileOpen && <button type="button" className="dashboard-sidebar__scrim" aria-label="Đóng điều hướng" onClick={onCloseMobile} />}
+      <aside className={`dashboard-sidebar${collapsed ? ' is-collapsed' : ''}${mobileOpen ? ' is-mobile-open' : ''}`} aria-label="Điều hướng quản lý">
+        <div className="dashboard-sidebar__brand">
+          <Link to={`/${type}/dashboard`} className="dashboard-sidebar__brand-link" onClick={onCloseMobile} aria-label="Hotelia — trang tổng quan">
+            <span className="dashboard-sidebar__mark">H<span>.</span></span>
+            <span className="dashboard-sidebar__brand-copy"><strong>Hotelia</strong><small>{type === 'owner' ? 'Owner workspace' : 'Admin workspace'}</small></span>
+          </Link>
+          <button type="button" className="dashboard-sidebar__mobile-close" aria-label="Đóng menu" onClick={onCloseMobile}><X size={19} /></button>
         </div>
-      </div>
 
-      {/* Menu */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
-          
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`
-                flex items-center gap-3 px-4 py-3 rounded-lg transition-all
-                ${isActive 
-                  ? 'bg-white text-admin-sidebar font-medium' 
-                  : 'text-gray-300 hover:bg-white/10 hover:text-white'}
-              `}
-              title={isCollapsed ? item.label : undefined}
-            >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              {!isCollapsed && <span>{item.label}</span>}
-            </Link>
-          );
-        })}
-      {type === 'admin' && <Link to="/admin/support" className="block px-4 py-3 rounded-lg hover:bg-gray-100">Yêu cầu hỗ trợ</Link>}
+        <nav className="dashboard-sidebar__nav" aria-label="Các mục quản lý">
+          {groups.map(group => (
+            <div className="dashboard-sidebar__group" key={group.label}>
+              <p className="dashboard-sidebar__group-label">{group.label}</p>
+              {group.items.map(item => {
+                const Icon = item.icon;
+                const active = pathname === item.path || pathname.startsWith(`${item.path}/`);
+                return (
+                  <Link key={item.path} to={item.path} onClick={onCloseMobile} className={`dashboard-sidebar__link${active ? ' is-active' : ''}`} aria-current={active ? 'page' : undefined} title={collapsed ? item.label : undefined}>
+                    <Icon size={19} strokeWidth={1.8} aria-hidden="true" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
-      {/* User */}
-      <div className="p-4 border-t border-white/10">
-        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
-          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white font-medium">
-            {userName.charAt(0).toUpperCase()}
+        <div className="dashboard-sidebar__bottom">
+          <div className="dashboard-sidebar__user">
+            <span className="dashboard-sidebar__avatar" aria-hidden="true">{userName.trim().charAt(0).toUpperCase() || 'H'}</span>
+            <span className="dashboard-sidebar__user-copy"><strong>{userName}</strong><small>{userEmail}</small></span>
           </div>
-          {!isCollapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{userName}</p>
-              <p className="text-xs text-gray-400 truncate">{userEmail}</p>
-            </div>
-          )}
+          <button type="button" className="dashboard-sidebar__logout" onClick={onLogout} title={collapsed ? 'Đăng xuất' : undefined}>
+            <LogOut size={18} strokeWidth={1.8} aria-hidden="true" /><span>Đăng xuất</span>
+          </button>
+          <button type="button" className="dashboard-sidebar__collapse" onClick={onToggleCollapsed} aria-label={collapsed ? 'Mở rộng thanh điều hướng' : 'Thu gọn thanh điều hướng'}>
+            {collapsed ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}<span>Thu gọn menu</span>
+          </button>
         </div>
-        <button
-          onClick={onLogout}
-          className={`
-            w-full mt-4 flex items-center justify-center gap-2 px-4 py-2
-            text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition
-            ${isCollapsed ? '' : ''}
-          `}
-        >
-          <LogOut className="w-4 h-4" />
-          {!isCollapsed && <span className="text-sm">Đăng xuất</span>}
-        </button>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

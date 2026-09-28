@@ -9,18 +9,18 @@ interface BadgeProps {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: 'bg-gray-100 text-gray-700',
-  success: 'bg-green-100 text-green-700',
-  warning: 'bg-amber-100 text-amber-700',
-  danger: 'bg-red-100 text-red-700',
-  info: 'bg-blue-100 text-blue-700',
+  default: 'bg-[#edf0ea] text-[#637468]',
+  success: 'bg-[#e4f1e6] text-[#315f3e]',
+  warning: 'bg-[#fff0d7] text-[#8c5c1f]',
+  danger: 'bg-[#fbe9e4] text-[#a04839]',
+  info: 'bg-[#e5eef0] text-[#3d6570]',
 };
 
 export function Badge({ children, variant = 'default', size = 'sm' }: BadgeProps) {
   return (
     <span
       className={`
-        inline-flex items-center font-medium rounded-full
+        inline-flex items-center font-semibold rounded-md
         ${variantStyles[variant]}
         ${size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-sm'}
       `}

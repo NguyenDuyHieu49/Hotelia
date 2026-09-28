@@ -167,14 +167,16 @@ export function AdminHotels() {
             const status = statusConfig[hotel.status];
             return (
               <Card key={hotel.id}>
-                <div className="flex gap-6">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                   {/* Image */}
-                  <div className="w-32 h-24 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Building className="w-8 h-8 text-gray-400" />
+                  <div className="w-full h-40 sm:w-32 sm:h-24 bg-[#edf0e9] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {hotel.images?.[0]
+                      ? <img src={hotel.images[0]} alt={hotel.name} className="w-full h-full object-cover" />
+                      : <Building className="w-8 h-8 text-gray-400" />}
                   </div>
                   
                   {/* Content */}
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
@@ -204,7 +206,7 @@ export function AdminHotels() {
                   
                   {/* Actions */}
                   {hotel.status === 'PENDING_APPROVAL' && (
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-row sm:flex-col gap-2">
                       <Button onClick={() => handleApprove(hotel.id)} size="sm">
                         <CheckCircle className="w-4 h-4 mr-1" />
                         Duyệt

@@ -82,13 +82,13 @@ export function OwnerHotels() {
           </Button>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
           {hotels.map((hotel) => {
             const status = statusConfig[hotel.status] || { label: hotel.status, variant: 'default' as const };
             return (
               <Card key={hotel.id} padding="none" className="overflow-hidden">
                 {/* Image */}
-                <div className="h-40 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                <div className="h-48 bg-[#edf0e9] flex items-center justify-center">
                   {hotel.images?.[0] ? <img src={hotel.images[0]} alt={hotel.name} className="w-full h-full object-cover" /> : <Building className="w-12 h-12 text-gray-400" />}
                 </div>
 

@@ -15,7 +15,7 @@ export function Card({ children, className = '', padding = 'md', ...props }: Car
   };
   
   return (
-    <div {...props} className={`bg-white rounded-xl border border-gray-200 shadow-sm ${paddingStyles[padding]} ${className}`}>
+    <div {...props} className={`bg-[#fffefa] rounded-[0.8rem] border border-[#e1e8df] shadow-[0_8px_25px_rgba(35,64,45,0.035)] ${paddingStyles[padding]} ${className}`}>
       {children}
     </div>
   );
