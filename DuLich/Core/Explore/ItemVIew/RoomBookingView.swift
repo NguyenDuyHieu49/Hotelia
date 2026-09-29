@@ -18,6 +18,9 @@ struct RoomBookingView: View {
     @State private var isBooking = false
     @State private var bookingResult: Booking?
     @State private var errorMessage: String?
+    @State private var pendingRequestKey: String?
+    @State private var pendingRequestSignature: String?
+    @State private var resultUncertain = false
 
     var body: some View {
         NavigationView {
@@ -28,15 +31,19 @@ struct RoomBookingView: View {
 
                     // Room Type Selection
                     roomTypeSection
+                        .disabled(resultUncertain)
 
                     // Date Selection
                     dateSection
+                        .disabled(resultUncertain)
 
                     // Guest Information
                     guestInfoSection
+                        .disabled(resultUncertain)
 
                     // Special Requests
                     specialRequestsSection
+                        .disabled(resultUncertain)
 
                     // Error Message
                     if let error = errorMessage {
@@ -57,6 +64,24 @@ struct RoomBookingView: View {
                             .font(AppTypography.subheadline)
                             .foregroundColor(AppColors.textSecondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    if resultUncertain {
+                        Button(L10n.text("booking_check_result")) { bookRoom() }
+                            .disabled(isBooking)
+                    }
+
+                    if let room = selectedRoomType, numberOfNights > 0 {
+                        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                            Text(L10n.format("booking_price_breakdown_format", formatTotal(room.basePrice), numberOfNights))
+                            Text(L10n.format("booking_total_estimate_format", formatTotal(room.basePrice * numberOfNights)))
+                                .fontWeight(.semibold)
+                            Text(L10n.text("booking_price_note"))
+                            Text(L10n.text("booking_cancellation_note"))
+                        }
+                        .font(AppTypography.subheadline)
+                        .foregroundColor(AppColors.textSecondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     // Book Button
@@ -371,6 +396,13 @@ struct RoomBookingView: View {
         return max(1, components.day ?? 1)
     }
 
+    private func formatTotal(_ amount: Int) -> String {
+        let value = NumberFormatter()
+        value.locale = AppLanguage.selected.locale
+        value.numberStyle = .decimal
+        return "\(value.string(from: NSNumber(value: amount)) ?? String(amount)) ₫"
+    }
+
     // MARK: - Actions
     private func loadRoomTypes() async {
         isLoading = true
@@ -399,10 +431,20 @@ struct RoomBookingView: View {
     }
 
     private func bookRoom() {
+        guard !isBooking else { return }
         guard let roomType = selectedRoomType else { return }
+
+        let signature = [hotel.id, roomType.id, formatter.string(from: checkIn), formatter.string(from: checkOut),
+                         String(guestCount), guestName, guestEmail, guestPhone, specialRequests].joined(separator: "|")
+        if pendingRequestSignature != signature {
+            pendingRequestSignature = signature
+            pendingRequestKey = UUID().uuidString
+        }
+        guard let requestKey = pendingRequestKey else { return }
 
         isBooking = true
         errorMessage = nil
+        resultUncertain = false
 
         Task {
             do {
@@ -415,12 +457,26 @@ struct RoomBookingView: View {
                     guestName: guestName,
                     guestEmail: guestEmail,
                     guestPhone: guestPhone,
-                    specialRequests: specialRequests.isEmpty ? nil : specialRequests
+                    specialRequests: specialRequests.isEmpty ? nil : specialRequests,
+                    requestKey: requestKey
                 )
+                pendingRequestKey = nil
+                pendingRequestSignature = nil
                 // Show the created booking so the guest can confirm payment at hotel.
             } catch {
-                errorMessage = error.localizedDescription
-                await loadRoomTypes()
+                if error is URLError || error is DecodingError {
+                    resultUncertain = true
+                } else if case APIError.serverError(let status) = error, status >= 500 {
+                    resultUncertain = true
+                } else if case APIError.invalidResponse = error {
+                    resultUncertain = true
+                } else {
+                    resultUncertain = false
+                }
+                errorMessage = resultUncertain
+                    ? L10n.text("booking_uncertain_result")
+                    : error.localizedDescription
+                if !resultUncertain { await loadRoomTypes() }
             }
             isBooking = false
         }

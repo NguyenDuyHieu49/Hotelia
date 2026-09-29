@@ -193,7 +193,7 @@ struct BookingDetailView: View {
                 .foregroundColor(AppColors.textPrimary)
 
             HStack {
-                Text("Giá phòng")
+                Text(L10n.format("booking_price_breakdown_format", formatPrice(Int(booking.roomPrice)), booking.nights))
                     .font(AppTypography.body)
                     .foregroundColor(AppColors.textSecondary)
                 Spacer()

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Headers } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
@@ -17,8 +17,8 @@ export class BookingsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new booking' })
-  async create(@CurrentUser('sub') userId: string, @Body() dto: CreateBookingDto) {
-    return this.bookingsService.create(userId, dto);
+  async create(@CurrentUser('sub') userId: string, @Body() dto: CreateBookingDto, @Headers('idempotency-key') requestKey?: string) {
+    return this.bookingsService.create(userId, dto, requestKey);
   }
 
   @Get()

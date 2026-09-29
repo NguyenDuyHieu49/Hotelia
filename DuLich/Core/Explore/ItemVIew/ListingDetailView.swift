@@ -269,7 +269,7 @@ struct HotelDetailView: View {
                 showBooking = true
             }
 
-            Text("Miễn phí hủy phòng trong 24 giờ")
+            Text(L10n.text("booking_review_terms"))
                 .font(AppTypography.caption1)
                 .foregroundColor(AppColors.textSecondary)
         }

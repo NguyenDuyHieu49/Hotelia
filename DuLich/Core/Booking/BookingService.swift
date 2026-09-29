@@ -16,7 +16,8 @@ class BookingService {
         guestName: String,
         guestEmail: String,
         guestPhone: String,
-        specialRequests: String? = nil
+        specialRequests: String? = nil,
+        requestKey: String
     ) async throws -> Booking {
         var body: [String: Any] = [
             "hotelId": hotelId,
@@ -35,7 +36,8 @@ class BookingService {
         return try await client.request(
             endpoint: "/bookings",
             method: "POST",
-            body: body
+            body: body,
+            extraHeaders: ["Idempotency-Key": requestKey]
         )
     }
 

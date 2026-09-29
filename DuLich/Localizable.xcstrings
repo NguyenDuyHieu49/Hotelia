@@ -12039,6 +12039,48 @@
         }
       }
     },
+    "booking_check_result" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check booking result" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Kiểm tra kết quả đặt phòng" } }
+      }
+    },
+    "booking_price_breakdown_format" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Room price: %@ × %lld nights" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Giá phòng: %@ × %lld đêm" } }
+      }
+    },
+    "booking_total_estimate_format" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Estimated total: %@" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tổng giá dự kiến: %@" } }
+      }
+    },
+    "booking_price_note" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The final price is confirmed when you create the booking; it may change until then." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Giá cuối được xác nhận khi tạo đặt phòng; giá phòng có thể thay đổi trước thời điểm đó." } }
+      }
+    },
+    "booking_cancellation_note" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rooms are held for 15 minutes. Unpaid bookings can be cancelled immediately. After confirmation, the hotel must handle cancellation requests. Automatic refunds are not currently offered." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Giữ phòng 15 phút. Đặt phòng chưa thanh toán có thể hủy ngay; sau khi xác nhận, yêu cầu hủy cần khách sạn xử lý. Chưa có cam kết hoàn tiền tự động." } }
+      }
+    },
+    "booking_uncertain_result" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "We cannot tell whether the server received your request. Check the result below; the app will reuse the same request key." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Không rõ máy chủ đã nhận yêu cầu hay chưa. Hãy kiểm tra kết quả bằng nút bên dưới; app sẽ dùng lại cùng mã yêu cầu." } }
+      }
+    },
+    "booking_review_terms" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review cancellation terms and total price before booking" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Xem điều kiện hủy và tổng giá trước khi xác nhận đặt phòng" } }
+      }
+    },
     "night_count_one_format" : {
       "extractionState" : "manual",
       "localizations" : {

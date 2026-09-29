@@ -62,6 +62,12 @@ export class Booking extends Document {
   holdExpiresAt?: Date;
 
   @Prop()
+  requestKey?: string;
+
+  @Prop()
+  requestHash?: string;
+
+  @Prop()
   hotelName?: string;
 
   @Prop()
@@ -90,3 +96,4 @@ BookingSchema.index({ userId: 1, createdAt: -1 });
 BookingSchema.index({ hotelId: 1, checkIn: 1 });
 BookingSchema.index({ roomTypeId: 1, checkIn: 1, checkOut: 1 });
 BookingSchema.index({ status: 1 });
+BookingSchema.index({ userId: 1, requestKey: 1 }, { unique: true, partialFilterExpression: { requestKey: { $type: 'string' } } });

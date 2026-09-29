@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, ConflictException } from '@nestjs/common';
+import { createHash } from 'node:crypto';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
 import { Booking, BookingDocument, BookingStatus } from './schemas/booking.schema';
@@ -18,13 +19,31 @@ export class BookingsService {
     @InjectConnection() private connection: Connection,
   ) {}
 
-  async create(userId: string, dto: CreateBookingDto): Promise<BookingDocument> {
+  async create(userId: string, dto: CreateBookingDto, requestKey?: string): Promise<BookingDocument> {
+    if (!requestKey || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(requestKey)) {
+      throw new BadRequestException('Idempotency-Key phải là UUID');
+    }
+    const requestHash=createHash('sha256').update(JSON.stringify([
+      dto.hotelId,dto.roomTypeId,dto.checkIn,dto.checkOut,dto.guestCount,
+      dto.guestName,dto.guestEmail,dto.guestPhone,dto.specialRequests ?? '',
+    ])).digest('hex');
+    const previous=await this.bookingModel.findOne({userId:objectId(userId),requestKey});
+    if(previous) {
+      if(previous.requestHash!==requestHash) throw new ConflictException('Mã yêu cầu đã được dùng cho nội dung khác');
+      return previous;
+    }
     const {checkIn,checkOut,nights}=stayDates(dto.checkIn,dto.checkOut);
     if(!Number.isInteger(dto.guestCount) || dto.guestCount<1) throw new BadRequestException('Số khách không hợp lệ');
     const session=await this.connection.startSession();
     let created: BookingDocument;
     try {
       await session.withTransaction(async()=>{
+        const replay=await this.bookingModel.findOne({userId:objectId(userId),requestKey}).session(session);
+        if(replay) {
+          if(replay.requestHash!==requestHash) throw new ConflictException('Mã yêu cầu đã được dùng cho nội dung khác');
+          created=replay;
+          return;
+        }
         const db=this.connection.db!;
         const hotel=await db.collection('hotels').findOne({_id:objectId(dto.hotelId),status:'PUBLISHED'},{session});
         if(!hotel) throw new BadRequestException('Khách sạn chưa nhận đặt phòng');
@@ -38,10 +57,17 @@ export class BookingsService {
         [created]=await this.bookingModel.create([{
           ...dto,userId:objectId(userId),hotelId:hotel._id,roomTypeId:room._id,checkIn,checkOut,nights,
           hotelName:hotel.name,roomTypeName:room.name,roomPrice:room.basePrice,totalPrice:room.basePrice*nights,
-          status:BookingStatus.PENDING_PAYMENT,holdExpiresAt:new Date(Date.now()+15*60000),
+          status:BookingStatus.PENDING_PAYMENT,holdExpiresAt:new Date(Date.now()+15*60000),requestKey,requestHash,
         }],{session});
         await db.collection('notifications').insertOne({userId:objectId(userId),title:'Đã giữ phòng',message:`${hotel.name}: vui lòng chọn phương thức thanh toán trong 15 phút.`,type:'BOOKING',relatedId:created._id,isRead:false,createdAt:new Date()},{session});
       });
+    } catch(error) {
+      const existing=await this.bookingModel.findOne({userId:objectId(userId),requestKey});
+      if(existing) {
+        if(existing.requestHash!==requestHash) throw new ConflictException('Mã yêu cầu đã được dùng cho nội dung khác');
+        return existing;
+      }
+      throw error;
     } finally {await session.endSession();}
     return created!;
   }

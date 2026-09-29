@@ -49,7 +49,8 @@ class APIClient {
     func request<T: Decodable>(
         endpoint: String,
         method: String = "GET",
-        body: [String: Any]? = nil
+        body: [String: Any]? = nil,
+        extraHeaders: [String: String] = [:]
     ) async throws -> T {
         guard let url = URL(string: "\(baseURL)\(endpoint)") else {
             throw APIError.invalidURL
@@ -58,6 +59,7 @@ class APIClient {
         var request = URLRequest(url: url)
         request.httpMethod = method
         headers.forEach { request.setValue($1, forHTTPHeaderField: $0) }
+        extraHeaders.forEach { request.setValue($1, forHTTPHeaderField: $0) }
 
         if let body = body {
             request.httpBody = try? JSONSerialization.data(withJSONObject: body)
