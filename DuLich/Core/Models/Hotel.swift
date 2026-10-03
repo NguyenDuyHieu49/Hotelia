@@ -14,6 +14,10 @@ struct Hotel: Codable, Identifiable {
     let starRating: Int?
     let averageRating: Double?
     let reviewCount: Int?
+    let isDemoCatalog: Bool?
+    let demoRating: Double?
+    let demoReviewCount: Int?
+    let demoReviews: [DemoHotelReview]?
     let amenities: [String]?
     let images: [String]?
     let status: String?
@@ -25,7 +29,19 @@ struct Hotel: Codable, Identifiable {
         case id = "_id"
         case name, description, address, city, district, country
         case latitude, longitude, starRating, averageRating, reviewCount
+        case isDemoCatalog, demoRating, demoReviewCount, demoReviews
         case amenities, images, status, ownerId, checkInTime, checkOutTime
+    }
+}
+
+struct DemoHotelReview: Codable {
+    let rating: Double
+    let content: String
+
+    var displayContent: String {
+        let localized = L10n.text(content)
+        let prefix = L10n.text("sample_comment_prefix")
+        return localized.hasPrefix(prefix) ? String(localized.dropFirst(prefix.count)) : localized
     }
 }
 
@@ -76,13 +92,18 @@ struct RoomType: Codable, Identifiable {
 
 // Zero with no reviews means unrated, not a guest score of zero.
 extension Hotel {
+    var displayRating: Double? { guestRating ?? demoRating }
+    var displayReviewCount: Int { guestRating != nil ? (reviewCount ?? 0) : (demoReviews?.count ?? 0) }
     var guestRating: Double? {
         guard (reviewCount ?? 0) > 0, let averageRating,
               averageRating.isFinite, averageRating > 0, averageRating <= 5 else { return nil }
         return averageRating
     }
     var ratingSummary: String {
-        guard let rating = guestRating else { return L10n.text("Chưa có đánh giá") }
-        return L10n.format("hotel_rating_summary_format", rating, reviewCount ?? 0)
+        guard let rating = displayRating else { return L10n.text("Chưa có đánh giá") }
+        return L10n.format("hotel_rating_summary_format", rating, displayReviewCount)
+    }
+    var accessibleRatingSummary: String {
+        ratingSummary
     }
 }

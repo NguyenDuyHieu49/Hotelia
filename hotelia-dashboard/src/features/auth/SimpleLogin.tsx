@@ -75,7 +75,7 @@ export function SimpleLogin() {
         <div className="login-story__shade" aria-hidden="true" />
         <div className="login-story__content">
           <div className="login-brand login-brand--light">
-            <span className="login-brand__mark" aria-hidden="true">H<span>.</span></span>
+            <span className="login-brand__mark" aria-hidden="true"><img src="/brand/hotelia-mark.png" alt="" /></span>
             <span className="login-brand__name">Hotelia</span>
           </div>
           <div className="login-story__copy">
@@ -107,7 +107,7 @@ export function SimpleLogin() {
       <section className="login-panel" aria-labelledby="login-title">
         <div className="login-panel__inner">
           <div className="login-brand login-brand--mobile">
-            <span className="login-brand__mark" aria-hidden="true">H<span>.</span></span>
+            <span className="login-brand__mark" aria-hidden="true"><img src="/brand/hotelia-mark.png" alt="" /></span>
             <span className="login-brand__name">Hotelia</span>
           </div>
           <div className="login-panel__heading">

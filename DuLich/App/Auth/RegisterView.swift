@@ -1,8 +1,9 @@
 import SwiftUI
 
 struct RegisterView: View {
+    var isEmbedded = false
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
     @State private var name = ""
     @State private var email = ""
     @State private var phone = ""
@@ -10,162 +11,88 @@ struct RegisterView: View {
     @State private var confirmPassword = ""
 
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: AppSpacing.xl) {
-                    // Header
-                    VStack(spacing: AppSpacing.sm) {
-                        Text("Tạo tài khoản")
-                            .font(AppTypography.title1)
-                            .foregroundColor(AppColors.textPrimary)
-
-                        Text("Đăng ký để bắt đầu")
-                            .font(AppTypography.subheadline)
-                            .foregroundColor(AppColors.textSecondary)
-                    }
-                    .padding(.top, AppSpacing.xl)
-
-                    // Form
-                    VStack(spacing: AppSpacing.base) {
-                        AppTextField(
-                            placeholder: "Họ và tên",
-                            text: $name,
-                            icon: "person"
-                        )
-
-                        AppTextField(
-                            placeholder: "Email",
-                            text: $email,
-                            icon: "envelope",
-                            keyboardType: .emailAddress
-                        )
-
-                        AppTextField(
-                            placeholder: "Số điện thoại",
-                            text: $phone,
-                            icon: "phone",
-                            keyboardType: .phonePad
-                        )
-
-                        AppTextField(
-                            placeholder: "Mật khẩu",
-                            text: $password,
-                            icon: "lock",
-                            isSecure: true
-                        )
-
-                        AppTextField(
-                            placeholder: "Xác nhận mật khẩu",
-                            text: $confirmPassword,
-                            icon: "lock",
-                            isSecure: true
-                        )
-
-                        if !passwordsMatch && !confirmPassword.isEmpty {
-                            HStack {
-                                Image(systemName: "exclamationmark.triangle")
-                                Text("Mật khẩu không khớp")
-                            }
-                            .font(AppTypography.caption1)
-                            .foregroundColor(AppColors.error)
-                        }
-
-                        if let error = authViewModel.errorMessage {
-                            HStack {
-                                Image(systemName: "exclamationmark.triangle")
-                                Text(error)
-                            }
-                            .font(AppTypography.caption1)
-                            .foregroundColor(AppColors.error)
-                        }
-                    }
-                    .padding(.horizontal, AppSpacing.base)
-
-                    // Terms
-                    HStack(alignment: .top, spacing: AppSpacing.sm) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(AppColors.primary)
-                            .font(.system(size: 20))
-
-                        Text("Khi đăng ký, bạn đồng ý với")
-                            .font(AppTypography.caption1)
-                            .foregroundColor(AppColors.textSecondary)
-                        +
-                        Text(" Điều khoản sử dụng")
-                            .font(AppTypography.caption1)
-                            .foregroundColor(AppColors.primary)
-                        +
-                        Text(" và")
-                            .font(AppTypography.caption1)
-                            .foregroundColor(AppColors.textSecondary)
-                        +
-                        Text(" Chính sách bảo mật")
-                            .font(AppTypography.caption1)
-                            .foregroundColor(AppColors.primary)
-                    }
-                    .padding(.horizontal, AppSpacing.base)
-
-                    // Register Button
-                    PrimaryButton(
-                        title: "Đăng ký",
-                        action: {
-                            Task {
-                                await authViewModel.register(
-                                    email: email,
-                                    password: password,
-                                    name: name,
-                                    phone: phone.isEmpty ? nil : phone
-                                )
-                                if authViewModel.isLoggedIn {
-                                    dismiss()
-                                }
-                            }
-                        },
-                        isLoading: authViewModel.isLoading,
-                        isDisabled: !isFormValid
-                    )
-                    .padding(.horizontal, AppSpacing.base)
-
-                    Spacer()
-
-                    // Login Link
-                    HStack {
-                        Text("Bạn đã có tài khoản?")
-                            .font(AppTypography.subheadline)
-                            .foregroundColor(AppColors.textSecondary)
-
-                        NavigationLink { LoginView() } label: {
-                            Text("Đăng nhập")
-                                .font(AppTypography.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(AppColors.primary)
-                        }
-                    }
-                    .padding(.bottom, AppSpacing.xxl)
-                }
-            }
-            .background(AppColors.backgroundPrimary)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .foregroundColor(AppColors.textPrimary)
-                    }
-                }
+        Group {
+            if isEmbedded {
+                screen
+            } else {
+                NavigationStack { screen }
             }
         }
     }
 
-    private var isFormValid: Bool {
-        !name.isEmpty &&
-        !email.isEmpty &&
-        !password.isEmpty &&
-        passwordsMatch &&
-        password.count >= 6
+    private var screen: some View {
+        ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    AuthHero(title: "Tạo tài khoản", subtitle: "Đăng ký để bắt đầu")
+                        .padding(.top, 12)
+                        .padding(.bottom, 28)
+
+                    VStack(spacing: 18) {
+                        AuthFormField(title: "Họ và tên", text: $name, contentType: .name, capitalization: .words)
+                        AuthFormField(title: "Email", text: $email, keyboard: .emailAddress, contentType: .emailAddress)
+                        AuthFormField(title: "Số điện thoại", text: $phone, keyboard: .phonePad, contentType: .telephoneNumber)
+                        AuthFormField(title: "Mật khẩu", text: $password, secure: true, contentType: .newPassword)
+                        AuthFormField(title: "Xác nhận mật khẩu", text: $confirmPassword, secure: true, contentType: .newPassword,
+                                      invalid: !confirmPassword.isEmpty && !passwordsMatch)
+                    }
+                    if !confirmPassword.isEmpty && !passwordsMatch {
+                        AuthErrorMessage(message: L10n.text("Mật khẩu không khớp")).padding(.top, 14)
+                    }
+                    if let error = authViewModel.errorMessage {
+                        AuthErrorMessage(message: error).padding(.top, 14)
+                    }
+
+                    Text("Khi đăng ký, bạn đồng ý với Điều khoản sử dụng và Chính sách bảo mật")
+                        .font(.system(size: 12))
+                        .foregroundStyle(AuthStyle.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 22)
+
+                    AuthActionButton(title: "Đăng ký", isLoading: authViewModel.isLoading, isDisabled: !isFormValid) {
+                        Task {
+                            await authViewModel.register(email: email, password: password, name: name,
+                                                         phone: phone.isEmpty ? nil : phone)
+                            if authViewModel.isLoggedIn { dismiss() }
+                        }
+                    }
+                    .padding(.top, 24)
+                    SocialSignInOptions().padding(.top, 30)
+
+                    HStack(spacing: 5) {
+                        Text("Bạn đã có tài khoản?").foregroundStyle(AuthStyle.muted)
+                        NavigationLink { LoginView(isEmbedded: true) } label: {
+                            Text("Đăng nhập").fontWeight(.semibold).foregroundStyle(AuthStyle.ink)
+                        }
+                    }
+                    .font(.system(size: 14))
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 32)
+                    .padding(.bottom, 28)
+                }
+                .frame(maxWidth: 480)
+                .padding(.horizontal, 22)
+                .frame(maxWidth: .infinity)
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .background(AuthStyle.paper.ignoresSafeArea())
+            .toolbar {
+                if !isEmbedded {
+                    ToolbarItem(placement: .topBarLeading) {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(AuthStyle.ink)
+                            .frame(width: 44, height: 44)
+                    }
+                    .accessibilityLabel(Text("Đóng"))
+                    }
+                }
+            }
     }
 
-    private var passwordsMatch: Bool {
-        password == confirmPassword
+    private var passwordsMatch: Bool { password == confirmPassword }
+    private var isFormValid: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        email.contains("@") && password.count >= 6 && passwordsMatch
     }
 }

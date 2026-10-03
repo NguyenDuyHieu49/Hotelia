@@ -17,8 +17,8 @@
 .dashboard-shell[data-role='admin'] .dashboard-sidebar { background: #263c44; }
 .dashboard-sidebar__brand { min-height: 6.7rem; padding: 1.65rem 1.35rem 1.1rem; display: flex; align-items: flex-start; justify-content: space-between; }
 .dashboard-sidebar__brand-link { display: flex; align-items: center; gap: .8rem; min-width: 0; }
-.dashboard-sidebar__mark { display: grid; place-items: center; flex: 0 0 2.6rem; width: 2.6rem; height: 2.6rem; border: 1px solid rgba(255,255,255,.66); font-size: 1.36rem; font-weight: 800; letter-spacing: -.12em; padding-right: .14rem; }
-.dashboard-sidebar__mark span { color: #d6aa73; }
+.dashboard-sidebar__mark { display: grid; place-items: center; flex: 0 0 2.6rem; width: 2.6rem; height: 2.6rem; overflow: hidden; }
+.dashboard-sidebar__mark img { display: block; width: 100%; height: 100%; object-fit: contain; transform: scale(1.28); }
 .dashboard-sidebar__brand-copy, .dashboard-sidebar__user-copy { display: flex; flex-direction: column; min-width: 0; }
 .dashboard-sidebar__brand-copy strong { font-size: 1.22rem; font-weight: 750; letter-spacing: -.045em; line-height: 1.2; }
 .dashboard-sidebar__brand-copy small { margin-top: .24rem; color: #b5c9bc; font-size: .68rem; letter-spacing: .04em; }

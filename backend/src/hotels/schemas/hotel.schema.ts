@@ -50,6 +50,19 @@ export class Hotel extends Document {
   @Prop({ default: 0 })
   reviewCount: number;
 
+  // Editorial demo content is never included in verified guest-review aggregates.
+  @Prop({ default: false })
+  isDemoCatalog: boolean;
+
+  @Prop()
+  demoRating?: number;
+
+  @Prop()
+  demoReviewCount?: number;
+
+  @Prop({ type: [{ rating: Number, content: String }], default: [] })
+  demoReviews?: { rating: number; content: string }[];
+
   @Prop({ type: [String], default: [] })
   amenities: string[];
 

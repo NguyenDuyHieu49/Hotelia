@@ -67,7 +67,7 @@ export function Sidebar({
       <aside className={`dashboard-sidebar${collapsed ? ' is-collapsed' : ''}${mobileOpen ? ' is-mobile-open' : ''}`} aria-label="Điều hướng quản lý">
         <div className="dashboard-sidebar__brand">
           <Link to={`/${type}/dashboard`} className="dashboard-sidebar__brand-link" onClick={onCloseMobile} aria-label="Hotelia — trang tổng quan">
-            <span className="dashboard-sidebar__mark">H<span>.</span></span>
+            <span className="dashboard-sidebar__mark" aria-hidden="true"><img src="/brand/hotelia-mark.png" alt="" /></span>
             <span className="dashboard-sidebar__brand-copy"><strong>Hotelia</strong><small>{type === 'owner' ? 'Owner workspace' : 'Admin workspace'}</small></span>
           </Link>
           <button type="button" className="dashboard-sidebar__mobile-close" aria-label="Đóng menu" onClick={onCloseMobile}><X size={19} /></button>

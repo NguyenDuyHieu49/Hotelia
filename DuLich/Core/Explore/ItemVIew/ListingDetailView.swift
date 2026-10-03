@@ -66,20 +66,7 @@ struct HotelDetailView: View {
     // MARK: - Sections
     private var hotelImageSection: some View {
         ZStack(alignment: .bottomLeading) {
-            if let images = hotel.images, !images.isEmpty, let firstImage = images.first {
-                AsyncImage(url: APIClient.shared.mediaURL(firstImage)) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    default:
-                        imagePlaceholder
-                    }
-                }
-            } else {
-                imagePlaceholder
-            }
+            HotelCoverImage(hotel: hotel, height: 250)
 
             // Gradient overlay
             LinearGradient(
@@ -91,7 +78,7 @@ struct HotelDetailView: View {
 
             // Rating Badge
             HStack {
-                if let rating = hotel.guestRating {
+                if let rating = hotel.displayRating {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 4) {
                             Image(systemName: "star.fill")
@@ -100,8 +87,8 @@ struct HotelDetailView: View {
                                 .font(AppTypography.headline)
                                 .foregroundColor(.white)
                         }
-                        if let reviews = hotel.reviewCount {
-                            Text("\(reviews) đánh giá")
+                        if hotel.displayReviewCount > 0 {
+                            Text(L10n.format("hotel_reviews_count_format", hotel.displayReviewCount))
                                 .font(AppTypography.caption1)
                                 .foregroundColor(.white.opacity(0.8))
                         }
@@ -143,7 +130,13 @@ struct HotelDetailView: View {
                 .font(AppTypography.title1)
                 .foregroundColor(AppColors.textPrimary)
 
-            if hotel.guestRating == nil {
+            if hotel.isDemoCatalog == true {
+                Label("Trang khám phá · đang cập nhật thông tin phòng", systemImage: "info.circle")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if hotel.displayRating == nil {
                 Text("Chưa có đánh giá")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -226,6 +219,19 @@ struct HotelDetailView: View {
                 }
             }
 
+            if reviews.isEmpty, let sample = hotel.demoReviews?.first {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Nhận xét nổi bật")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(sample.displayContent)
+                        .font(.subheadline)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
+            }
+
             if isLoadingReviews {
                 HStack {
                     ProgressView()
@@ -235,7 +241,7 @@ struct HotelDetailView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, AppSpacing.xl)
-            } else if reviews.isEmpty {
+            } else if reviews.isEmpty && (hotel.demoReviews?.isEmpty ?? true) {
                 VStack(spacing: AppSpacing.sm) {
                     Image(systemName: "bubble.left.and.bubble.right")
                         .font(.system(size: 40))
@@ -265,13 +271,21 @@ struct HotelDetailView: View {
 
     private var bookButtonSection: some View {
         VStack(spacing: AppSpacing.sm) {
-            PrimaryButton(title: "Đặt phòng ngay") {
-                showBooking = true
-            }
+            if hotel.isDemoCatalog == true {
+                Label("Chưa mở đặt phòng trên Hotelia", systemImage: "calendar.badge.clock")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(16)
+                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 14))
+            } else {
+                PrimaryButton(title: "Đặt phòng ngay") {
+                    showBooking = true
+                }
 
-            Text(L10n.text("booking_review_terms"))
-                .font(AppTypography.caption1)
-                .foregroundColor(AppColors.textSecondary)
+                Text(L10n.text("booking_review_terms"))
+                    .font(AppTypography.caption1)
+                    .foregroundColor(AppColors.textSecondary)
+            }
         }
         .padding(.top, AppSpacing.base)
     }

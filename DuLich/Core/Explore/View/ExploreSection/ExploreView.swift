@@ -14,7 +14,11 @@ struct ExploreView: View {
         "TP. Hồ Chí Minh",
         "Đà Nẵng",
         "Nha Trang",
-        "Phú Quốc"
+        "Phú Quốc",
+        "Hội An",
+        "Hạ Long",
+        "Huế",
+        "Quy Nhơn"
     ]
 
     var body: some View {
@@ -34,6 +38,8 @@ struct ExploreView: View {
                             onSearch: performSearch,
                             onFilter: { showFilters = true }
                         )
+
+                        ExploreDestinationBannerSection(onSelect: selectDestination)
 
                         ExploreDestinationSection(
                             destinations: destinations,
@@ -68,11 +74,14 @@ struct ExploreView: View {
                                 rankingInfo: viewModel.rankingInfo
                             )
 
+                            ExplorePromotionSection(hotels: viewModel.hotels)
+
+                            ExploreRankingSection(hotels: viewModel.hotels)
+
                             ExplorePopularSection(
                                 hotels: viewModel.hotels
                             )
 
-                            ExplorePromotionSection(hotels: viewModel.hotels)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -131,6 +140,103 @@ private extension ExploreView {
                 await viewModel.searchHotels(
                     destination: destination
                 )
+            }
+        }
+    }
+}
+
+private struct ExploreDestinationBannerSection: View {
+    let onSelect: (String) -> Void
+    private let journeys: [(city: String, image: String, subtitle: String)] = [
+        ("Hội An", "hoian1", "Phố cổ & những ngày chậm rãi"),
+        ("Phú Quốc", "phuquoc1", "Một kỳ nghỉ bên biển"),
+        ("Đà Nẵng", "DaNang3", "Biển, phố và những chuyến đi")
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Đi đâu tiếp theo?")
+                    .font(.system(size: 23, weight: .bold, design: .rounded))
+                Spacer()
+                Text("Vuốt để khám phá")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(journeys, id: \.city) { journey in
+                        Button { onSelect(journey.city) } label: {
+                            ZStack(alignment: .bottomLeading) {
+                                Image(journey.image)
+                                    .resizable().scaledToFill()
+                                    .frame(width: 265, height: 178).clipped()
+                                LinearGradient(colors: [.clear, .black.opacity(0.75)], startPoint: .center, endPoint: .bottom)
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(journey.city).font(.title2.weight(.bold))
+                                    Text(journey.subtitle).font(.caption)
+                                }
+                                .foregroundStyle(.white)
+                                .padding(16)
+                            }
+                            .frame(width: 265, height: 178)
+                            .clipShape(RoundedRectangle(cornerRadius: 19))
+                        }
+                        .buttonStyle(HotelCardPressStyle())
+                        .accessibilityLabel("Khám phá khách sạn tại \(journey.city)")
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct ExploreRankingSection: View {
+    let hotels: [Hotel]
+    private var ranked: [Hotel] {
+        Array(hotels.filter { $0.displayRating != nil }.sorted {
+            if $0.displayRating != $1.displayRating {
+                return ($0.displayRating ?? 0) > ($1.displayRating ?? 0)
+            }
+            return $0.name.localizedCompare($1.name) == .orderedAscending
+        }.prefix(3))
+    }
+
+    var body: some View {
+        if !ranked.isEmpty {
+            VStack(alignment: .leading, spacing: 13) {
+                HStack(spacing: 8) {
+                    Image(systemName: "chart.bar.fill")
+                        .foregroundStyle(Color(red: 0.11, green: 0.39, blue: 0.43))
+                    Text("Bảng xếp hạng khám phá")
+                        .font(.title3.weight(.bold))
+                }
+                ForEach(Array(ranked.enumerated()), id: \.element.id) { index, hotel in
+                    NavigationLink {
+                        HotelDetailView(hotel: hotel)
+                    } label: {
+                        HStack(spacing: 12) {
+                            Text(String(format: "%02d", index + 1))
+                                .font(.system(size: 24, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color(red: 0.11, green: 0.39, blue: 0.43))
+                                .frame(width: 36)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(hotel.name).font(.subheadline.weight(.semibold)).lineLimit(1)
+                                Text(hotel.city).font(.caption).foregroundStyle(.secondary)
+                            }
+                            Spacer(minLength: 4)
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text(String(format: "%.1f", hotel.displayRating ?? 0))
+                                    .font(.headline.monospacedDigit())
+                                Text("Điểm").font(.caption2).foregroundStyle(.secondary)
+                            }
+                        }
+                        .foregroundStyle(.primary)
+                        .padding(12)
+                        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 15))
+                    }
+                    .buttonStyle(HotelCardPressStyle())
+                }
             }
         }
     }

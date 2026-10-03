@@ -2,6 +2,7 @@ import { Injectable, ConflictException, NotFoundException, BadRequestException }
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'node:crypto';
 import { User, UserDocument, UserRole, OwnerStatus } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -37,6 +38,44 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<UserDocument | null> {
     return this.userModel.findOne({ email: email.toLowerCase() });
+  }
+
+  async findByProvider(provider: 'google' | 'apple', sub: string): Promise<UserDocument | null> {
+    return this.userModel.findOne(provider === 'google' ? { googleSub: sub } : { appleSub: sub });
+  }
+
+  async findOrCreateSocialUser(provider: 'google' | 'apple', sub: string, email: string,
+    name: string, canLinkEmail: boolean): Promise<UserDocument> {
+    const field = provider === 'google' ? 'googleSub' : 'appleSub';
+    const providerUser = await this.findByProvider(provider, sub);
+    if (providerUser) return providerUser;
+    const normalizedEmail = email.trim().toLowerCase();
+    const existing = await this.findByEmail(normalizedEmail);
+    if (existing) {
+      if (existing.role !== UserRole.USER || !canLinkEmail) {
+        throw new ConflictException('Email này đã có tài khoản. Hãy đăng nhập bằng phương thức đã dùng trước đó.');
+      }
+      const linked = await this.userModel.findOneAndUpdate(
+        { _id: existing._id, [field]: { $exists: false } },
+        { $set: { [field]: sub } }, { new: true });
+      if (linked) return linked;
+      const reloaded = await this.findByProvider(provider, sub);
+      if (reloaded) return reloaded;
+      throw new ConflictException('Tài khoản đã liên kết với một danh tính khác');
+    }
+    const passwordHash = await bcrypt.hash(randomBytes(32).toString('hex'), SALT_ROUNDS);
+    try {
+      return await new this.userModel({ email: normalizedEmail, passwordHash,
+        name: name.trim() || normalizedEmail.split('@')[0], role: UserRole.USER,
+        isActive: true, [field]: sub }).save();
+    } catch (error) {
+      if ((error as {code?: number}).code === 11000) {
+        const winner = await this.findByProvider(provider, sub);
+        if (winner) return winner;
+        throw new ConflictException('Email này đã có tài khoản. Hãy đăng nhập bằng phương thức đã dùng trước đó.');
+      }
+      throw error;
+    }
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<UserDocument> {

@@ -13,8 +13,8 @@ class ExploreService {
         maxPrice: Int? = nil,
         minRating: Int? = nil,
         page: Int = 1,
-        limit: Int = 20,
-        filters: HotelSearchFilters = HotelSearchFilters()
+        limit: Int = 50,
+        filters: HotelSearchFilters
     ) async throws -> [Hotel] {
         var queryParams = "?"
 

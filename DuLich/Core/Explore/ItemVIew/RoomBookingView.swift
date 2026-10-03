@@ -168,7 +168,7 @@ struct RoomBookingView: View {
                         .foregroundColor(AppColors.textSecondary)
                 }
 
-                if let rating = hotel.guestRating {
+                if let rating = hotel.displayRating {
                     HStack(spacing: AppSpacing.xxs) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 12))

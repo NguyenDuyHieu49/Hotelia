@@ -19,10 +19,10 @@ final class RecommendationService {
     private let sessionId = UUID().uuidString
     private init() {}
 
-    func recommendations(destination: String?, filters: HotelSearchFilters = HotelSearchFilters()) async throws -> RecommendationResult {
+    func recommendations(destination: String?, filters: HotelSearchFilters) async throws -> RecommendationResult {
         var query = URLComponents()
         query.queryItems = [URLQueryItem(name: "sessionId", value: sessionId),
-                           URLQueryItem(name: "limit", value: "20")]
+                           URLQueryItem(name: "limit", value: "50")]
         query.queryItems?.append(contentsOf: filters.queryItems)
         if let destination, !destination.isEmpty {
             query.queryItems?.append(URLQueryItem(name: "destination", value: destination))

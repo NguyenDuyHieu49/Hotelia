@@ -27,19 +27,19 @@ export class HotelsService {
   }
 
   async findByOwner(ownerId: string): Promise<HotelDocument[]> {
-    return this.hotelModel.find({ ownerId: new Types.ObjectId(ownerId) }).sort({ createdAt: -1 });
+    return this.hotelModel.find({ ownerId: new Types.ObjectId(ownerId), isDemoCatalog: { $ne: true } }).sort({ createdAt: -1 });
   }
 
   async update(id: string, ownerId: string, dto: UpdateHotelDto): Promise<HotelDocument> {
     const hotel = await this.findById(id);
-    if (hotel.ownerId.toString() !== ownerId) throw new ForbiddenException('Not your hotel');
+    if (hotel.ownerId.toString() !== ownerId || hotel.isDemoCatalog) throw new ForbiddenException('Not your hotel');
     Object.assign(hotel, dto);
     return hotel.save();
   }
 
   async submitForApproval(id: string, ownerId: string): Promise<HotelDocument> {
     const hotel = await this.findById(id);
-    if (hotel.ownerId.toString() !== ownerId) throw new ForbiddenException('Not your hotel');
+    if (hotel.ownerId.toString() !== ownerId || hotel.isDemoCatalog) throw new ForbiddenException('Not your hotel');
     if (![HotelStatus.DRAFT, HotelStatus.REJECTED].includes(hotel.status)) throw new ForbiddenException('Only draft or rejected hotels can be submitted');
     hotel.status = HotelStatus.PENDING_APPROVAL;
     return hotel.save();
@@ -118,7 +118,7 @@ export class HotelsService {
 
   async delete(id: string, ownerId: string): Promise<void> {
     const hotel = await this.findById(id);
-    if (hotel.ownerId.toString() !== ownerId) throw new ForbiddenException('Not your hotel');
+    if (hotel.ownerId.toString() !== ownerId || hotel.isDemoCatalog) throw new ForbiddenException('Not your hotel');
     hotel.status = HotelStatus.SUSPENDED;
     await hotel.save();
   }

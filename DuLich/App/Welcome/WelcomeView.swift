@@ -1,118 +1,132 @@
 import SwiftUI
 
 struct WelcomeView: View {
-    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject private var authViewModel: AuthViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showLogin = false
     @State private var showRegister = false
-    @State private var animateLogo = false
+    @State private var appeared = false
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                // Background Gradient
+        GeometryReader { geometry in
+            ZStack(alignment: .bottomLeading) {
+                Image("WelcomeCoast")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
+                    .ignoresSafeArea()
+                    .accessibilityHidden(true)
+
                 LinearGradient(
-                    colors: [AppColors.backgroundPrimary, AppColors.backgroundSecondary],
+                    stops: [
+                        .init(color: Color(hex: "0B2229").opacity(0.35), location: 0),
+                        .init(color: .clear, location: 0.28),
+                        .init(color: Color(hex: "071C23").opacity(0.26), location: 0.48),
+                        .init(color: Color(hex: "071C23").opacity(0.92), location: 1)
+                    ],
                     startPoint: .top,
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
+                .accessibilityHidden(true)
 
-                VStack(spacing: AppSpacing.xxl) {
-                    Spacer()
-
-                    // Logo Section
-                    VStack(spacing: AppSpacing.lg) {
-                        ZStack {
-                            Circle()
-                                .fill(AppColors.primary.opacity(0.1))
-                                .frame(width: 160, height: 160)
-
-                            Image(systemName: "building.2.fill")
-                                .font(.system(size: 64))
-                                .foregroundStyle(AppGradients.primary)
-                                .scaleEffect(animateLogo ? 1.0 : 0.8)
-                                .opacity(animateLogo ? 1 : 0)
-                        }
-
-                        VStack(spacing: AppSpacing.sm) {
-                            Text("Hotelia")
-                                .font(AppTypography.largeTitle)
-                                .foregroundColor(AppColors.textPrimary)
-
-                            Text("Đặt phòng khách sạn dễ dàng")
-                                .font(AppTypography.subheadline)
-                                .foregroundColor(AppColors.textSecondary)
-                        }
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack(spacing: 0) {
+                        Image("HoteliaMark")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 48, height: 48)
+                            .accessibilityHidden(true)
+                        Text("Hotelia")
+                            .font(.system(size: 26, weight: .medium, design: .serif))
+                            .tracking(-0.5)
                     }
-                    .animation(.spring(response: 0.6, dampingFraction: 0.6), value: animateLogo)
+                    .foregroundStyle(.white)
+                    .accessibilityElement(children: .combine)
+                    .padding(.top, 22)
 
-                    Spacer()
+                    Spacer(minLength: 80)
 
-                    // Feature Highlights
-                    VStack(spacing: AppSpacing.md) {
-                        FeatureRow(icon: "magnifyingglass", title: "Khám phá", subtitle: "Tìm kiếm khách sạn hàng đầu")
-                        FeatureRow(icon: "calendar", title: "Đặt phòng", subtitle: "Đặt nhanh chóng, dễ dàng")
-                        FeatureRow(icon: "bell.badge", title: "Thông báo", subtitle: "Cập nhật lịch trình liên tục")
-                    }
-                    .padding(.horizontal, AppSpacing.xl)
+                    Text("Tìm nơi dừng chân tiếp theo")
+                        .font(.system(size: 42, weight: .medium, design: .serif))
+                        .tracking(-1.4)
+                        .lineSpacing(-3)
+                        .foregroundStyle(.white)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.bottom, 14)
 
-                    Spacer()
+                    Text("Khám phá khách sạn, chọn phòng và đặt chỗ trong vài phút.")
+                        .font(.system(size: 16))
+                        .lineSpacing(4)
+                        .foregroundStyle(.white.opacity(0.86))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.bottom, 32)
 
-                    // Buttons
-                    VStack(spacing: AppSpacing.base) {
-                        PrimaryButton(title: "Đăng nhập") {
-                            showLogin = true
+                    VStack(spacing: 12) {
+                        Button { showLogin = true } label: {
+                            HStack {
+                                Text("Đăng nhập")
+                                Spacer()
+                                Image(systemName: "arrow.right")
+                            }
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(Color(hex: "14313A"))
+                            .padding(.horizontal, 20)
+                            .frame(height: 56)
+                            .background(.white, in: RoundedRectangle(cornerRadius: 13))
                         }
+                        .buttonStyle(WelcomePressStyle())
 
-                        SecondaryButton(title: "Đăng ký") {
-                            showRegister = true
+                        Button { showRegister = true } label: {
+                            Text("Đăng ký")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 56)
+                                .background(.white.opacity(0.13), in: RoundedRectangle(cornerRadius: 13))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 13)
+                                        .stroke(.white.opacity(0.65), lineWidth: 1)
+                                }
                         }
+                        .buttonStyle(WelcomePressStyle())
                     }
-                    .padding(.horizontal, AppSpacing.xl)
-                    .padding(.bottom, AppSpacing.xxl)
+                    .padding(.bottom, 24)
                 }
+                .padding(.horizontal, 28)
+                .frame(maxWidth: 480, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared || reduceMotion ? 0 : 14)
             }
-            .navigationBarHidden(true)
-            .sheet(isPresented: $showLogin) {
-                LoginView()
-                    .environmentObject(authViewModel)
-            }
-            .sheet(isPresented: $showRegister) {
-                RegisterView()
-                    .environmentObject(authViewModel)
-            }
-            .onAppear {
-                animateLogo = true
+            .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+        .preferredColorScheme(.dark)
+        .sheet(isPresented: $showLogin) {
+            LoginView()
+                .environmentObject(authViewModel)
+                .preferredColorScheme(.light)
+        }
+        .sheet(isPresented: $showRegister) {
+            RegisterView()
+                .environmentObject(authViewModel)
+                .preferredColorScheme(.light)
+        }
+        .onAppear {
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.55)) {
+                appeared = true
             }
         }
     }
 }
 
-// MARK: - Feature Row
-struct FeatureRow: View {
-    let icon: String
-    let title: String
-    let subtitle: String
+private struct WelcomePressStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    var body: some View {
-        HStack(spacing: AppSpacing.base) {
-            Image(systemName: icon)
-                .font(.system(size: 24))
-                .foregroundColor(AppColors.primary)
-                .frame(width: 44, height: 44)
-                .background(AppColors.primary.opacity(0.1))
-                .cornerRadius(AppSpacing.radiusMedium)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(LocalizedStringKey(title))
-                    .font(AppTypography.headline)
-                    .foregroundColor(AppColors.textPrimary)
-                Text(LocalizedStringKey(subtitle))
-                    .font(AppTypography.caption1)
-                    .foregroundColor(AppColors.textSecondary)
-            }
-
-            Spacer()
-        }
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.98 : 1)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: configuration.isPressed)
     }
 }

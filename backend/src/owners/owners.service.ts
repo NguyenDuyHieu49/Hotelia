@@ -28,17 +28,17 @@ export class OwnersService {
   }
 
   async getBookings(ownerId:string) {
-    const hotels=await this.hotelModel.find({ownerId:new Types.ObjectId(ownerId)});
+    const hotels=await this.hotelModel.find({ownerId:new Types.ObjectId(ownerId),isDemoCatalog:{$ne:true}});
     return this.bookingModel.find({hotelId:{$in:hotels.map(h=>h._id)}}).sort({createdAt:-1});
   }
 
   async getDashboard(ownerId: string) {
-    const hotels = await this.hotelModel.find({ ownerId: new Types.ObjectId(ownerId) });
+    const hotels = await this.hotelModel.find({ ownerId: new Types.ObjectId(ownerId), isDemoCatalog: { $ne: true } });
     const hotelIds = hotels.map(h => h._id);
 
     const [publishedHotels, pendingHotels, bookings, revenueData] = await Promise.all([
-      this.hotelModel.countDocuments({ ownerId: new Types.ObjectId(ownerId), status: HotelStatus.PUBLISHED }),
-      this.hotelModel.countDocuments({ ownerId: new Types.ObjectId(ownerId), status: HotelStatus.PENDING_APPROVAL }),
+      this.hotelModel.countDocuments({ ownerId: new Types.ObjectId(ownerId), status: HotelStatus.PUBLISHED, isDemoCatalog: { $ne: true } }),
+      this.hotelModel.countDocuments({ ownerId: new Types.ObjectId(ownerId), status: HotelStatus.PENDING_APPROVAL, isDemoCatalog: { $ne: true } }),
       this.bookingModel.countDocuments({ hotelId: { $in: hotelIds } }),
       this.bookingModel.aggregate([
         { $match: { hotelId: { $in: hotelIds }, status: { $in: [BookingStatus.PAID, BookingStatus.CONFIRMED, BookingStatus.CHECKED_IN, BookingStatus.CHECKED_OUT, BookingStatus.COMPLETED] } } },
@@ -80,6 +80,7 @@ export class OwnersService {
     const hotel = await this.hotelModel.findOne({
       _id: new Types.ObjectId(hotelId),
       ownerId: new Types.ObjectId(ownerId),
+      isDemoCatalog: { $ne: true },
     });
     if (!hotel) throw new NotFoundException('Hotel not found');
 
@@ -89,7 +90,7 @@ export class OwnersService {
   }
 
   async getRevenueByMonth(ownerId: string, year: number) {
-    const hotels = await this.hotelModel.find({ ownerId: new Types.ObjectId(ownerId) });
+    const hotels = await this.hotelModel.find({ ownerId: new Types.ObjectId(ownerId), isDemoCatalog: { $ne: true } });
     const hotelIds = hotels.map(h => h._id);
 
     return this.bookingModel.aggregate([

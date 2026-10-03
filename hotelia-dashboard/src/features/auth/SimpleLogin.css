@@ -17,8 +17,9 @@
 .login-story__shade { background: linear-gradient(180deg, rgba(15, 31, 29, .42) 0%, rgba(15, 31, 29, .08) 35%, rgba(12, 27, 25, .76) 100%); }
 .login-story__content { position: relative; display: flex; flex-direction: column; min-height: 100dvh; padding: clamp(2rem, 4.2vw, 4.5rem); }
 .login-brand { display: inline-flex; align-items: center; gap: .85rem; width: fit-content; }
-.login-brand__mark { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border: 1px solid currentColor; font-size: 1.35rem; font-weight: 700; letter-spacing: -.13em; padding-right: .16rem; }
-.login-brand__mark span { color: #dfba81; }
+.login-brand__mark { display: grid; place-items: center; flex: 0 0 2.8rem; width: 2.8rem; height: 2.8rem; overflow: hidden; }
+.login-brand__mark img { display: block; width: 100%; height: 100%; object-fit: contain; transform: scale(1.28); }
+.login-brand--mobile .login-brand__mark { border-radius: .45rem; background: #103c56; }
 .login-brand__name { font-size: 1.35rem; font-weight: 750; letter-spacing: -.07em; }
 .login-story__copy { margin-top: auto; max-width: 38rem; animation: login-enter .8s .12s cubic-bezier(.16, 1, .3, 1) both; }
 .login-eyebrow { font-size: .67rem; font-weight: 800; letter-spacing: .24em; }

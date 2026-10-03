@@ -55,6 +55,24 @@ class AuthViewModel: ObservableObject {
         isLoading = false
     }
 
+    func socialLogin(provider: String, idToken: String, name: String? = nil, nonce: String? = nil) async {
+        guard !isLoading else { return }
+        isLoading = true
+        errorMessage = nil
+        do {
+            let response = try await authService.socialLogin(provider: provider, idToken: idToken, name: name, nonce: nonce)
+            currentUser = response.user
+            isLoggedIn = true
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        isLoading = false
+    }
+
+    func showSocialError(_ error: Error) {
+        errorMessage = error.localizedDescription
+    }
+
     func logout() {
         authService.logout()
         isLoggedIn = false

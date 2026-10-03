@@ -11,8 +11,24 @@ struct HotelReviewsView: View {
         ScrollView {
             LazyVStack(spacing: 16) {
                 Text(hotel.name).font(.headline)
+                if reviews.isEmpty, let samples = hotel.demoReviews, !samples.isEmpty {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Nhận xét")
+                            .font(.headline)
+                        ForEach(Array(samples.enumerated()), id: \.offset) { _, sample in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Label(L10n.format("review_score_format", sample.rating), systemImage: "star.fill")
+                                    .font(.caption.weight(.semibold))
+                                Text(sample.displayContent).font(.subheadline)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(12)
+                            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                }
                 if let error { Text(error).foregroundStyle(.red); Button("Thử lại") { Task { await load(reset: page == 0) } } }
-                if reviews.isEmpty && !busy { Text("Chưa có đánh giá") }
+                if reviews.isEmpty && (hotel.demoReviews?.isEmpty ?? true) && !busy { Text("Chưa có đánh giá") }
                 ForEach(reviews) { ReviewCardItemView(review: $0) }
                 if busy { ProgressView() }
                 if reviews.count < total { Button("Tải thêm") { Task { await load() } }.disabled(busy) }

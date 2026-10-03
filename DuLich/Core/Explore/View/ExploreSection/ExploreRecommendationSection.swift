@@ -13,9 +13,8 @@ struct ExploreRecommendationSection: View {
     let isRanking: Bool
     let rankingInfo: String?
 
-    private var recommendedHotels: [Hotel] {
-        Array(hotels.prefix(5))
-    }
+    private var bookableHotels: [Hotel] { hotels.filter { $0.isDemoCatalog != true } }
+    private var recommendedHotels: [Hotel] { Array(bookableHotels.prefix(8)) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -42,6 +41,11 @@ struct ExploreRecommendationSection: View {
 
                 if isRanking {
                     ProgressView()
+                } else {
+                    NavigationLink("Xem tất cả") {
+                        ExploreHotelListView(hotels: bookableHotels)
+                    }
+                    .font(.caption.weight(.semibold))
                 }
             }
 
@@ -64,7 +68,7 @@ struct ExploreRecommendationSection: View {
                                 HotelRecommendationCard(hotel: hotel)
                             }
                             .buttonStyle(HotelCardPressStyle())
-                            .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.ratingSummary)")
+                            .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.accessibleRatingSummary)")
                             .overlay(alignment: .topTrailing) { FavoriteHotelButton(hotel: hotel).padding(12) }
                         }
                     }

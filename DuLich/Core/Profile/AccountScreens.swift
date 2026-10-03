@@ -248,9 +248,9 @@ struct AboutHoteliaView: View {
                 Text("Tìm khách sạn, lưu nơi yêu thích và quản lý chuyến đi của bạn.")
                 Text("Phiên bản \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")")
             }
-            Section("Thông tin bản demo") {
-                Text("Ảnh và tên khách sạn lấy từ nguồn chính thức. Giá và tồn phòng trong ứng dụng là dữ liệu minh họa, chưa kết nối hệ thống bán phòng của khách sạn.")
-                Text("Điểm đánh giá đến từ người dùng trong ứng dụng. Đề xuất dựa trên lịch sử xem và đặt phòng.")
+            Section("Thông tin dịch vụ") {
+                Text("Thông tin khách sạn được tổng hợp từ nguồn công khai. Giá và tình trạng phòng trên Hotelia chưa đồng bộ trực tiếp với khách sạn.")
+                Text("Đề xuất dựa trên lịch sử xem và đặt phòng. Đánh giá từ khách lưu trú được cập nhật khi có.")
             }
         }.navigationTitle("Về Hotelia")
     }

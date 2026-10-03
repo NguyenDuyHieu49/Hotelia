@@ -7,8 +7,6 @@ class AuthService {
     private init() {}
 
     func login(email: String, password: String) async throws -> AuthResponse {
-        print("[DEBUG-Auth] Login attempt for: \(email)")
-
         let body: [String: Any] = [
             "email": email,
             "password": password
@@ -19,8 +17,6 @@ class AuthService {
             method: "POST",
             body: body
         )
-
-        print("[DEBUG-Auth] Login success! Token: \(response.accessToken.prefix(20))...")
 
         client.setAccessToken(response.accessToken)
         saveRefreshToken(response.refreshToken)
@@ -49,6 +45,17 @@ class AuthService {
         saveRefreshToken(response.refreshToken)
         saveUser(response.user)
 
+        return response
+    }
+
+    func socialLogin(provider: String, idToken: String, name: String? = nil, nonce: String? = nil) async throws -> AuthResponse {
+        var body: [String: Any] = ["provider": provider, "idToken": idToken]
+        if let name { body["name"] = name }
+        if let nonce { body["nonce"] = nonce }
+        let response: AuthResponse = try await client.request(endpoint: "/auth/social", method: "POST", body: body)
+        client.setAccessToken(response.accessToken)
+        saveRefreshToken(response.refreshToken)
+        saveUser(response.user)
         return response
     }
 

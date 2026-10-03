@@ -1,112 +1,39 @@
-//
-//  ExplorePromotionSection.swift
-//  Hotelia
-//
-//  Created by Macbook Pro on 24/9/26.
-//
-
 import SwiftUI
 
 struct ExplorePromotionSection: View {
     let hotels: [Hotel]
 
     var body: some View {
-
-        ZStack {
-
-            RoundedRectangle(
-                cornerRadius: 24
-            )
-            .fill(
-                LinearGradient(
-                    colors: [
-                        Color.blue,
-                        Color.indigo
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-
-            HStack {
-
-                VStack(
-                    alignment: .leading,
-                    spacing: 8
-                ) {
-
-                    Text("GỢI Ý CHO CHUYẾN ĐI")
-                        .font(
-                            .caption.weight(
-                                .bold
-                            )
-                        )
-                        .foregroundStyle(
-                            .white.opacity(0.8)
-                        )
-
-                    Text(
-                        "Khám phá những\nđiểm đến mới"
-                    )
-                    .font(
-                        .title3.weight(
-                            .bold
-                        )
-                    )
-                    .foregroundStyle(.white)
-
-                    NavigationLink {
-                        ExploreHotelListView(hotels: hotels)
-                    } label: {
-
-                        Text("Khám phá ngay")
-                            .font(
-                                .caption.weight(
-                                    .semibold
-                                )
-                            )
-                            .foregroundStyle(
-                                .blue
-                            )
-                            .padding(
-                                .horizontal,
-                                14
-                            )
-                            .padding(
-                                .vertical,
-                                8
-                            )
-                            .background(.white)
-                            .clipShape(
-                                Capsule()
-                            )
+        NavigationLink {
+            ExploreHotelListView(hotels: hotels)
+        } label: {
+            ZStack(alignment: .bottomLeading) {
+                Image("hue1")
+                    .resizable().scaledToFill()
+                    .frame(height: 190).clipped()
+                LinearGradient(colors: [.clear, .black.opacity(0.78)], startPoint: .top, endPoint: .bottom)
+                HStack(alignment: .bottom) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("BỘ SƯU TẬP HOTELIA")
+                            .font(.caption2.weight(.bold))
+                            .tracking(1.5)
+                        Text("Một nơi ở, nhiều hành trình")
+                            .font(.system(size: 21, weight: .bold, design: .rounded))
+                        Text(L10n.format("explore_all_hotels_format", hotels.count))
+                            .font(.caption)
                     }
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.headline)
+                        .frame(width: 38, height: 38)
+                        .background(.white.opacity(0.23), in: Circle())
                 }
-
-                Spacer()
-
-                Image(
-                    systemName:
-                        "airplane"
-                )
-                .font(
-                    .system(
-                        size: 55,
-                        weight: .medium
-                    )
-                )
-                .foregroundStyle(
-                    .white.opacity(0.85)
-                )
-                .rotationEffect(
-                    .degrees(-15)
-                )
+                .foregroundStyle(.white)
+                .padding(18)
             }
-            .padding(22)
+            .frame(height: 190)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
         }
-        .frame(
-            maxWidth: .infinity,
-            minHeight: 180
-        )
+        .buttonStyle(HotelCardPressStyle())
     }
 }

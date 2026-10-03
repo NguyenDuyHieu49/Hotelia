@@ -15,9 +15,9 @@ struct ExplorePopularSection: View {
 
         hotels
             .sorted {
-                ($0.averageRating ?? 0)
+                ($0.displayRating ?? 0)
                 >
-                ($1.averageRating ?? 0)
+                ($1.displayRating ?? 0)
             }
     }
 
@@ -27,7 +27,7 @@ struct ExplorePopularSection: View {
 
             HStack {
 
-                Text("Khách sạn được yêu thích")
+                Text("Khám phá thêm khách sạn")
                     .font(.title3.weight(.bold))
 
                 Spacer()
@@ -43,7 +43,7 @@ struct ExplorePopularSection: View {
 
             LazyVStack(spacing: 16) {
 
-                ForEach(popularHotels.prefix(5)) { hotel in
+                ForEach(popularHotels.prefix(10)) { hotel in
 
                     NavigationLink {
                         HotelDetailView(hotel: hotel)
@@ -51,7 +51,7 @@ struct ExplorePopularSection: View {
                         HotelExploreCard(hotel: hotel)
                     }
                     .buttonStyle(HotelCardPressStyle())
-                    .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.ratingSummary)")
+                    .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.accessibleRatingSummary)")
                     .overlay(alignment: .topTrailing) { FavoriteHotelButton(hotel: hotel).padding(12) }
                 }
             }
@@ -76,7 +76,7 @@ struct ExploreHotelListView: View {
                         HotelExploreCard(hotel: hotel)
                     }
                     .buttonStyle(HotelCardPressStyle())
-                    .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.ratingSummary)")
+                    .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.accessibleRatingSummary)")
                     .overlay(alignment: .topTrailing) { FavoriteHotelButton(hotel: hotel).padding(12) }
                 }
             }

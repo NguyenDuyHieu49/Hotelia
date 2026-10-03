@@ -12,6 +12,12 @@ export class User extends Document {
   @Prop({ required: true })
   passwordHash: string;
 
+  @Prop()
+  googleSub?: string;
+
+  @Prop()
+  appleSub?: string;
+
   @Prop({ required: true, trim: true })
   name: string;
 
@@ -60,5 +66,6 @@ export class User extends Document {
 
 export type UserDocument = User;
 export const UserSchema = SchemaFactory.createForClass(User);
-UserSchema.index({ email: 1 }, { unique: true });
 UserSchema.index({ role: 1, ownerStatus: 1 });
+UserSchema.index({ googleSub: 1 }, { unique: true, partialFilterExpression: { googleSub: { $type: 'string' } } });
+UserSchema.index({ appleSub: 1 }, { unique: true, partialFilterExpression: { appleSub: { $type: 'string' } } });
