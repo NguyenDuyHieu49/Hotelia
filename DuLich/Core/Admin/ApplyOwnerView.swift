@@ -12,7 +12,7 @@ struct ApplyOwnerView: View {
             TextField("Mã giấy phép kinh doanh", text: $license)
             Text("Yêu cầu cần được quản trị viên phê duyệt. Sau khi được duyệt, đăng nhập lại để mở mục Quản lý.").font(.caption)
             if let message { Text(message) }
-            Button(submitted ? "Đã gửi yêu cầu" : "Đăng ký chủ khách sạn") {
+            Button(L10n.text(submitted ? "Đã gửi yêu cầu" : "Đăng ký chủ khách sạn")) {
                 busy = true
                 Task {
                     do {

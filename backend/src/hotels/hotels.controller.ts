@@ -27,7 +27,7 @@ export class HotelsController {
   @Get(':id')
   @ApiOperation({ summary: 'Get hotel by ID' })
   async findById(@Param('id') id: string) {
-    return this.hotelsService.findById(id);
+    return this.hotelsService.findPublicById(id);
   }
 
   @ApiBearerAuth()

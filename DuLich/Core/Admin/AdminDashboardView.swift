@@ -238,7 +238,7 @@ struct HotelApprovalCard: View {
                 VStack(alignment: .leading) {
                     Text(hotel.name)
                         .font(.headline)
-                    Text("\(hotel.address), \(hotel.city)")
+                    Text("\(hotel.localizedAddress), \(hotel.localizedCity)")
                         .font(.caption)
                         .foregroundColor(.secondary)
                     if let stars = hotel.starRating {

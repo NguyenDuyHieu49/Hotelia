@@ -142,7 +142,13 @@ enum APIError: LocalizedError {
     case message(String)
     var errorDescription: String? {
         switch self {
-        case .message(let value): return value
+        case .message(let value):
+            let translated = L10n.text(value)
+            if AppLanguage.isEnglishSelected && translated == value &&
+                value.range(of: "[À-ỹĐđ]", options: .regularExpression) != nil {
+                return L10n.text("Không thể xử lý yêu cầu. Vui lòng thử lại.")
+            }
+            return translated
         case .unauthorized: return L10n.text("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
         case .invalidURL, .invalidResponse: return L10n.text("Không thể đọc phản hồi máy chủ.")
         case .serverError(let code): return L10n.format("api_request_failed_format", code)

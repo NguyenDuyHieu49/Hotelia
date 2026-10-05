@@ -13,7 +13,7 @@ describe('booking creation under contention', () => {
     guestName: 'Demo Guest', guestEmail: 'guest@example.com', guestPhone: '0900000000',
   };
 
-  function fixture() {
+  function fixture(isDemoCatalog = false) {
     const bookings: any[] = [];
     let queue = Promise.resolve();
     const bookingModel = {
@@ -28,7 +28,7 @@ describe('booking creation under contention', () => {
       }),
     };
     const db = { collection: jest.fn((name: string) => {
-      if (name === 'hotels') return { findOne: async () => ({ _id: hotelId, status: 'PUBLISHED', name: 'Test Hotel' }) };
+      if (name === 'hotels') return { findOne: async () => ({ _id: hotelId, status: 'PUBLISHED', isDemoCatalog, name: 'Test Hotel' }) };
       if (name === 'roomtypes') return { findOneAndUpdate: async () =>
         ({ _id: roomTypeId, hotelId, isActive: true, maxGuests: 2, basePrice: 500000, totalRooms: 1, name: 'Deluxe' }) };
       if (name === 'bookings') return { find: () => ({ toArray: async () => bookings }) };
@@ -70,5 +70,13 @@ describe('booking creation under contention', () => {
     await expect(service.create(String(firstUser), { ...dto, guestCount: 2 }, key)).rejects.toThrow('nội dung khác');
     expect(bookings).toHaveLength(1);
     expect(bookingModel.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects booking for an Explore-only listing even if a room was added', async () => {
+    const { service, bookings, bookingModel } = fixture(true);
+    await expect(service.create(String(firstUser), dto, 'bc88fe55-2ec1-48db-814f-e0d18529e004'))
+      .rejects.toThrow('Khách sạn chưa nhận đặt phòng');
+    expect(bookings).toHaveLength(0);
+    expect(bookingModel.create).not.toHaveBeenCalled();
   });
 });

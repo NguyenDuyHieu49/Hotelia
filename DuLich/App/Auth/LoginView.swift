@@ -204,7 +204,7 @@ struct AuthFormField: View {
                             .foregroundStyle(AuthStyle.muted)
                             .frame(width: 44, height: 44)
                     }
-                    .accessibilityLabel(Text(showsText ? "Ẩn mật khẩu" : "Hiện mật khẩu"))
+                    .accessibilityLabel(Text(L10n.text(showsText ? "Ẩn mật khẩu" : "Hiện mật khẩu")))
                 }
             }
             .padding(.leading, 16)

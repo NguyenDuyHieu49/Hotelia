@@ -149,7 +149,7 @@ struct MyHotelCard: View {
                     .font(.headline)
                     .lineLimit(1)
 
-                Text("\(hotel.address), \(hotel.city)")
+                Text("\(hotel.localizedAddress), \(hotel.localizedCity)")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .lineLimit(1)

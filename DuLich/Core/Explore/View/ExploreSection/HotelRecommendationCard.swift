@@ -9,7 +9,7 @@ struct HotelRecommendationCard: View {
                 .frame(width: 240)
                 .clipShape(RoundedRectangle(cornerRadius: 18))
                 .overlay(alignment: .topLeading) {
-                    if let rating = hotel.displayRating {
+                    if let rating = hotel.guestRating {
                         HStack(spacing: 4) {
                             Image(systemName: "star.fill").foregroundStyle(.yellow)
                             Text(String(format: "%.1f", rating)).fontWeight(.bold)
@@ -26,7 +26,7 @@ struct HotelRecommendationCard: View {
                 .foregroundStyle(.primary)
                 .lineLimit(2)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Label(hotel.city, systemImage: "mappin")
+            Label(hotel.localizedCity, systemImage: "mappin")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)

@@ -13,7 +13,7 @@ struct ExploreRecommendationSection: View {
     let isRanking: Bool
     let rankingInfo: String?
 
-    private var bookableHotels: [Hotel] { hotels.filter { $0.isDemoCatalog != true } }
+    private var bookableHotels: [Hotel] { hotels.filter(\.isBookingEnabled) }
     private var recommendedHotels: [Hotel] { Array(bookableHotels.prefix(8)) }
 
     var body: some View {
@@ -41,7 +41,7 @@ struct ExploreRecommendationSection: View {
 
                 if isRanking {
                     ProgressView()
-                } else {
+                } else if !bookableHotels.isEmpty {
                     NavigationLink("Xem tất cả") {
                         ExploreHotelListView(hotels: bookableHotels)
                     }
@@ -68,11 +68,16 @@ struct ExploreRecommendationSection: View {
                                 HotelRecommendationCard(hotel: hotel)
                             }
                             .buttonStyle(HotelCardPressStyle())
-                            .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.accessibleRatingSummary)")
+                            .accessibilityLabel(L10n.format("view_hotel_accessibility_format", hotel.name, hotel.localizedCity, hotel.accessibleRatingSummary))
                             .overlay(alignment: .topTrailing) { FavoriteHotelButton(hotel: hotel).padding(12) }
                         }
                     }
                 }
+            } else {
+                Text("Chưa có khách sạn nhận đặt phòng tại điểm đến này")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
 
 

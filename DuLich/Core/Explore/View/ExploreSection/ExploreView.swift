@@ -124,7 +124,7 @@ private extension ExploreView {
 
         Task {
             await viewModel.searchHotels(
-                destination: destination
+                destination: HotelContentLocalization.searchDestination(destination)
             )
         }
     }
@@ -173,8 +173,8 @@ private struct ExploreDestinationBannerSection: View {
                                     .frame(width: 265, height: 178).clipped()
                                 LinearGradient(colors: [.clear, .black.opacity(0.75)], startPoint: .center, endPoint: .bottom)
                                 VStack(alignment: .leading, spacing: 3) {
-                                    Text(journey.city).font(.title2.weight(.bold))
-                                    Text(journey.subtitle).font(.caption)
+                                    Text(LocalizedStringKey(journey.city)).font(.title2.weight(.bold))
+                                    Text(LocalizedStringKey(journey.subtitle)).font(.caption)
                                 }
                                 .foregroundStyle(.white)
                                 .padding(16)
@@ -183,7 +183,7 @@ private struct ExploreDestinationBannerSection: View {
                             .clipShape(RoundedRectangle(cornerRadius: 19))
                         }
                         .buttonStyle(HotelCardPressStyle())
-                        .accessibilityLabel("Khám phá khách sạn tại \(journey.city)")
+                        .accessibilityLabel(L10n.format("explore_destination_accessibility_format", HotelContentLocalization.city(journey.city)))
                     }
                 }
             }
@@ -194,9 +194,9 @@ private struct ExploreDestinationBannerSection: View {
 private struct ExploreRankingSection: View {
     let hotels: [Hotel]
     private var ranked: [Hotel] {
-        Array(hotels.filter { $0.displayRating != nil }.sorted {
-            if $0.displayRating != $1.displayRating {
-                return ($0.displayRating ?? 0) > ($1.displayRating ?? 0)
+        Array(hotels.filter { $0.guestRating != nil }.sorted {
+            if $0.guestRating != $1.guestRating {
+                return ($0.guestRating ?? 0) > ($1.guestRating ?? 0)
             }
             return $0.name.localizedCompare($1.name) == .orderedAscending
         }.prefix(3))
@@ -208,7 +208,7 @@ private struct ExploreRankingSection: View {
                 HStack(spacing: 8) {
                     Image(systemName: "chart.bar.fill")
                         .foregroundStyle(Color(red: 0.11, green: 0.39, blue: 0.43))
-                    Text("Bảng xếp hạng khám phá")
+                    Text("Xếp hạng theo đánh giá khách lưu trú")
                         .font(.title3.weight(.bold))
                 }
                 ForEach(Array(ranked.enumerated()), id: \.element.id) { index, hotel in
@@ -222,11 +222,11 @@ private struct ExploreRankingSection: View {
                                 .frame(width: 36)
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(hotel.name).font(.subheadline.weight(.semibold)).lineLimit(1)
-                                Text(hotel.city).font(.caption).foregroundStyle(.secondary)
+                                Text(hotel.localizedCity).font(.caption).foregroundStyle(.secondary)
                             }
                             Spacer(minLength: 4)
                             VStack(alignment: .trailing, spacing: 2) {
-                                Text(String(format: "%.1f", hotel.displayRating ?? 0))
+                                Text(String(format: "%.1f", hotel.guestRating ?? 0))
                                     .font(.headline.monospacedDigit())
                                 Text("Điểm").font(.caption2).foregroundStyle(.secondary)
                             }

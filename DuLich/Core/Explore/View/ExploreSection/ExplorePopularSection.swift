@@ -15,9 +15,9 @@ struct ExplorePopularSection: View {
 
         hotels
             .sorted {
-                ($0.displayRating ?? 0)
+                ($0.guestRating ?? 0)
                 >
-                ($1.displayRating ?? 0)
+                ($1.guestRating ?? 0)
             }
     }
 
@@ -51,7 +51,7 @@ struct ExplorePopularSection: View {
                         HotelExploreCard(hotel: hotel)
                     }
                     .buttonStyle(HotelCardPressStyle())
-                    .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.accessibleRatingSummary)")
+                    .accessibilityLabel(L10n.format("view_hotel_accessibility_format", hotel.name, hotel.localizedCity, hotel.accessibleRatingSummary))
                     .overlay(alignment: .topTrailing) { FavoriteHotelButton(hotel: hotel).padding(12) }
                 }
             }
@@ -76,7 +76,7 @@ struct ExploreHotelListView: View {
                         HotelExploreCard(hotel: hotel)
                     }
                     .buttonStyle(HotelCardPressStyle())
-                    .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.accessibleRatingSummary)")
+                    .accessibilityLabel(L10n.format("view_hotel_accessibility_format", hotel.name, hotel.localizedCity, hotel.accessibleRatingSummary))
                     .overlay(alignment: .topTrailing) { FavoriteHotelButton(hotel: hotel).padding(12) }
                 }
             }

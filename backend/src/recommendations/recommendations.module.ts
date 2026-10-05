@@ -5,6 +5,7 @@ import { Connection, Types } from 'mongoose';
 import { IsUUID, IsOptional, IsString, MaxLength, IsInt, Min, Max, IsMongoId } from 'class-validator';
 import { Candidate, Signal, cityKey, normalize, rank } from './ranking';
 import { CatalogFilter, eligibleRooms, hasRoomFilter } from '../hotels/catalog-filter';
+import { presentPublicHotel } from '../hotels/public-hotel';
 
 export class RecommendationQuery extends CatalogFilter {
   @IsUUID() sessionId: string;
@@ -49,7 +50,7 @@ export class RecommendationsService implements OnModuleInit {
     const since=new Date(Date.now()-90*86400000);
     const [hotels,prices,views,bookings] = await Promise.all([
       db.collection('hotels').find({status:'PUBLISHED'}).toArray(),
-      db.collection('roomtypes').aggregate([{$match:{isActive:true,basePrice:{$gt:0}}},{$group:{_id:'$hotelId',price:{$min:'$basePrice'}}}]).toArray(),
+      db.collection('roomtypes').aggregate([{$match:{isActive:true,totalRooms:{$gt:0},maxGuests:{$gte:1},basePrice:{$gt:0}}},{$group:{_id:'$hotelId',price:{$min:'$basePrice'}}}]).toArray(),
       db.collection('recommendation_views').find({actor:this.actor(dto.sessionId,userId),viewedAt:{$gte:since}}).sort({viewedAt:-1}).limit(50).toArray(),
       userId ? db.collection('bookings').find({userId:new Types.ObjectId(userId),status:{$in:['PAID','CONFIRMED','CHECKED_IN','CHECKED_OUT','COMPLETED']},createdAt:{$gte:since}}).sort({createdAt:-1}).limit(50).toArray() : Promise.resolve([]),
     ]);
@@ -73,7 +74,11 @@ export class RecommendationsService implements OnModuleInit {
     const filtered=candidates.filter(h=>(!eligible || eligible.has(h.id)) && (!dto.minRating || (h.reviews>0 && h.rating>=dto.minRating)) && (!destination || cityKey(h.city)===cityKey(destination) || normalize(h.city).includes(normalize(destination)) || normalize(h.name).includes(normalize(destination))));
     const ranked=rank(filtered,signals);
     const documents=new Map(hotels.map(h=>[String(h._id),h]));
-    return {hotels:ranked.slice(0,dto.limit||20).map(r=>({...documents.get(r.hotel.id),minPrice:r.hotel.price,recommendationReason:r.reason})),total:filtered.length,
+    const enabledIds=new Set(prices.map(price=>String(price._id)));
+    return {hotels:ranked.slice(0,dto.limit||20).map(r=>({
+      ...presentPublicHotel(documents.get(r.hotel.id)!,enabledIds),
+      minPrice:r.hotel.price,recommendationReason:r.reason,
+    })),total:filtered.length,
       ranking:{mode:signals.length?'content':'discovery',version:'content-v1',personalized:signals.length>0,signalCount:signals.length,
         description:signals.length?'Dựa trên khách sạn bạn đã xem và booking đã xác nhận':'Khám phá các khách sạn khi chưa có lịch sử',modelUsed:false}};
   }

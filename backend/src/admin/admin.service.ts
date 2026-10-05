@@ -5,6 +5,7 @@ import { User, UserDocument, OwnerStatus, UserRole } from '../users/schemas/user
 import { Hotel, HotelDocument, HotelStatus } from '../hotels/schemas/hotel.schema';
 import { Booking, BookingDocument } from '../bookings/schemas/booking.schema';
 import { Review, ReviewDocument } from '../reviews/schemas/review.schema';
+import { bookingEnabledHotelIds } from '../hotels/public-hotel';
 
 @Injectable()
 export class AdminService {
@@ -20,7 +21,15 @@ export class AdminService {
   async auditLogs() {return this.connection.db!.collection('audit_logs').find().sort({createdAt:-1}).limit(200).toArray();}
   async reviews() {return this.reviewModel.find().sort({createdAt:-1}).limit(200);}
 
-  async allHotels() {return this.hotelModel.find().sort({createdAt:-1});}
+  async allHotels() {
+    const hotels = await this.hotelModel.find().sort({ createdAt: -1 });
+    const listings = hotels.map(hotel => hotel.toObject());
+    const enabledIds = await bookingEnabledHotelIds(this.connection.db!, listings);
+    return listings.map(hotel => ({
+      ...hotel,
+      bookingEnabled: hotel.status === HotelStatus.PUBLISHED && !hotel.isDemoCatalog && enabledIds.has(String(hotel._id)),
+    }));
+  }
   async allBookings() {return this.bookingModel.find().sort({createdAt:-1});}
   async allOwners() {return this.userModel.find({ownerStatus:{$exists:true}}).select('-passwordHash -refreshToken -refreshTokenExpiry');}
 

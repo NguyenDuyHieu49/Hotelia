@@ -60,7 +60,7 @@ struct SavedHotelsView: View {
                 ForEach(store.hotels) { hotel in
                     NavigationLink { HotelDetailView(hotel: hotel) } label: { HotelExploreCard(hotel: hotel) }
                         .buttonStyle(HotelCardPressStyle())
-                        .accessibilityLabel("Xem \(hotel.name), \(hotel.city), \(hotel.ratingSummary)")
+                        .accessibilityLabel(L10n.format("view_hotel_accessibility_format", hotel.name, hotel.localizedCity, hotel.ratingSummary))
                         .overlay(alignment: .topTrailing) { FavoriteHotelButton(hotel: hotel).padding(12) }
                 }
             }.padding()
@@ -86,7 +86,7 @@ struct EditProfileView: View {
             TextField("Số điện thoại", text: $phone).keyboardType(.phonePad)
             Text(auth.currentUser?.email ?? "").foregroundStyle(.secondary)
             if let message { Text(message) }
-            Button(busy ? "Đang lưu…" : "Lưu thay đổi") {
+            Button(L10n.text(busy ? "Đang lưu…" : "Lưu thay đổi")) {
                 busy = true
                 Task {
                     do {
@@ -118,7 +118,7 @@ struct ChangePasswordView: View {
             SecureField("Nhập lại mật khẩu mới", text: $confirmation)
             Text("Sau khi đổi mật khẩu, vui lòng đăng nhập lại.").font(.caption)
             if let error { Text(error).foregroundStyle(.red) }
-            Button(busy ? "Đang cập nhật…" : "Đổi mật khẩu") {
+            Button(L10n.text(busy ? "Đang cập nhật…" : "Đổi mật khẩu")) {
                 busy = true
                 Task {
                     do {
@@ -138,6 +138,15 @@ struct AppNotification: Decodable, Identifiable {
     let message: String
     let isRead: Bool
     enum CodingKeys: String, CodingKey { case id = "_id", title, message, isRead }
+
+    var localizedTitle: String { L10n.text(title) }
+    var localizedMessage: String {
+        let suffix = ": vui lòng chọn phương thức thanh toán trong 15 phút."
+        if title == "Đã giữ phòng", message.hasSuffix(suffix) {
+            return L10n.format("booking_hold_notification_format", String(message.dropLast(suffix.count)))
+        }
+        return L10n.text(message)
+    }
 }
 private struct NotificationPage: Decodable { let notifications: [AppNotification]; let unread: Int }
 struct NotificationsView: View {
@@ -160,8 +169,8 @@ struct NotificationsView: View {
                     }
                 } label: {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(item.title).fontWeight(item.isRead ? .regular : .bold)
-                        Text(item.message).font(.subheadline).foregroundStyle(.secondary)
+                        Text(item.localizedTitle).fontWeight(item.isRead ? .regular : .bold)
+                        Text(item.localizedMessage).font(.subheadline).foregroundStyle(.secondary)
                     }
                 }.foregroundStyle(.primary)
             }
@@ -211,7 +220,7 @@ struct SupportView: View {
                 TextField("Tiêu đề", text: $subject)
                 TextField("Mô tả vấn đề (ít nhất 10 ký tự)", text: $message, axis: .vertical).lineLimit(3...8)
                 if let error { Text(error).foregroundStyle(.red) }
-                Button(busy ? "Đang gửi…" : "Gửi yêu cầu") {
+                Button(L10n.text(busy ? "Đang gửi…" : "Gửi yêu cầu")) {
                     busy = true
                     Task {
                         do {
@@ -228,7 +237,7 @@ struct SupportView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text(ticket.subject).font(.headline)
                         Text(ticket.message)
-                        Text(ticket.status == "RESOLVED" ? "Đã phản hồi" : "Đang chờ xử lý").font(.caption).foregroundStyle(.secondary)
+                        Text(L10n.text(ticket.status == "RESOLVED" ? "Đã phản hồi" : "Đang chờ xử lý")).font(.caption).foregroundStyle(.secondary)
                         if let reply = ticket.reply { Text("Phản hồi: \(reply)").foregroundStyle(.blue) }
                     }
                 }

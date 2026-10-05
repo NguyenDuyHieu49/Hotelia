@@ -62,7 +62,7 @@ struct AddHotelView: View {
                             }) {
                                 HStack {
                                     Image(systemName: selectedAmenities.contains(amenity) ? "checkmark.circle.fill" : "circle")
-                                    Text(amenity.capitalized)
+                                    Text(LocalizedStringKey(amenity.capitalized))
                                 }
                                 .font(.subheadline)
                             }

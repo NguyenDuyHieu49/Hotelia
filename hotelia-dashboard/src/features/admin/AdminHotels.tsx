@@ -84,6 +84,10 @@ export function AdminHotels() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Quản lý Khách sạn</h1>
         <p className="text-gray-500 mt-1">Duyệt và quản lý khách sạn trên nền tảng</p>
+        <p className="text-sm text-gray-600 mt-2">
+          {hotels.filter(h => h.status === 'PUBLISHED' && h.bookingEnabled).length} đang nhận đặt phòng ·{' '}
+          {hotels.filter(h => h.status === 'PUBLISHED' && !h.bookingEnabled).length} chỉ để khám phá
+        </p>
       </div>
 
       {/* Filters */}
@@ -182,6 +186,11 @@ export function AdminHotels() {
                         <div className="flex items-center gap-2 mb-1">
                           <button className="text-lg font-semibold text-blue-700 text-left" onClick={()=>setSelected(hotel)}>{hotel.name}</button>
                           <Badge variant={status.variant}>{status.label}</Badge>
+                          {hotel.status === 'PUBLISHED' && (
+                            <Badge variant={hotel.bookingEnabled ? 'success' : 'info'}>
+                              {hotel.bookingEnabled ? 'Nhận đặt phòng' : 'Chỉ khám phá'}
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-1 text-gray-500 text-sm mb-2">
                           <MapPin className="w-4 h-4" />
@@ -197,7 +206,7 @@ export function AdminHotels() {
                         ))}
                       </div>
                       <span className="text-sm text-gray-500">
-                        {hotel.reviewCount ? `${hotel.averageRating.toFixed(1)} (${hotel.reviewCount} đánh giá)` : 'Chưa có đánh giá'}
+                        {hotel.reviewCount ? `${hotel.averageRating.toFixed(1)} (${hotel.reviewCount} đánh giá khách lưu trú)` : 'Chưa có đánh giá khách lưu trú'}
                       </span>
                     </div>
                     

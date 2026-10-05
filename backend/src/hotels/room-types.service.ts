@@ -18,6 +18,7 @@ export class RoomTypesService {
     const hotel = await this.hotelModel.findById(hotelId);
     if (!hotel) throw new NotFoundException('Hotel not found');
     if (hotel.ownerId.toString() !== ownerId) throw new ForbiddenException('Not your hotel');
+    if (hotel.isDemoCatalog) throw new ForbiddenException('Khách sạn này chưa mở bán phòng');
 
     const roomType = new this.roomTypeModel({
       hotelId: new Types.ObjectId(hotelId),

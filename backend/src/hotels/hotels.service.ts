@@ -6,10 +6,17 @@ import { CreateHotelDto } from './dto/create-hotel.dto';
 import { UpdateHotelDto } from './dto/update-hotel.dto';
 import { SearchHotelsDto } from './dto/search-hotels.dto';
 import { eligibleRooms, hasRoomFilter } from './catalog-filter';
+import { bookingEnabledHotelIds, presentPublicHotel } from './public-hotel';
 
 @Injectable()
 export class HotelsService {
   constructor(@InjectModel(Hotel.name) private hotelModel: Model<HotelDocument>, @InjectConnection() private connection:Connection) {}
+
+  private async publicHotels(hotels: HotelDocument[]) {
+    const listings = hotels.map(hotel => hotel.toObject());
+    const enabledIds = await bookingEnabledHotelIds(this.connection.db!, listings);
+    return listings.map(hotel => presentPublicHotel(hotel, enabledIds));
+  }
 
   async create(ownerId: string, dto: CreateHotelDto): Promise<HotelDocument> {
     const hotel = new this.hotelModel({
@@ -26,8 +33,15 @@ export class HotelsService {
     return hotel;
   }
 
-  async findByOwner(ownerId: string): Promise<HotelDocument[]> {
-    return this.hotelModel.find({ ownerId: new Types.ObjectId(ownerId), isDemoCatalog: { $ne: true } }).sort({ createdAt: -1 });
+  async findPublicById(id: string) {
+    const hotel = await this.hotelModel.findOne({ _id: id, status: HotelStatus.PUBLISHED });
+    if (!hotel) throw new NotFoundException('Hotel not found');
+    return (await this.publicHotels([hotel]))[0];
+  }
+
+  async findByOwner(ownerId: string) {
+    const hotels = await this.hotelModel.find({ ownerId: new Types.ObjectId(ownerId), isDemoCatalog: { $ne: true } }).sort({ createdAt: -1 });
+    return this.publicHotels(hotels);
   }
 
   async update(id: string, ownerId: string, dto: UpdateHotelDto): Promise<HotelDocument> {
@@ -62,7 +76,7 @@ export class HotelsService {
     return this.hotelModel.find({ status: HotelStatus.PENDING_APPROVAL }).sort({ createdAt: -1 });
   }
 
-  async search(dto: SearchHotelsDto): Promise<{ hotels: HotelDocument[]; total: number }> {
+  async search(dto: SearchHotelsDto) {
     const query: any = { status: HotelStatus.PUBLISHED };
     let matchingRooms:Awaited<ReturnType<typeof eligibleRooms>> | undefined;
     if(hasRoomFilter(dto)) {
@@ -84,6 +98,7 @@ export class HotelsService {
 
     if (dto.minRating) {
       query.averageRating = { $gte: dto.minRating };
+      query.reviewCount = { $gt: 0 };
     }
     if(dto.amenities?.trim()) {
       const amenities=dto.amenities.split(',').map(a=>a.trim().toLowerCase()).filter(Boolean).slice(0,20);
@@ -105,7 +120,7 @@ export class HotelsService {
         if(bp===Infinity) return -1;
         return direction*(ap-bp) || (b.averageRating-a.averageRating);
       });
-      return {hotels:hotels.slice(skip,skip+limit),total:hotels.length};
+      return {hotels:await this.publicHotels(hotels.slice(skip,skip+limit)),total:hotels.length};
     }
 
     const [hotels, total] = await Promise.all([
@@ -113,7 +128,7 @@ export class HotelsService {
       this.hotelModel.countDocuments(query),
     ]);
 
-    return { hotels, total };
+    return { hotels: await this.publicHotels(hotels), total };
   }
 
   async delete(id: string, ownerId: string): Promise<void> {

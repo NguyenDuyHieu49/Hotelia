@@ -47,7 +47,9 @@ struct HotelCoverImage: View {
             .clipped()
         }
         .frame(height: height)
-        .accessibilityLabel(hotel.images?.first == nil ? "Ảnh điểm đến \(hotel.city)" : "Ảnh khách sạn \(hotel.name)")
+        .accessibilityLabel(hotel.images?.first == nil
+            ? L10n.format("destination_image_accessibility_format", hotel.localizedCity)
+            : L10n.format("hotel_image_accessibility_format", hotel.name))
     }
 
     private var destinationImage: some View {
@@ -62,8 +64,8 @@ struct HotelExploreCard: View {
         VStack(alignment: .leading, spacing: 0) {
             HotelCoverImage(hotel: hotel, height: 182)
                 .overlay(alignment: .topLeading) {
-                    if hotel.isDemoCatalog == true {
-                        Text("Đang cập nhật phòng")
+                    if !hotel.isBookingEnabled {
+                        Text(hotel.bookingStatusText)
                             .font(.caption2.weight(.semibold))
                             .padding(.horizontal, 10).padding(.vertical, 7)
                             .background(.regularMaterial, in: Capsule())
@@ -78,19 +80,19 @@ struct HotelExploreCard: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 HStack(spacing: 5) {
                     Image(systemName: "mappin")
-                    Text(hotel.city).lineLimit(1)
+                    Text(hotel.localizedCity).lineLimit(1)
                     Spacer(minLength: 8)
-                    if let rating = hotel.displayRating {
+                    if let rating = hotel.guestRating {
                         Image(systemName: "star.fill").foregroundStyle(.orange)
                         Text(String(format: "%.1f", rating)).fontWeight(.semibold)
                     } else {
-                        Text("Chưa có đánh giá")
+                        Text("Chưa có đánh giá từ khách lưu trú")
                     }
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
-                if hotel.displayReviewCount > 0 {
-                    Text(L10n.format("hotel_reviews_count_format", hotel.displayReviewCount))
+                if hotel.guestReviewCount > 0 {
+                    Text(L10n.format("hotel_reviews_count_format", hotel.guestReviewCount))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }

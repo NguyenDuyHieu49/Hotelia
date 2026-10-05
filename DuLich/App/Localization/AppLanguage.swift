@@ -11,6 +11,10 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         AppLanguage(rawValue: UserDefaults.standard.string(forKey: "appLanguage") ?? "system") ?? .system
     }
 
+    static var isEnglishSelected: Bool {
+        selected.locale.language.languageCode?.identifier == "en"
+    }
+
     var locale: Locale {
         self == .system ? .autoupdatingCurrent : Locale(identifier: rawValue)
     }

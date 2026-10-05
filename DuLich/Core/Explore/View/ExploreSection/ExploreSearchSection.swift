@@ -112,6 +112,6 @@ private struct SearchFilterButton: View {
             .background(isActive ? Color.blue.opacity(0.12) : Color(.secondarySystemGroupedBackground))
             .clipShape(Capsule())
         }
-        .accessibilityValue(isActive ? "Đang áp dụng" : "Chưa áp dụng")
+        .accessibilityValue(L10n.text(isActive ? "Đang áp dụng" : "Chưa áp dụng"))
     }
 }

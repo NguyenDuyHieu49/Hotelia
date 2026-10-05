@@ -99,6 +99,12 @@ export function OwnerHotels() {
                     <Badge variant={status.variant}>{status.label}</Badge>
                   </div>
 
+                  {hotel.status === 'PUBLISHED' && (
+                    <p className="text-xs text-gray-600 mb-2">
+                      {hotel.bookingEnabled ? 'Đang nhận đặt phòng' : 'Chưa có loại phòng đang mở bán'}
+                    </p>
+                  )}
+
                   <div className="flex items-center gap-1 text-gray-500 text-sm mb-3">
                     <MapPin className="w-4 h-4" />
                     <span className="truncate">{hotel.address}, {hotel.city}</span>
@@ -109,7 +115,7 @@ export function OwnerHotels() {
                       <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                     ))}
                     <span className="text-sm text-gray-500 ml-2">
-                      {hotel.reviewCount ? `${hotel.averageRating.toFixed(1)} (${hotel.reviewCount} đánh giá)` : 'Chưa có đánh giá'}
+                      {hotel.reviewCount ? `${hotel.averageRating.toFixed(1)} (${hotel.reviewCount} đánh giá khách lưu trú)` : 'Chưa có đánh giá khách lưu trú'}
                     </span>
                   </div>
 

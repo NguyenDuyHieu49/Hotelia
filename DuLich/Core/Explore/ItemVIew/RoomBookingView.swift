@@ -163,12 +163,12 @@ struct RoomBookingView: View {
                     Image(systemName: "location.fill")
                         .font(.system(size: 12))
                         .foregroundColor(AppColors.locationRed)
-                    Text(hotel.city)
+                    Text(hotel.localizedCity)
                         .font(AppTypography.subheadline)
                         .foregroundColor(AppColors.textSecondary)
                 }
 
-                if let rating = hotel.displayRating {
+                if let rating = hotel.guestRating {
                     HStack(spacing: AppSpacing.xxs) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 12))
@@ -510,7 +510,7 @@ struct RoomTypeCard: View {
                     }
 
                     // Availability Badge
-                    Text(roomType.availableRooms == 0 ? "Hết phòng" : "\(roomType.availableRooms) phòng trống")
+                    Text(roomType.availableRooms == 0 ? L10n.text("Hết phòng") : L10n.format("%lld phòng trống", roomType.availableRooms))
                         .font(AppTypography.caption2)
                         .fontWeight(.medium)
                         .foregroundColor(.white)
@@ -537,7 +537,7 @@ struct RoomTypeCard: View {
                             Text("\(roomType.maxGuests) khách")
                         }
 
-                        if let description = roomType.description, !description.isEmpty {
+                        if let description = roomType.localizedDescription, !description.isEmpty {
                             Text("•")
                             Text(description.prefix(30) + (description.count > 30 ? "..." : ""))
                         }

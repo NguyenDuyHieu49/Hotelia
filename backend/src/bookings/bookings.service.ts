@@ -46,7 +46,7 @@ export class BookingsService {
         }
         const db=this.connection.db!;
         const hotel=await db.collection('hotels').findOne({_id:objectId(dto.hotelId),status:'PUBLISHED'},{session});
-        if(!hotel) throw new BadRequestException('Khách sạn chưa nhận đặt phòng');
+        if(!hotel || hotel.isDemoCatalog) throw new BadRequestException('Khách sạn chưa nhận đặt phòng');
         // Serialize reservations for this room type to prevent concurrent overselling.
         const room=await db.collection('roomtypes').findOneAndUpdate({_id:objectId(dto.roomTypeId),hotelId:hotel._id,isActive:true},{$inc:{inventoryVersion:1}},{session,returnDocument:'after'});
         if(!room) throw new BadRequestException('Loại phòng không thuộc khách sạn hoặc đã ngừng bán');

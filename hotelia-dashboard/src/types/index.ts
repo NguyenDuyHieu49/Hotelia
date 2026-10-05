@@ -37,6 +37,8 @@ export interface Hotel {
   starRating: number;
   averageRating: number;
   reviewCount: number;
+  isDemoCatalog?: boolean;
+  bookingEnabled?: boolean;
   amenities: string[];
   checkInTime: string;
   checkOutTime: string;

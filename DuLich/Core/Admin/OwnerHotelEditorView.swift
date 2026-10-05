@@ -103,7 +103,7 @@ struct OwnerRoomEditorView: View {
                         busy = false
                     }
                 }.disabled(busy || name.isEmpty || description.isEmpty || price <= 0)
-            }.navigationTitle(room == nil ? "Thêm loại phòng" : "Sửa loại phòng")
+            }.navigationTitle(L10n.text(room == nil ? "Thêm loại phòng" : "Sửa loại phòng"))
             .toolbar { Button("Đóng") { dismiss() }.disabled(busy) }
             .onAppear { if let room { name = room.name; description = room.description ?? ""; price = room.basePrice; guests = room.maxGuests; count = room.totalRooms; images = room.images?.joined(separator: "\n") ?? "" } }
         }

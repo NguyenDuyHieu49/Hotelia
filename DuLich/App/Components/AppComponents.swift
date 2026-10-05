@@ -150,7 +150,9 @@ struct LocationBadge: View {
                 .font(.system(size: 12))
                 .foregroundColor(AppColors.locationRed)
 
-            Text(district != nil ? "\(district!), \(city)" : city)
+            Text(district != nil
+                 ? "\(HotelContentLocalization.address(district!)), \(HotelContentLocalization.city(city))"
+                 : HotelContentLocalization.city(city))
                 .font(AppTypography.subheadline)
                 .foregroundColor(AppColors.textSecondary)
                 .lineLimit(1)

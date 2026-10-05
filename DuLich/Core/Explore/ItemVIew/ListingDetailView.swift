@@ -78,7 +78,7 @@ struct HotelDetailView: View {
 
             // Rating Badge
             HStack {
-                if let rating = hotel.displayRating {
+                if let rating = hotel.guestRating {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 4) {
                             Image(systemName: "star.fill")
@@ -87,8 +87,8 @@ struct HotelDetailView: View {
                                 .font(AppTypography.headline)
                                 .foregroundColor(.white)
                         }
-                        if hotel.displayReviewCount > 0 {
-                            Text(L10n.format("hotel_reviews_count_format", hotel.displayReviewCount))
+                        if hotel.guestReviewCount > 0 {
+                            Text(L10n.format("hotel_reviews_count_format", hotel.guestReviewCount))
                                 .font(AppTypography.caption1)
                                 .foregroundColor(.white.opacity(0.8))
                         }
@@ -130,14 +130,12 @@ struct HotelDetailView: View {
                 .font(AppTypography.title1)
                 .foregroundColor(AppColors.textPrimary)
 
-            if hotel.isDemoCatalog == true {
-                Label("Trang khám phá · đang cập nhật thông tin phòng", systemImage: "info.circle")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            Label(hotel.bookingStatusText, systemImage: hotel.isBookingEnabled ? "checkmark.circle" : "calendar.badge.clock")
+                .font(.caption.weight(.semibold))
+                .foregroundColor(hotel.isBookingEnabled ? AppColors.success : AppColors.textSecondary)
 
-            if hotel.displayRating == nil {
-                Text("Chưa có đánh giá")
+            if hotel.guestRating == nil {
+                Text("Chưa có đánh giá từ khách lưu trú")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -169,11 +167,11 @@ struct HotelDetailView: View {
                     .cornerRadius(AppSpacing.radiusSmall)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(hotel.address)
+                    Text(hotel.localizedAddress)
                         .font(AppTypography.body)
                         .foregroundColor(AppColors.textPrimary)
 
-                    Text(hotel.city)
+                    Text(hotel.localizedCity)
                         .font(AppTypography.subheadline)
                         .foregroundColor(AppColors.textSecondary)
                 }
@@ -185,7 +183,7 @@ struct HotelDetailView: View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             SectionHeader(title: "Mô tả")
 
-            Text(hotel.description)
+            Text(hotel.localizedDescription)
                 .font(AppTypography.body)
                 .foregroundColor(AppColors.textSecondary)
                 .lineSpacing(4)
@@ -219,19 +217,6 @@ struct HotelDetailView: View {
                 }
             }
 
-            if reviews.isEmpty, let sample = hotel.demoReviews?.first {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Nhận xét nổi bật")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Text(sample.displayContent)
-                        .font(.subheadline)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(12)
-                .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
-            }
-
             if isLoadingReviews {
                 HStack {
                     ProgressView()
@@ -241,7 +226,7 @@ struct HotelDetailView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, AppSpacing.xl)
-            } else if reviews.isEmpty && (hotel.demoReviews?.isEmpty ?? true) {
+            } else if reviews.isEmpty {
                 VStack(spacing: AppSpacing.sm) {
                     Image(systemName: "bubble.left.and.bubble.right")
                         .font(.system(size: 40))
@@ -264,19 +249,24 @@ struct HotelDetailView: View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
             SectionHeader(title: "Chính sách")
 
-            PolicyRow(icon: "clock", title: "Nhận phòng", value: hotel.checkInTime ?? "Liên hệ khách sạn")
-            PolicyRow(icon: "clock.badge.checkmark", title: "Trả phòng", value: hotel.checkOutTime ?? "Liên hệ khách sạn")
+            PolicyRow(icon: "clock", title: "Nhận phòng", value: hotel.checkInTime ?? L10n.text("Liên hệ khách sạn"))
+            PolicyRow(icon: "clock.badge.checkmark", title: "Trả phòng", value: hotel.checkOutTime ?? L10n.text("Liên hệ khách sạn"))
         }
     }
 
     private var bookButtonSection: some View {
         VStack(spacing: AppSpacing.sm) {
-            if hotel.isDemoCatalog == true {
-                Label("Chưa mở đặt phòng trên Hotelia", systemImage: "calendar.badge.clock")
-                    .font(.subheadline.weight(.semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(16)
-                    .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 14))
+            if !hotel.isBookingEnabled {
+                VStack(spacing: AppSpacing.xs) {
+                    Label(hotel.bookingStatusText, systemImage: "calendar.badge.clock")
+                        .font(.subheadline.weight(.semibold))
+                    Text(hotel.bookingStatusExplanation)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(16)
+                .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 14))
             } else {
                 PrimaryButton(title: "Đặt phòng ngay") {
                     showBooking = true

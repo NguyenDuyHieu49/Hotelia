@@ -7,6 +7,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles, Role } from '../common/decorators/roles.decorator';
+import { bookingEnabledHotelIds, presentPublicHotel } from '../hotels/public-hotel';
 
 export class PasswordDto {
   @IsString() @MinLength(1) @MaxLength(72) currentPassword: string;
@@ -30,7 +31,9 @@ export class AccountService {
     const db=this.connection.db!;
     const saved=await db.collection('favorites').find({userId:objectId(userId)}).sort({createdAt:-1}).toArray();
     const hotels=await db.collection('hotels').find({_id:{$in:saved.map(s=>s.hotelId)},status:'PUBLISHED'}).toArray();
-    return saved.flatMap(s=>hotels.filter(h=>String(h._id)===String(s.hotelId)));
+    const enabledIds=await bookingEnabledHotelIds(db,hotels);
+    return saved.flatMap(s=>hotels.filter(h=>String(h._id)===String(s.hotelId))
+      .map(hotel=>presentPublicHotel(hotel,enabledIds)));
   }
   async saveFavorite(userId: string, hotelId: string) {
     const db=this.connection.db!;
