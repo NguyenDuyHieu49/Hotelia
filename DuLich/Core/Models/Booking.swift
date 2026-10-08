@@ -18,6 +18,7 @@ struct Booking: Codable, Identifiable {
     let nights: Int
     let status: String
     let holdExpiresAt: String?
+    let paymentMethod: String?
     let createdAt: String?
     let updatedAt: String?
     let hotelName: String?
@@ -28,13 +29,13 @@ struct Booking: Codable, Identifiable {
         case userId, hotelId, roomTypeId, checkIn, checkOut
         case guestCount, guestName, guestEmail, guestPhone
         case specialRequests, roomPrice, totalPrice, nights
-        case status, holdExpiresAt, createdAt, updatedAt, hotelName, roomTypeName
+        case status, holdExpiresAt, paymentMethod, createdAt, updatedAt, hotelName, roomTypeName
     }
 
     var statusDisplayName: String {
         let key: String
         switch status {
-        case "PENDING_PAYMENT", "HELD": key = "Chờ thanh toán"
+        case "PENDING_PAYMENT", "HELD": key = "Đã giữ phòng"
         case "PAID": key = "Đã thanh toán"
         case "CONFIRMED": key = "Đã xác nhận"
         case "CHECKED_IN": key = "Đã nhận phòng"

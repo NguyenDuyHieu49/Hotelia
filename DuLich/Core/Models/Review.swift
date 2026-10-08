@@ -24,3 +24,14 @@ struct ReviewsResponse: Decodable {
     let reviews: [Review]
     let total: Int
 }
+
+struct EditorialReview: Codable {
+    let rating: Int
+    let contentVi: String?
+    let contentEn: String?
+
+    var localizedContent: String {
+        if AppLanguage.isEnglishSelected { return contentEn ?? contentVi ?? "" }
+        return contentVi ?? contentEn ?? ""
+    }
+}

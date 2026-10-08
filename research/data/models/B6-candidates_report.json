@@ -1,0 +1,73 @@
+{
+  "model": "B6-candidates",
+  "train_queries": 7883,
+  "validation_queries": 1373,
+  "train_candidates": 181448,
+  "validation_candidates": 31889,
+  "source_queries": 9277,
+  "excluded_queries": 21,
+  "validation_first_timestamp": 1541455511,
+  "features": [
+    "position",
+    "price",
+    "price_rank",
+    "price_relative",
+    "prior_item_interactions",
+    "star_rating",
+    "amenity_count",
+    "city_id",
+    "device_type",
+    "platform_encoded",
+    "filter_count",
+    "session_length",
+    "action_count",
+    "click_count",
+    "last_action_type_encoded",
+    "hour",
+    "day_of_week",
+    "is_weekend"
+  ],
+  "best_iteration": 43,
+  "learned_splits": 1290,
+  "position_baseline": {
+    "mrr@5": 0.42802864773003163,
+    "hit@5": 0.6132556445739257,
+    "ndcg@5": 0.47372581162758287,
+    "mrr@10": 0.44936646666435454,
+    "hit@10": 0.774217042971595,
+    "ndcg@10": 0.5256293985546092
+  },
+  "lightgbm": {
+    "mrr@5": 0.5581815974751153,
+    "hit@5": 0.7458120903131829,
+    "ndcg@5": 0.6050062069316469,
+    "mrr@10": 0.5738277321125099,
+    "hit@10": 0.8667152221412965,
+    "ndcg@10": 0.6436059686374527
+  },
+  "eligible_for_serving": false,
+  "serving_note": "Requires Hotelia feature parity and live catalog validation",
+  "later_holdout": {
+    "queries": 7055,
+    "candidates": 164231,
+    "source_queries": 13782,
+    "excluded_queries": 6727,
+    "first_timestamp": 1541548861,
+    "position_baseline": {
+      "mrr@5": 0.363690054334987,
+      "hit@5": 0.5559177888022679,
+      "ndcg@5": 0.4111935497959726,
+      "mrr@10": 0.3887657070860473,
+      "hit@10": 0.7437278525868178,
+      "ndcg@10": 0.47193677548138085
+    },
+    "lightgbm": {
+      "mrr@5": 0.5022135601228443,
+      "hit@5": 0.7038979447200567,
+      "ndcg@5": 0.5524323399011245,
+      "mrr@10": 0.5205135949962314,
+      "hit@10": 0.8415308291991496,
+      "ndcg@10": 0.5968774081911502
+    }
+  }
+}

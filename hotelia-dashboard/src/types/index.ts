@@ -112,6 +112,8 @@ export interface Booking {
   totalPrice: number;
   nights: number;
   status: BookingStatus;
+  paymentMethod?: 'PAY_AT_HOTEL';
+  holdExpiresAt?: string;
   createdAt: string;
   updatedAt: string;
 }

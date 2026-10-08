@@ -60,8 +60,8 @@ export class Hotel extends Document {
   @Prop()
   demoReviewCount?: number;
 
-  @Prop({ type: [{ rating: Number, content: String }], default: [] })
-  demoReviews?: { rating: number; content: string }[];
+  @Prop({ type: [{ rating: Number, content: String, contentVi: String, contentEn: String }], default: [] })
+  demoReviews?: { rating: number; content?: string; contentVi?: string; contentEn?: string }[];
 
   @Prop({ type: [String], default: [] })
   amenities: string[];

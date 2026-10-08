@@ -16,7 +16,7 @@ export function stayDates(start:string,end:string,now=new Date()) {
   return {checkIn,checkOut,nights};
 }
 export function occupyingBookings(now=new Date()) {
-  return {$or:[{status:{$in:['PAID','CONFIRMED','CHECKED_IN','CANCEL_REQUESTED']}},
+  return {$or:[{status:{$in:['PAID','CONFIRMED','CHECKED_IN','CHECKED_OUT','COMPLETED','CANCEL_REQUESTED']}},
     {status:'PENDING_PAYMENT',holdExpiresAt:{$gt:now}},
     {status:'PENDING_PAYMENT',holdExpiresAt:{$exists:false},createdAt:{$gt:new Date(+now-15*60000)}}]};
 }

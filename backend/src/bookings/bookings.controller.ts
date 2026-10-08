@@ -60,7 +60,7 @@ export class BookingsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER)
   @Post(':id/check-in')
   @ApiOperation({ summary: 'Check in guest' })
   async checkIn(@Param('id') id: string, @CurrentUser('sub') userId: string) {
@@ -69,7 +69,7 @@ export class BookingsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER)
   @Post(':id/check-out')
   @ApiOperation({ summary: 'Check out guest' })
   async checkOut(@Param('id') id: string, @CurrentUser('sub') userId: string) {

@@ -9,17 +9,7 @@ struct HotelRecommendationCard: View {
                 .frame(width: 240)
                 .clipShape(RoundedRectangle(cornerRadius: 18))
                 .overlay(alignment: .topLeading) {
-                    if let rating = hotel.guestRating {
-                        HStack(spacing: 4) {
-                            Image(systemName: "star.fill").foregroundStyle(.yellow)
-                            Text(String(format: "%.1f", rating)).fontWeight(.bold)
-                        }
-                        .font(.caption)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 10).padding(.vertical, 7)
-                        .background(.black.opacity(0.65), in: Capsule())
-                        .padding(10)
-                    }
+                    HotelScoreBadge(hotel: hotel).padding(10)
                 }
             Text(hotel.name)
                 .font(.subheadline.weight(.semibold))

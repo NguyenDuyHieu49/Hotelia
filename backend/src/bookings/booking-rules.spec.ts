@@ -17,7 +17,7 @@ describe('booking calendar and inventory',()=>{
   it('preserves confirmed rooms but ignores expired timed holds',()=>{
     const query=occupyingBookings(now);
     expect(query.$or[1]).toEqual({status:'PENDING_PAYMENT',holdExpiresAt:{$gt:now}});
-    expect(query.$or[0]).toMatchObject({status:{$in:expect.arrayContaining(['CANCEL_REQUESTED'])}});
+    expect(query.$or[0]).toMatchObject({status:{$in:expect.arrayContaining(['CHECKED_OUT','COMPLETED','CANCEL_REQUESTED'])}});
     expect(query.$or[2]).toEqual({status:'PENDING_PAYMENT',holdExpiresAt:{$exists:false},createdAt:{$gt:new Date(+now-15*60000)}});
     expect(expiredHold(now).$or[1]).toEqual({holdExpiresAt:{$exists:false},createdAt:{$lte:new Date(+now-15*60000)}});
   });

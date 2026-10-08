@@ -25,16 +25,21 @@ describe('public hotel booking state', () => {
     expect(presentPublicHotel(hotels[2], enabled).bookingEnabled).toBe(false);
   });
 
-  it('never publishes editorial scores as guest review fields', () => {
+  it('keeps editorial scores separate from guest review fields', () => {
     const result = presentPublicHotel({
       _id: 'hotel', status: 'PUBLISHED', isDemoCatalog: true,
-      demoRating: 4.9, demoReviewCount: 120, demoReviews: [{ rating: 5, content: 'Editorial text' }],
+      demoRating: 4.9, demoReviewCount: 20, demoReviews: [{ rating: 5, contentVi: 'Minh họa' }],
       averageRating: 0, reviewCount: 0,
     }, new Set(['hotel']));
 
     expect(result).toEqual({
       _id: 'hotel', status: 'PUBLISHED', isDemoCatalog: true,
       averageRating: 0, reviewCount: 0, bookingEnabled: false,
+      editorialRating: 4.9, editorialReviewCount: 20,
     });
+    expect(presentPublicHotel({
+      _id: 'hotel', status: 'PUBLISHED', isDemoCatalog: true,
+      demoRating: 4.9, demoReviewCount: 20, demoReviews: [{ rating: 5, contentVi: 'Minh họa' }],
+    }, new Set(), true).editorialReviews).toHaveLength(1);
   });
 });

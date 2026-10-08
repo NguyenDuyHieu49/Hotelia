@@ -9,6 +9,7 @@ class ExploreViewModel: ObservableObject {
     @Published var isRanking = false
     @Published var errorMessage: String?
     @Published var rankingInfo: String?
+    @Published var recommendationImpression: RecommendationImpression?
     @Published var filters = HotelSearchFilters()
     private var destination: String?
     private var requestVersion = 0
@@ -65,9 +66,11 @@ class ExploreViewModel: ObservableObject {
         requestVersion += 1
         let version = requestVersion
         let requestedDestination = destination
+        let requestedFilters = filters
         isLoading = hotels.isEmpty
         isRanking = true
         errorMessage = nil
+        recommendationImpression = nil
         defer {
             if version == requestVersion {
                 isLoading = false
@@ -76,10 +79,19 @@ class ExploreViewModel: ObservableObject {
         }
         do {
             try Task.checkCancellation()
-            let result = try await fetchRecommendations(requestedDestination, filters)
+            let result = try await fetchRecommendations(requestedDestination, requestedFilters)
             try Task.checkCancellation()
             guard version == requestVersion else { return }
             hotels = result.hotels
+            let candidates = Array(result.hotels.filter(\.isBookingEnabled).prefix(8).map(\.id))
+            if !candidates.isEmpty {
+                recommendationImpression = RecommendationImpression(
+                    id: UUID().uuidString,
+                    candidateIds: candidates,
+                    destination: requestedDestination,
+                    filters: requestedFilters
+                )
+            }
             rankingInfo = L10n.text(result.ranking.personalized
                 ? "recommendations_based_on_history"
                 : "recommendations_without_history")
@@ -87,7 +99,7 @@ class ExploreViewModel: ObservableObject {
             guard version == requestVersion, !isCancellation(error) else { return }
             // Keep browsing available if recommendation is unavailable.
             do {
-                let fallback = try await fetchHotels(requestedDestination, filters)
+                let fallback = try await fetchHotels(requestedDestination, requestedFilters)
                 try Task.checkCancellation()
                 guard version == requestVersion else { return }
                 hotels = fallback

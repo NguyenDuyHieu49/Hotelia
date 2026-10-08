@@ -12,6 +12,7 @@ struct ExploreRecommendationSection: View {
     let hotels: [Hotel]
     let isRanking: Bool
     let rankingInfo: String?
+    let impression: RecommendationImpression?
 
     private var bookableHotels: [Hotel] { hotels.filter(\.isBookingEnabled) }
     private var recommendedHotels: [Hotel] { Array(bookableHotels.prefix(8)) }
@@ -63,7 +64,7 @@ struct ExploreRecommendationSection: View {
                         ) { hotel in
 
                             NavigationLink {
-                                HotelDetailView(hotel: hotel)
+                                HotelDetailView(hotel: hotel, recommendationImpression: impression)
                             } label: {
                                 HotelRecommendationCard(hotel: hotel)
                             }
@@ -81,6 +82,11 @@ struct ExploreRecommendationSection: View {
             }
 
 
+        }
+        .task(id: impression?.id) {
+            if let impression {
+                _ = await RecommendationService.shared.recordImpression(impression)
+            }
         }
     }
 }

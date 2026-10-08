@@ -7,7 +7,7 @@ import { Search, Calendar, User, Phone, Mail, CheckCircle } from 'lucide-react';
 import type { Booking, BookingStatus } from '../../types';
 
 const statusConfig: Record<BookingStatus, { label: string; variant: 'default' | 'success' | 'warning' | 'danger' | 'info' }> = {
-  PENDING_PAYMENT: { label: 'Chờ thanh toán', variant: 'warning' },
+  PENDING_PAYMENT: { label: 'Đang giữ phòng', variant: 'warning' },
   PAID: { label: 'Đã thanh toán', variant: 'info' },
   CONFIRMED: { label: 'Đã xác nhận', variant: 'success' },
   CHECKED_IN: { label: 'Đã nhận phòng', variant: 'info' },
@@ -190,6 +190,18 @@ export function OwnerBookings() {
                   <p className="font-medium">{formatDate(selectedBooking.checkOut)}</p>
                 </div>
               </div>
+
+              {selectedBooking.paymentMethod === 'PAY_AT_HOTEL' && (
+                <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  Thanh toán tại khách sạn. Hệ thống chưa ghi nhận đã thu tiền; vui lòng thu trực tiếp khi khách đến.
+                </div>
+              )}
+
+              {selectedBooking.status === 'PENDING_PAYMENT' && selectedBooking.holdExpiresAt && (
+                <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  Giữ phòng đến {new Date(selectedBooking.holdExpiresAt).toLocaleString('vi-VN')}. Khách cần xác nhận trả tại khách sạn trước thời điểm này.
+                </div>
+              )}
 
               <div>
                 <p className="text-sm text-gray-500">Thông tin khách hàng</p>

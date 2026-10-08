@@ -12,10 +12,10 @@ import { bookingEnabledHotelIds, presentPublicHotel } from './public-hotel';
 export class HotelsService {
   constructor(@InjectModel(Hotel.name) private hotelModel: Model<HotelDocument>, @InjectConnection() private connection:Connection) {}
 
-  private async publicHotels(hotels: HotelDocument[]) {
+  private async publicHotels(hotels: HotelDocument[], includeEditorialReviews = false) {
     const listings = hotels.map(hotel => hotel.toObject());
     const enabledIds = await bookingEnabledHotelIds(this.connection.db!, listings);
-    return listings.map(hotel => presentPublicHotel(hotel, enabledIds));
+    return listings.map(hotel => presentPublicHotel(hotel, enabledIds, includeEditorialReviews));
   }
 
   async create(ownerId: string, dto: CreateHotelDto): Promise<HotelDocument> {
@@ -36,7 +36,7 @@ export class HotelsService {
   async findPublicById(id: string) {
     const hotel = await this.hotelModel.findOne({ _id: id, status: HotelStatus.PUBLISHED });
     if (!hotel) throw new NotFoundException('Hotel not found');
-    return (await this.publicHotels([hotel]))[0];
+    return (await this.publicHotels([hotel], true))[0];
   }
 
   async findByOwner(ownerId: string) {

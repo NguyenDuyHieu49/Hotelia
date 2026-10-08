@@ -1,0 +1,20 @@
+{
+  "position": 206,
+  "price": 66,
+  "price_rank": 124,
+  "price_relative": 104,
+  "prior_item_interactions": 164,
+  "star_rating": 8,
+  "amenity_count": 73,
+  "city_id": 29,
+  "device_type": 31,
+  "platform_encoded": 14,
+  "filter_count": 9,
+  "session_length": 108,
+  "action_count": 20,
+  "click_count": 139,
+  "last_action_type_encoded": 171,
+  "hour": 23,
+  "day_of_week": 1,
+  "is_weekend": 0
+}

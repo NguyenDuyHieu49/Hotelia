@@ -2,21 +2,23 @@
   "feature_groups": {
     "item_features": [
       "price",
+      "avg_price",
       "price_rank",
       "price_relative",
-      "is_clicked"
+      "position",
+      "prior_item_interactions"
     ],
     "context_features": [
       "city_id",
       "device_type",
-      "platform",
+      "platform_encoded",
       "filter_count"
     ],
     "session_features": [
       "session_length",
       "action_count",
       "click_count",
-      "last_action_type"
+      "last_action_type_encoded"
     ],
     "temporal_features": [
       "hour",
@@ -26,8 +28,13 @@
     "content_features": [
       "star_rating",
       "amenity_count",
-      "category"
+      "has_luxury",
+      "has_business",
+      "has_family",
+      "has_beach",
+      "has_spa",
+      "has_gym"
     ]
   },
-  "total_features": 18
+  "total_features": 25
 }

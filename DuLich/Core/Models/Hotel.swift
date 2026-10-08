@@ -1,6 +1,10 @@
 import Foundation
 
 // MARK: - Hotel Models
+struct HotelDataProvenance: Codable {
+    let sourceLocationId: String?
+}
+
 struct Hotel: Codable, Identifiable {
     let id: String
     let name: String
@@ -14,6 +18,10 @@ struct Hotel: Codable, Identifiable {
     let starRating: Int?
     let averageRating: Double?
     let reviewCount: Int?
+    let editorialRating: Double?
+    let editorialReviewCount: Int?
+    let editorialReviews: [EditorialReview]?
+    let dataProvenance: HotelDataProvenance?
     let isDemoCatalog: Bool?
     let bookingEnabled: Bool?
     let amenities: [String]?
@@ -27,6 +35,7 @@ struct Hotel: Codable, Identifiable {
         case id = "_id"
         case name, description, address, city, district, country
         case latitude, longitude, starRating, averageRating, reviewCount
+        case editorialRating, editorialReviewCount, editorialReviews, dataProvenance
         case isDemoCatalog, bookingEnabled
         case amenities, images, status, ownerId, checkInTime, checkOutTime
     }
@@ -156,9 +165,20 @@ extension Hotel {
               averageRating.isFinite, averageRating > 0, averageRating <= 5 else { return nil }
         return averageRating
     }
+    var displayRating: Double? {
+        if let guestRating { return guestRating }
+        guard (editorialReviewCount ?? 0) >= 10, let editorialRating,
+              editorialRating.isFinite, editorialRating > 0, editorialRating <= 5 else { return nil }
+        return editorialRating
+    }
+    var displayRatingCount: Int {
+        guestRating == nil ? (editorialReviewCount ?? 0) : guestReviewCount
+    }
+    var isEditorialRating: Bool { guestRating == nil && displayRating != nil }
     var ratingSummary: String {
-        guard let rating = guestRating else { return L10n.text("Chưa có đánh giá từ khách lưu trú") }
-        return L10n.format("hotel_rating_summary_format", rating, guestReviewCount)
+        if let guestRating { return L10n.format("hotel_rating_summary_format", guestRating, guestReviewCount) }
+        if let displayRating { return L10n.format("editorial_accessible_rating_format", displayRating, displayRatingCount) }
+        return L10n.text("Chưa có đánh giá từ khách lưu trú")
     }
     var accessibleRatingSummary: String {
         ratingSummary

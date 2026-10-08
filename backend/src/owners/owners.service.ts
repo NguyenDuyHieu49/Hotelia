@@ -3,6 +3,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
 import { Hotel, HotelDocument, HotelStatus } from '../hotels/schemas/hotel.schema';
 import { Booking, BookingDocument, BookingStatus } from '../bookings/schemas/booking.schema';
+import { expiredHold } from '../bookings/booking-rules';
 import { User, UserDocument, OwnerStatus, UserRole } from '../users/schemas/user.schema';
 
 @Injectable()
@@ -29,7 +30,9 @@ export class OwnersService {
 
   async getBookings(ownerId:string) {
     const hotels=await this.hotelModel.find({ownerId:new Types.ObjectId(ownerId),isDemoCatalog:{$ne:true}});
-    return this.bookingModel.find({hotelId:{$in:hotels.map(h=>h._id)}}).sort({createdAt:-1});
+    const hotelIds=hotels.map(h=>h._id);
+    await this.bookingModel.updateMany({hotelId:{$in:hotelIds},status:BookingStatus.PENDING_PAYMENT,...expiredHold()},{$set:{status:BookingStatus.EXPIRED}});
+    return this.bookingModel.find({hotelId:{$in:hotelIds}}).sort({createdAt:-1});
   }
 
   async getDashboard(ownerId: string) {
@@ -83,6 +86,8 @@ export class OwnersService {
       isDemoCatalog: { $ne: true },
     });
     if (!hotel) throw new NotFoundException('Hotel not found');
+
+    await this.bookingModel.updateMany({hotelId:hotel._id,status:BookingStatus.PENDING_PAYMENT,...expiredHold()},{$set:{status:BookingStatus.EXPIRED}});
 
     return this.bookingModel.find({ hotelId: new Types.ObjectId(hotelId) })
       .populate('userId', 'name email phone')

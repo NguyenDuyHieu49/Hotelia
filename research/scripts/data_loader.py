@@ -1,5 +1,5 @@
 """
-Data Ingestion Module for Expedia Hotel Recommendation
+Data ingestion for the Trivago hotel clickout dataset
 Loads 2GB CSV files into memory-efficient format with schema validation.
 """
 
@@ -250,7 +250,7 @@ def main():
     """Main entry point for data ingestion."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Ingest Expedia data")
+    parser = argparse.ArgumentParser(description="Ingest Trivago clickout data")
     parser.add_argument("--data-dir", default="data/raw",
                         help="Directory containing CSV files")
     parser.add_argument("--output-dir", default="data/processed",
@@ -270,7 +270,7 @@ def main():
     )
 
     logger.info("=" * 60)
-    logger.info("EXPEDIA DATA INGESTION")
+    logger.info("TRIVAGO DATA INGESTION")
     logger.info("=" * 60)
 
     # Initialize loader
@@ -292,7 +292,9 @@ def main():
 
     # 3. Load item metadata
     logger.info("\n[3/6] Processing item_metadata.csv...")
-    item_lf = loader.load_item_metadata(sample=True)
+    # Candidate IDs span the full catalog even when action rows are bounded.
+    # Truncating metadata here silently removes content features for most hotels.
+    item_lf = loader.load_item_metadata(sample=False)
     loader.audit(item_lf, "item_metadata")
     loader.save_to_parquet(item_lf, "item_metadata")
 

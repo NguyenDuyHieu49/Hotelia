@@ -15,6 +15,7 @@ struct HotelCoverImage: View {
         if city.contains("hue") { return "hue1" }
         if city.contains("quy nhon") { return "quynhon1" }
         if city.contains("can tho") { return "cantho2" }
+        if city.contains("da lat") { return "dalat1" }
         return "Saigon1"
     }
 
@@ -72,6 +73,9 @@ struct HotelExploreCard: View {
                             .padding(12)
                     }
                 }
+                .overlay(alignment: .bottomTrailing) {
+                    HotelScoreBadge(hotel: hotel).padding(12)
+                }
             VStack(alignment: .leading, spacing: 9) {
                 Text(hotel.name)
                     .font(.system(size: 18, weight: .semibold, design: .rounded))
@@ -82,7 +86,7 @@ struct HotelExploreCard: View {
                     Image(systemName: "mappin")
                     Text(hotel.localizedCity).lineLimit(1)
                     Spacer(minLength: 8)
-                    if let rating = hotel.guestRating {
+                    if let rating = hotel.displayRating {
                         Image(systemName: "star.fill").foregroundStyle(.orange)
                         Text(String(format: "%.1f", rating)).fontWeight(.semibold)
                     } else {
@@ -91,8 +95,10 @@ struct HotelExploreCard: View {
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
-                if hotel.guestReviewCount > 0 {
-                    Text(L10n.format("hotel_reviews_count_format", hotel.guestReviewCount))
+                if hotel.displayRatingCount > 0 {
+                    Text(hotel.isEditorialRating
+                         ? L10n.format("editorial_rating_count_format", hotel.displayRatingCount)
+                         : L10n.format("hotel_reviews_count_format", hotel.displayRatingCount))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -101,6 +107,30 @@ struct HotelExploreCard: View {
         }
         .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
         .clipShape(RoundedRectangle(cornerRadius: 20))
+    }
+}
+
+struct HotelScoreBadge: View {
+    let hotel: Hotel
+
+    var body: some View {
+        if let rating = hotel.displayRating {
+            VStack(alignment: .trailing, spacing: 1) {
+                HStack(spacing: 4) {
+                    Image(systemName: "star.fill").foregroundStyle(.yellow)
+                    Text(String(format: "%.1f", rating)).fontWeight(.bold)
+                }
+                if hotel.isEditorialRating {
+                    Text(L10n.text("Điểm Hotelia"))
+                        .font(.system(size: 9, weight: .medium))
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(.white)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(.black.opacity(0.72), in: RoundedRectangle(cornerRadius: 10))
+        }
     }
 }
 

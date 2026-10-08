@@ -17,6 +17,8 @@ describe('booking creation under contention', () => {
     const bookings: any[] = [];
     let queue = Promise.resolve();
     const bookingModel = {
+      updateOne: jest.fn(async () => ({ modifiedCount: 0 })),
+      findById: jest.fn(async (id: string) => bookings.find(b => String(b._id) === id) ?? null),
       findOne: jest.fn((query: any) => {
         const value = bookings.find(b => String(b.userId) === String(query.userId) && b.requestKey === query.requestKey) ?? null;
         return { session: async () => value, then: (resolve: (value: any) => void) => Promise.resolve(value).then(resolve) };

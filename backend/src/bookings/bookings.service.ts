@@ -30,7 +30,7 @@ export class BookingsService {
     const previous=await this.bookingModel.findOne({userId:objectId(userId),requestKey});
     if(previous) {
       if(previous.requestHash!==requestHash) throw new ConflictException('Mã yêu cầu đã được dùng cho nội dung khác');
-      return previous;
+      return this.findById(String(previous._id));
     }
     const {checkIn,checkOut,nights}=stayDates(dto.checkIn,dto.checkOut);
     if(!Number.isInteger(dto.guestCount) || dto.guestCount<1) throw new BadRequestException('Số khách không hợp lệ');
@@ -65,11 +65,11 @@ export class BookingsService {
       const existing=await this.bookingModel.findOne({userId:objectId(userId),requestKey});
       if(existing) {
         if(existing.requestHash!==requestHash) throw new ConflictException('Mã yêu cầu đã được dùng cho nội dung khác');
-        return existing;
+        return this.findById(String(existing._id));
       }
       throw error;
     } finally {await session.endSession();}
-    return created!;
+    return this.findById(String(created!._id));
   }
 
   async findAccessible(id:string,userId:string,role:string) {
@@ -105,13 +105,18 @@ export class BookingsService {
       throw new ForbiddenException('Not your booking');
     }
 
+    if (booking.status===BookingStatus.CANCELLED || booking.status===BookingStatus.CANCEL_REQUESTED) return booking;
     if (!this.stateService.canCancel(booking.status)) {
       throw new BadRequestException('Cannot cancel booking in current status');
     }
 
     const next=booking.status===BookingStatus.PENDING_PAYMENT ? BookingStatus.CANCELLED : BookingStatus.CANCEL_REQUESTED;
     const updated=await this.bookingModel.findOneAndUpdate({_id:booking._id,status:booking.status},{$set:{status:next,cancelledAt:next===BookingStatus.CANCELLED?new Date():undefined,cancelReason:dto.reason || ''}},{new:true});
-    if(!updated) throw new BadRequestException('Booking đã thay đổi. Vui lòng tải lại');
+    if(!updated) {
+      const current=await this.findById(id);
+      if(current.status===next) return current;
+      throw new BadRequestException('Booking đã thay đổi. Vui lòng tải lại');
+    }
     return updated;
   }
 
@@ -119,8 +124,12 @@ export class BookingsService {
     const booking=await this.findAccessible(id,userId,'USER');
     if(booking.status===BookingStatus.CONFIRMED) return booking;
     if(booking.status!==BookingStatus.PENDING_PAYMENT) throw new BadRequestException('Booking không còn chờ xác nhận');
-    const updated=await this.bookingModel.findOneAndUpdate({_id:booking._id,status:BookingStatus.PENDING_PAYMENT,...occupyingBookings()},{$set:{status:BookingStatus.CONFIRMED}},{new:true});
-    if(!updated) throw new BadRequestException('Thời gian giữ phòng đã hết');
+    const updated=await this.bookingModel.findOneAndUpdate({_id:booking._id,status:BookingStatus.PENDING_PAYMENT,...occupyingBookings()},{$set:{status:BookingStatus.CONFIRMED,paymentMethod:'PAY_AT_HOTEL'}},{new:true});
+    if(!updated) {
+      const current=await this.findById(id);
+      if(current.status===BookingStatus.CONFIRMED) return current;
+      throw new BadRequestException('Thời gian giữ phòng đã hết');
+    }
     return updated;
   }
 
@@ -132,6 +141,7 @@ export class BookingsService {
       throw new ForbiddenException('Not your hotel');
     }
 
+    if(booking.status===BookingStatus.CHECKED_IN) return booking;
     this.stateService.validateTransition(booking.status, BookingStatus.CHECKED_IN);
     const today=new Date(Date.now()+7*3600000).toISOString().slice(0,10);
     if(today<booking.checkIn.toISOString().slice(0,10) || today>=booking.checkOut.toISOString().slice(0,10)) throw new BadRequestException('Chưa đến ngày nhận phòng hoặc đã quá ngày trả phòng');
@@ -146,6 +156,7 @@ export class BookingsService {
       throw new ForbiddenException('Not your hotel');
     }
 
+    if(booking.status===BookingStatus.CHECKED_OUT) return booking;
     this.stateService.validateTransition(booking.status, BookingStatus.CHECKED_OUT);
     return this.transition(booking,BookingStatus.CHECKED_OUT,{checkedOutAt:new Date()});
   }
@@ -158,7 +169,11 @@ export class BookingsService {
 
   private async transition(booking:BookingDocument,status:BookingStatus,extra={}) {
     const updated=await this.bookingModel.findOneAndUpdate({_id:booking._id,status:booking.status},{$set:{status,...extra}},{new:true});
-    if(!updated) throw new BadRequestException('Booking đã thay đổi. Vui lòng tải lại');
+    if(!updated) {
+      const current=await this.findById(String(booking._id));
+      if(current.status===status) return current;
+      throw new BadRequestException('Booking đã thay đổi. Vui lòng tải lại');
+    }
     return updated;
   }
 
@@ -168,6 +183,7 @@ export class BookingsService {
       const hotel=await this.hotelsService.findById(String(booking.hotelId));
       if(String(hotel.ownerId)!==userId) throw new ForbiddenException('Not your hotel');
     }
+    if(booking.status===BookingStatus.CANCELLED) return booking;
     if(booking.status!==BookingStatus.CANCEL_REQUESTED) throw new BadRequestException('Booking chưa yêu cầu hủy');
     const payment=await this.connection.db!.collection('payments').findOne({bookingId:booking._id,status:'COMPLETED'});
     if(payment) throw new BadRequestException('Cần xử lý hoàn tiền với nhà cung cấp trước khi xác nhận hủy');

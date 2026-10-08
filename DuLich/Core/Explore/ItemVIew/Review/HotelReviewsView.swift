@@ -3,6 +3,7 @@ import SwiftUI
 struct HotelReviewsView: View {
     let hotel: Hotel
     @State private var reviews: [Review] = []
+    @State private var editorialReviews: [EditorialReview] = []
     @State private var page = 0
     @State private var total = 0
     @State private var busy = false
@@ -12,8 +13,19 @@ struct HotelReviewsView: View {
             LazyVStack(spacing: 16) {
                 Text(hotel.name).font(.headline)
                 if let error { Text(error).foregroundStyle(.red); Button("Thử lại") { Task { await load(reset: page == 0) } } }
-                if reviews.isEmpty && !busy && error == nil { Text("Chưa có đánh giá từ khách lưu trú") }
+                if reviews.isEmpty && editorialReviews.isEmpty && !busy && error == nil { Text("Chưa có đánh giá từ khách lưu trú") }
                 ForEach(reviews) { ReviewCardItemView(review: $0) }
+                if !editorialReviews.isEmpty {
+                    Text(L10n.text("Nhận xét Hotelia"))
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text(L10n.text("Nội dung do Hotelia tạo, không phải đánh giá của khách đã lưu trú."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    ForEach(Array(editorialReviews.enumerated()), id: \.offset) { _, review in
+                        EditorialReviewCard(review: review)
+                    }
+                }
                 if busy { ProgressView() }
                 if reviews.count < total { Button("Tải thêm") { Task { await load() } }.disabled(busy) }
             }.padding()
@@ -25,6 +37,9 @@ struct HotelReviewsView: View {
         guard !busy else { return }
         busy = true
         defer { busy = false }
+        if reset, let detail = try? await ExploreService.shared.getHotel(id: hotel.id) {
+            editorialReviews = detail.editorialReviews ?? []
+        }
         do {
             let next = reset ? 1 : page + 1
             let data = try await ReviewService.shared.getReviews(hotelId: hotel.id, page: next)

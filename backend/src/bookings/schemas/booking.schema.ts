@@ -61,6 +61,9 @@ export class Booking extends Document {
   @Prop()
   holdExpiresAt?: Date;
 
+  @Prop({ type: String, enum: ['PAY_AT_HOTEL'] })
+  paymentMethod?: 'PAY_AT_HOTEL';
+
   @Prop()
   requestKey?: string;
 

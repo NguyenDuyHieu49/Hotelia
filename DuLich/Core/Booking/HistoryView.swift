@@ -131,6 +131,7 @@ struct FilterChip: View {
 // MARK: - Booking Card
 struct BookingCard: View {
     let booking: Booking
+    @State private var hotel: Hotel?
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.base) {
@@ -155,14 +156,23 @@ struct BookingCard: View {
 
             // Hotel Info
             HStack(spacing: AppSpacing.base) {
-                // Placeholder Image
-                RoundedRectangle(cornerRadius: AppSpacing.radiusSmall)
-                    .fill(AppColors.backgroundSecondary)
-                    .frame(width: 60, height: 60)
-                    .overlay(
-                        Image(systemName: "building.2.fill")
-                            .foregroundColor(AppColors.textTertiary)
-                    )
+                Group {
+                    if let hotel {
+                        HotelCoverImage(hotel: hotel, height: 60)
+                            .frame(width: 60, height: 60)
+                            .clipped()
+                    } else {
+                        RoundedRectangle(cornerRadius: AppSpacing.radiusSmall)
+                            .fill(AppColors.backgroundSecondary)
+                            .overlay {
+                                Image(systemName: "building.2.fill")
+                                    .foregroundColor(AppColors.textTertiary)
+                            }
+                            .frame(width: 60, height: 60)
+                    }
+                }
+                .frame(width: 60, height: 60)
+                .clipShape(RoundedRectangle(cornerRadius: AppSpacing.radiusSmall))
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(booking.hotelName ?? "Khách sạn")
@@ -220,6 +230,9 @@ struct BookingCard: View {
         .background(Color.white)
         .cornerRadius(AppSpacing.radiusMedium)
         .shadow(color: AppColors.cardShadow, radius: 4, x: 0, y: 2)
+        .task(id: booking.hotelId) {
+            hotel = try? await ExploreService.shared.getHotel(id: booking.hotelId)
+        }
     }
 
     private func formatDate(_ date: Date) -> String {

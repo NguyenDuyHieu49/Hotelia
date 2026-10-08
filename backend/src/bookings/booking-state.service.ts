@@ -24,7 +24,6 @@ export class BookingStateService {
     ],
     [BookingStatus.PAID]: [
       BookingStatus.CONFIRMED,
-      BookingStatus.CANCELLED,
       BookingStatus.REFUNDED,
     ],
     [BookingStatus.CONFIRMED]: [
@@ -33,7 +32,6 @@ export class BookingStateService {
     ],
     [BookingStatus.CHECKED_IN]: [
       BookingStatus.CHECKED_OUT,
-      BookingStatus.CANCEL_REQUESTED,
     ],
     [BookingStatus.CHECKED_OUT]: [BookingStatus.COMPLETED],
     [BookingStatus.COMPLETED]: [],
@@ -61,9 +59,7 @@ export class BookingStateService {
   canCancel(status: BookingStatus): boolean {
     return [
       BookingStatus.PENDING_PAYMENT,
-      BookingStatus.PAID,
       BookingStatus.CONFIRMED,
-      BookingStatus.CHECKED_IN,
     ].includes(status);
   }
 

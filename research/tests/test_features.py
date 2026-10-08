@@ -66,16 +66,20 @@ class TestFeatureGroups:
         assert "content_features" in d
 
     def test_feature_counts(self):
-        """Test expected feature counts."""
+        """The model feature manifest must not expose its training target."""
         groups = FeatureGroups()
         d = groups.to_dict()
 
         # Check specific features
         assert "price" in d["item_features"]
+        assert "position" in d["item_features"]
         assert "city_id" in d["context_features"]
         assert "session_length" in d["session_features"]
         assert "hour" in d["temporal_features"]
         assert "amenity_count" in d["content_features"]
+        assert not {"label", "is_clicked", "clicked_item_id"} & {
+            name for names in d.values() for name in names
+        }
 
 
 class TestFeatureEngine:
@@ -93,15 +97,17 @@ class TestFeatureEngine:
         assert len(items) > 0
 
     def test_extract_item_features(self, engine):
-        """Test item feature extraction."""
+        """A click-out expands to candidate rows with aligned prices."""
         train, _, _ = engine.load_data()
-        _, _, items = engine.load_data()
+        result = engine.extract_item_features(train)
 
-        result = engine.extract_item_features(train, items)
-
-        assert "is_clicked" in result.columns
-        assert "impression_list" in result.columns
-        assert "price_list" in result.columns
+        assert "item_id" in result.columns
+        assert "query_id" in result.columns
+        assert "position" in result.columns
+        assert "price" in result.columns
+        assert "label" in result.columns
+        assert "is_clicked" not in result.columns
+        assert result["query_id"].n_unique() > 0
 
     def test_extract_context_features(self, engine):
         """Test context feature extraction."""
@@ -144,14 +150,17 @@ class TestFeatureEngine:
         assert "star_rating" in result.columns
 
     def test_build_labels(self, engine):
-        """Test label construction."""
+        """A candidate matching the clicked reference receives the positive label."""
         train, _, _ = engine.load_data()
+        result = engine.extract_item_features(train)
 
-        result = engine.build_labels(train)
-
-        assert "label" in result.columns
-        # Labels should be 0 or 1
-        assert result["label"].max() <= 1
+        assert result["label"].max() == 1
+        assert result["label"].min() == 0
+        assert result.filter(pl.col("has_label")).group_by("query_id").agg(
+            pl.col("label").sum().alias("positives")
+        )["positives"].unique().to_list() == [1]
+        with pytest.raises(ValueError, match="candidate-level"):
+            engine.build_labels(train)
 
 
 class TestFeaturePipeline:
@@ -168,7 +177,9 @@ class TestFeaturePipeline:
         train = features["train"]
 
         # Check all feature groups exist
-        assert "is_clicked" in train.columns
+        assert "query_id" in train.columns
+        assert "item_id" in train.columns
+        assert "label" in train.columns
         assert "city_id" in train.columns
         assert "session_length" in train.columns
         assert "hour" in train.columns
@@ -230,12 +241,126 @@ class TestFeatureValues:
     def test_label_values(self, engine):
         """Test label values are valid."""
         train, _, _ = engine.load_data()
-        result = engine.build_labels(train)
+        result = engine.extract_item_features(train)
 
         # Labels should be 0 or 1
         unique_labels = result["label"].unique().to_list()
         for label in unique_labels:
             assert label in [0, 1]
+
+
+@pytest.fixture
+def ranking_actions():
+    """Two click-outs in one session plus an unlabeled inference query."""
+    return pl.DataFrame({
+        "user_id": ["u", "u", "u", "u", "u", "v"],
+        "session_id": ["s", "s", "s", "s", "s", "s"],
+        "timestamp": [100, 110, 120, 130, 140, 150],
+        "step": [1, 2, 3, 4, 5, 1],
+        "action_type": [
+            "search for destination", "clickout item", "interaction item image",
+            "clickout item", "clickout item", "clickout item",
+        ],
+        "reference": ["Hanoi", "B", "C", "C", None, "B"],
+        "platform": ["US"] * 6,
+        "city": ["Hanoi"] * 6,
+        "device": ["mobile"] * 6,
+        "current_filters": [None, "Wifi|Pool", None, None, None, None],
+        "impressions": [None, "A|B|C", None, "C|A", "A|B", "A|B"],
+        "prices": [None, "100|50|75", None, "80|90", "20|30", "30|40"],
+    })
+
+
+class TestCandidateRankingTable:
+    def test_one_group_per_clickout_and_aligned_item_features(self, engine, ranking_actions):
+        items = pl.DataFrame({
+            "item_id": ["A", "B"],
+            "properties": ["4 Star|Beach|Wifi", "3 Star|Business Hotel"],
+        })
+        result = engine.build_candidate_rows(ranking_actions, items, source="toy")
+
+        assert result.height == 9
+        assert result["query_id"].n_unique() == 4
+        first = result.filter(pl.col("query_id") == "toy:1").sort("position")
+        assert first["item_id"].to_list() == ["A", "B", "C"]
+        assert first["reference"].to_list() == ["A", "B", "C"]
+        assert first["price"].to_list() == [100.0, 50.0, 75.0]
+        assert first["position"].to_list() == [0, 1, 2]
+        assert first["price_rank"].to_list() == [3, 1, 2]
+        assert first["label"].to_list() == [0, 1, 0]
+        assert first["avg_price"].to_list() == [75.0] * 3
+        assert first["price_relative"][1] == pytest.approx(50 / 75)
+        assert first["filter_count"].to_list() == [2] * 3
+        assert first["prior_item_interactions"].to_list() == [0, 0, 0]
+        assert first["star_rating"].to_list() == [4, 3, None]
+        assert first["has_beach"].to_list() == [1, 0, None]
+
+        second = result.filter(pl.col("query_id") == "toy:3").sort("position")
+        assert second["item_id"].to_list() == ["C", "A"]
+        assert second["prior_item_interactions"].to_list() == [1, 0]
+        third = result.filter(pl.col("query_id") == "toy:4").sort("position")
+        assert third["prior_item_interactions"].to_list() == [0, 1]
+        other_user = result.filter(pl.col("query_id") == "toy:5").sort("position")
+        assert other_user["prior_item_interactions"].to_list() == [0, 0]
+
+        positives = result.group_by("query_id").agg(
+            pl.col("label").sum().alias("positives")
+        ).sort("query_id")
+        assert positives["positives"].to_list() == [1, 1, 0, 1]
+        assert result.filter(pl.col("query_id") == "toy:4")["has_label"].to_list() == [False, False]
+
+    def test_session_features_use_only_past_events(self, engine, ranking_actions):
+        result = engine.build_candidate_rows(ranking_actions, source="past")
+        first = result.filter(pl.col("query_id") == "past:1").row(0, named=True)
+        second = result.filter(pl.col("query_id") == "past:3").row(0, named=True)
+        other_user = result.filter(pl.col("query_id") == "past:5").row(0, named=True)
+
+        assert (first["session_length"], first["action_count"], first["click_count"]) == (1, 1, 0)
+        assert first["last_action_type"] == "search for destination"
+        assert (second["session_length"], second["action_count"], second["click_count"]) == (3, 3, 1)
+        assert second["last_action_type"] == "interaction item image"
+        assert (other_user["session_length"], other_user["click_count"]) == (0, 0)
+        assert other_user["last_action_type"] is None
+
+        future = ranking_actions.with_columns(
+            pl.when(pl.col("step") == 5).then(pl.lit("B"))
+            .otherwise(pl.col("reference")).alias("reference")
+        )
+        changed = engine.build_candidate_rows(future, source="past")
+        for column in (
+            "session_length", "action_count", "click_count",
+            "last_action_type", "prior_item_interactions",
+        ):
+            assert first[column] == changed.filter(pl.col("query_id") == "past:1").row(0, named=True)[column]
+
+        # Input file order is not a substitute for event time within a session.
+        reordered = engine.build_candidate_rows(ranking_actions.reverse(), source="reverse")
+        first_reordered = reordered.filter(
+            (pl.col("user_id") == "u") & (pl.col("timestamp") == 110)
+        ).row(0, named=True)
+        assert (first_reordered["session_length"], first_reordered["click_count"]) == (1, 0)
+        assert first_reordered["last_action_type"] == "search for destination"
+
+    def test_malformed_lists_are_rejected_without_misaligning_prices(self, engine, ranking_actions):
+        malformed = ranking_actions.with_columns(
+            pl.when(pl.col("step") == 4).then(pl.lit("80"))
+            .otherwise(pl.col("prices")).alias("prices")
+        )
+        malformed = malformed.with_columns(
+            pl.when((pl.col("step") == 5) & (pl.col("user_id") == "u"))
+            .then(pl.lit("A|A"))
+            .otherwise(pl.col("impressions")).alias("impressions")
+        )
+        result = engine.build_candidate_rows(malformed, source="bad")
+        assert "bad:3" not in result["query_id"].to_list()
+        assert "bad:4" not in result["query_id"].to_list()
+        assert result["query_id"].n_unique() == 2
+
+    def test_timestamp_weekday_matches_calendar(self, engine):
+        epoch = pl.DataFrame({"timestamp": [0, 2 * 86400, 3 * 86400]})
+        result = engine.extract_temporal_features(epoch)
+        assert result["day_of_week"].to_list() == [4, 6, 7]
+        assert result["is_weekend"].to_list() == [False, True, True]
 
 
 if __name__ == "__main__":

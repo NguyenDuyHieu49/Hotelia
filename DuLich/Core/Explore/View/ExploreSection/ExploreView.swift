@@ -71,7 +71,8 @@ struct ExploreView: View {
                             ExploreRecommendationSection(
                                 hotels: viewModel.hotels,
                                 isRanking: viewModel.isRanking,
-                                rankingInfo: viewModel.rankingInfo
+                                rankingInfo: viewModel.rankingInfo,
+                                impression: viewModel.recommendationImpression
                             )
 
                             ExplorePromotionSection(hotels: viewModel.hotels)
@@ -194,9 +195,9 @@ private struct ExploreDestinationBannerSection: View {
 private struct ExploreRankingSection: View {
     let hotels: [Hotel]
     private var ranked: [Hotel] {
-        Array(hotels.filter { $0.guestRating != nil }.sorted {
-            if $0.guestRating != $1.guestRating {
-                return ($0.guestRating ?? 0) > ($1.guestRating ?? 0)
+        Array(hotels.filter { $0.displayRating != nil }.sorted {
+            if $0.displayRating != $1.displayRating {
+                return ($0.displayRating ?? 0) > ($1.displayRating ?? 0)
             }
             return $0.name.localizedCompare($1.name) == .orderedAscending
         }.prefix(3))
@@ -208,7 +209,7 @@ private struct ExploreRankingSection: View {
                 HStack(spacing: 8) {
                     Image(systemName: "chart.bar.fill")
                         .foregroundStyle(Color(red: 0.11, green: 0.39, blue: 0.43))
-                    Text("Xếp hạng theo đánh giá khách lưu trú")
+                    Text("Xếp hạng tham khảo")
                         .font(.title3.weight(.bold))
                 }
                 ForEach(Array(ranked.enumerated()), id: \.element.id) { index, hotel in
@@ -226,9 +227,10 @@ private struct ExploreRankingSection: View {
                             }
                             Spacer(minLength: 4)
                             VStack(alignment: .trailing, spacing: 2) {
-                                Text(String(format: "%.1f", hotel.guestRating ?? 0))
+                                Text(String(format: "%.1f", hotel.displayRating ?? 0))
                                     .font(.headline.monospacedDigit())
-                                Text("Điểm").font(.caption2).foregroundStyle(.secondary)
+                                Text(hotel.isEditorialRating ? L10n.text("Điểm Hotelia") : L10n.text("Điểm"))
+                                    .font(.caption2).foregroundStyle(.secondary)
                             }
                         }
                         .foregroundStyle(.primary)

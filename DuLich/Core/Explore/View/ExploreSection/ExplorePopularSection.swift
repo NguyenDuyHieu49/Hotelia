@@ -15,9 +15,9 @@ struct ExplorePopularSection: View {
 
         hotels
             .sorted {
-                ($0.guestRating ?? 0)
+                ($0.displayRating ?? 0)
                 >
-                ($1.guestRating ?? 0)
+                ($1.displayRating ?? 0)
             }
     }
 

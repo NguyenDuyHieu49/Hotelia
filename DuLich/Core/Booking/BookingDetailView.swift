@@ -6,6 +6,7 @@ struct BookingDetailView: View {
     @State private var showSupport = false
     @State private var actionError: String?
     @State private var isCancelling = false
+    @State private var bookingHotel: Hotel?
 
     var body: some View {
         ScrollView {
@@ -42,6 +43,9 @@ struct BookingDetailView: View {
             do { booking = try await BookingService.shared.getBooking(id: booking.id) }
             catch { actionError = error.localizedDescription }
         }
+        .task(id: booking.hotelId) {
+            bookingHotel = try? await ExploreService.shared.getHotel(id: booking.hotelId)
+        }
     }
 
     // MARK: - Status Card
@@ -59,6 +63,12 @@ struct BookingDetailView: View {
                 .font(AppTypography.subheadline)
                 .foregroundColor(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
+
+            if booking.status == "PENDING_PAYMENT", let holdDeadlineText {
+                Text(L10n.format("booking_hold_until_format", holdDeadlineText))
+                    .font(AppTypography.caption1)
+                    .foregroundColor(AppColors.warning)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(AppSpacing.xl)
@@ -99,24 +109,46 @@ struct BookingDetailView: View {
         switch booking.status {
         case "COMPLETED": return L10n.text("Cảm ơn bạn đã sử dụng dịch vụ!")
         case "CONFIRMED": return L10n.text("Phòng của bạn đã được xác nhận")
-        case "PENDING_PAYMENT": return L10n.text("Vui lòng hoàn tất thanh toán")
+        case "PENDING_PAYMENT": return L10n.text("Xác nhận giữ phòng và thanh toán khi đến. Chưa thu tiền trực tuyến.")
         case "CANCELLED": return L10n.text("Đặt phòng đã bị hủy")
         default: return ""
         }
+    }
+
+    private var holdDeadlineText: String? {
+        guard let value = booking.holdExpiresAt else { return nil }
+        let parser = ISO8601DateFormatter()
+        parser.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        guard let deadline = parser.date(from: value) else { return nil }
+        let display = DateFormatter()
+        display.locale = AppLanguage.selected.locale
+        display.dateStyle = .medium
+        display.timeStyle = .short
+        return display.string(from: deadline)
     }
 
     // MARK: - Hotel Info Card
     private var hotelInfoCard: some View {
         HStack(spacing: AppSpacing.base) {
             // Hotel Image
-            RoundedRectangle(cornerRadius: AppSpacing.radiusSmall)
-                .fill(AppColors.backgroundSecondary)
-                .frame(width: 80, height: 80)
-                .overlay(
-                    Image(systemName: "building.2.fill")
-                        .font(.system(size: 30))
-                        .foregroundColor(AppColors.textTertiary)
-                )
+            Group {
+                if let bookingHotel {
+                    HotelCoverImage(hotel: bookingHotel, height: 80)
+                        .frame(width: 80, height: 80)
+                        .clipped()
+                } else {
+                    RoundedRectangle(cornerRadius: AppSpacing.radiusSmall)
+                        .fill(AppColors.backgroundSecondary)
+                        .overlay {
+                            Image(systemName: "building.2.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(AppColors.textTertiary)
+                        }
+                        .frame(width: 80, height: 80)
+                }
+            }
+            .frame(width: 80, height: 80)
+            .clipShape(RoundedRectangle(cornerRadius: AppSpacing.radiusSmall))
 
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text(booking.hotelName ?? "Khách sạn")
@@ -203,6 +235,16 @@ struct BookingDetailView: View {
             }
 
             Divider()
+
+            if booking.paymentMethod == "PAY_AT_HOTEL" {
+                HStack {
+                    Text(L10n.text("payment_methods"))
+                        .foregroundColor(AppColors.textSecondary)
+                    Spacer()
+                    Text(L10n.text("Thanh toán tại khách sạn"))
+                        .foregroundColor(AppColors.textPrimary)
+                }
+            }
 
             HStack {
                 Text("Tổng cộng")

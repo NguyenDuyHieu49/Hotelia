@@ -1,8 +1,8 @@
-import { Module, Injectable, ExecutionContext, Controller, Get, Post, Delete, Query, Body, Req, UseGuards, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { Module, Injectable, ExecutionContext, Controller, Get, Post, Delete, Query, Body, Req, UseGuards, NotFoundException, BadRequestException, OnModuleInit } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Types } from 'mongoose';
-import { IsUUID, IsOptional, IsString, MaxLength, IsInt, Min, Max, IsMongoId } from 'class-validator';
+import { IsUUID, IsOptional, IsString, MaxLength, IsInt, Min, Max, IsMongoId, IsArray, ArrayMinSize, ArrayMaxSize, ArrayUnique } from 'class-validator';
 import { Candidate, Signal, cityKey, normalize, rank } from './ranking';
 import { CatalogFilter, eligibleRooms, hasRoomFilter } from '../hotels/catalog-filter';
 import { presentPublicHotel } from '../hotels/public-hotel';
@@ -15,6 +15,13 @@ export class RecommendationQuery extends CatalogFilter {
 export class ViewEvent {
   @IsUUID() sessionId: string;
   @IsMongoId() hotelId: string;
+  @IsOptional() @IsUUID() impressionId?: string;
+}
+export class ImpressionEvent extends CatalogFilter {
+  @IsUUID() sessionId: string;
+  @IsUUID() impressionId: string;
+  @IsArray() @ArrayMinSize(1) @ArrayMaxSize(8) @ArrayUnique() @IsMongoId({ each: true }) candidateIds: string[];
+  @IsOptional() @IsString() @MaxLength(100) destination?: string;
 }
 @Injectable()
 export class OptionalRecommendationAuth extends AuthGuard('jwt') {
@@ -29,8 +36,43 @@ export class RecommendationsService implements OnModuleInit {
     const views=this.connection.db!.collection('recommendation_views');
     await views.createIndex({actor:1,viewedAt:-1});
     await views.createIndex({viewedAt:1},{expireAfterSeconds:90*86400});
+    const impressions=this.connection.db!.collection('recommendation_impressions');
+    await impressions.createIndex({actor:1,rowLoadedAt:-1});
+    await impressions.createIndex({expiresAt:1},{expireAfterSeconds:0});
   }
   private actor(sessionId: string, userId?: string) { return userId ? `user:${userId}` : `session:${sessionId}`; }
+  async recordImpression(dto: ImpressionEvent, userId?: string) {
+    const db=this.connection.db!;
+    const ids=dto.candidateIds;
+    if (!Array.isArray(ids) || !ids.length || ids.length>8 || new Set(ids).size!==ids.length || ids.some(id=>!Types.ObjectId.isValid(id))) {
+      throw new BadRequestException('Invalid recommendation candidates');
+    }
+    const candidates=await db.collection('hotels').find({
+      _id:{$in:ids.map(id=>new Types.ObjectId(id))},status:'PUBLISHED',
+    },{projection:{_id:1,city:1}}).toArray();
+    const published=new Set(candidates.map(h=>String(h._id)));
+    if (ids.some(id=>!published.has(id))) throw new BadRequestException('Invalid recommendation candidates');
+    const actor=this.actor(dto.sessionId,userId);
+    const now=new Date();
+    const requestedCity=dto.destination?.trim() ? cityKey(dto.destination.trim()) : null;
+    const cities=new Set(candidates.map(h=>cityKey(typeof h.city==='string'?h.city:'')));
+    // The client reports the row's ordered candidates. This is an opportunity to
+    // view them, not proof that every horizontally scrolling card reached the screen.
+    // Only a matching catalog city is kept; arbitrary search text is not retained.
+    // Retry with the same ID cannot rewrite the order, filters, or existing outcomes.
+    await db.collection('recommendation_impressions').updateOne({_id:`${actor}:${dto.impressionId}` as any},
+      {$setOnInsert:{actor,impressionId:dto.impressionId,candidateIds:ids.map(id=>new Types.ObjectId(id)),
+        candidatePositions:ids.map((id,index)=>({hotelId:new Types.ObjectId(id),position:index+1})),
+        destinationKey:requestedCity && cities.has(requestedCity) ? requestedCity : null,
+        searchTextPresent:Boolean(dto.destination?.trim()),
+        filters:{checkIn:dto.checkIn||null,checkOut:dto.checkOut||null,guests:dto.guests??null,
+          minPrice:dto.minPrice??null,maxPrice:dto.maxPrice??null,minRating:dto.minRating??null},
+        source:'explore_recommendations',reportOrigin:'client_reported',
+        eventType:'recommendation_served',cardVisibility:'unverified',
+        rowLoadedAt:now,expiresAt:new Date(now.getTime()+90*86400000),
+        detailOpenedHotelIds:[]}}, {upsert:true});
+    return {recorded:true};
+  }
   async record(dto: ViewEvent, userId?: string) {
     const db = this.connection.db!;
     const hotel = await db.collection('hotels').findOne({_id:new Types.ObjectId(dto.hotelId),status:'PUBLISHED'},{projection:{_id:1}});
@@ -39,10 +81,20 @@ export class RecommendationsService implements OnModuleInit {
     const actor = this.actor(dto.sessionId,userId);
     await db.collection('recommendation_views').updateOne({_id:`${actor}:${dto.hotelId}` as any},
       {$set:{actor,hotelId:hotel._id,viewedAt:new Date()}},{upsert:true});
+    if (dto.impressionId) {
+      // A detail-open is linked only to a candidate from this actor's live impression.
+      await db.collection('recommendation_impressions').updateOne({
+        _id:`${actor}:${dto.impressionId}` as any,actor,candidateIds:hotel._id,expiresAt:{$gt:new Date()},
+      },{$addToSet:{detailOpenedHotelIds:hotel._id},$min:{[`detailOpenedAt.${dto.hotelId}`]:new Date()}});
+    }
     return {recorded:true};
   }
   async clear(sessionId: string, userId?: string) {
-    await this.connection.db!.collection('recommendation_views').deleteMany({actor:this.actor(sessionId,userId)});
+    const actor=this.actor(sessionId,userId);
+    await Promise.all([
+      this.connection.db!.collection('recommendation_views').deleteMany({actor}),
+      this.connection.db!.collection('recommendation_impressions').deleteMany({actor}),
+    ]);
     return {cleared:true};
   }
   async recommend(dto: RecommendationQuery, userId?: string) {
@@ -88,6 +140,7 @@ export class RecommendationsService implements OnModuleInit {
 export class RecommendationsController {
   constructor(private readonly service:RecommendationsService) {}
   @Get() list(@Query() dto:RecommendationQuery,@Req() req:any) {return this.service.recommend(dto,req.user?.sub);}
+  @Post('impressions') impression(@Body() dto:ImpressionEvent,@Req() req:any) {return this.service.recordImpression(dto,req.user?.sub);}
   @Post('views') view(@Body() dto:ViewEvent,@Req() req:any) {return this.service.record(dto,req.user?.sub);}
   @Delete('views') clear(@Query() dto:RecommendationQuery,@Req() req:any) {return this.service.clear(dto.sessionId,req.user?.sub);}
 }

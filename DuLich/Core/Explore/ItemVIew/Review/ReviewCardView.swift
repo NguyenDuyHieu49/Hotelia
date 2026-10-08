@@ -34,3 +34,24 @@ struct ReviewCardItemView: View {
         .cornerRadius(12)
     }
 }
+
+struct EditorialReviewCard: View {
+    let review: EditorialReview
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 2) {
+                ForEach(0..<5) { index in
+                    Image(systemName: index < review.rating ? "star.fill" : "star")
+                        .font(.caption)
+                        .foregroundStyle(.yellow)
+                }
+            }
+            Text(review.localizedContent)
+                .font(.body)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .background(Color.gray.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+    }
+}

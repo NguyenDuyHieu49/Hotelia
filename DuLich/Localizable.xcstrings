@@ -1,48 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Chưa có khách sạn nhận đặt phòng tại điểm đến này" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No hotels are open for booking in this destination yet" } },
-        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chưa có khách sạn nhận đặt phòng tại điểm đến này" } }
-      }
-    },
-    "Đang nhận đặt phòng" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Bookings open on Hotelia" } },
-        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đang nhận đặt phòng" } }
-      }
-    },
-    "Chưa có đánh giá từ khách lưu trú" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No verified guest reviews yet" } },
-        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chưa có đánh giá từ khách lưu trú" } }
-      }
-    },
-    "Thông tin phòng và giá đang được cập nhật." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Room details and prices are being updated." } },
-        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Thông tin phòng và giá đang được cập nhật." } }
-      }
-    },
-    "Khách sạn chưa có loại phòng đang mở bán." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "This hotel has no rooms open for booking yet." } },
-        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Khách sạn chưa có loại phòng đang mở bán." } }
-      }
-    },
-    "Xếp hạng theo đánh giá khách lưu trú" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ranked by verified guest reviews" } },
-        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Xếp hạng theo đánh giá khách lưu trú" } }
-      }
-    },
     "" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2168,6 +2126,23 @@
         }
       }
     },
+    "booking_hold_until_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room held until %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giữ phòng đến %@"
+          }
+        }
+      }
+    },
     "booking_id_label" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3425,6 +3400,7 @@
       }
     },
     "Chưa có đánh giá" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3475,6 +3451,23 @@
         }
       }
     },
+    "Chưa có đánh giá từ khách lưu trú" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No verified guest reviews yet"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có đánh giá từ khách lưu trú"
+          }
+        }
+      }
+    },
     "Chưa có đặt phòng" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3507,6 +3500,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chưa có khách sạn nào"
+          }
+        }
+      }
+    },
+    "Chưa có khách sạn nhận đặt phòng tại điểm đến này" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hotels are open for booking in this destination yet"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có khách sạn nhận đặt phòng tại điểm đến này"
           }
         }
       }
@@ -4493,6 +4503,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đang lưu…"
+          }
+        }
+      }
+    },
+    "Đang nhận đặt phòng" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bookings open on Hotelia"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang nhận đặt phòng"
           }
         }
       }
@@ -7525,7 +7552,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "This hotel has no bookable room types."
+            "value" : "This hotel has no rooms open for booking yet."
           }
         },
         "vi" : {
@@ -13468,6 +13495,23 @@
         }
       }
     },
+    "Thông tin phòng và giá đang được cập nhật." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room details and prices are being updated."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thông tin phòng và giá đang được cập nhật."
+          }
+        }
+      }
+    },
     "Thử lại" : {
       "comment" : "A button label that says \"Try again\".",
       "isCommentAutoGenerated" : true,
@@ -15175,6 +15219,23 @@
         }
       }
     },
+    "Xếp hạng theo đánh giá khách lưu trú" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranked by verified guest reviews"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xếp hạng theo đánh giá khách lưu trú"
+          }
+        }
+      }
+    },
     "Xin chào 👋" : {
       "comment" : "A greeting text displayed in the header section of the explore view.",
       "extractionState" : "stale",
@@ -15352,6 +15413,125 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Yêu cầu mật khẩu quản trị"
+          }
+        }
+      }
+    },
+    "hotel_catalog_zenodo_attribution" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catalog name and location: TripAdvisor Vietnam Hotel Reviews · Zenodo (CC BY 4.0)"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tên và vị trí khách sạn: TripAdvisor Vietnam Hotel Reviews · Zenodo (CC BY 4.0)"
+          }
+        }
+      }
+    },
+    "editorial_accessible_rating_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hotelia score %.1f out of 5 from %d Hotelia entries; not guest reviews"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Điểm Hotelia %.1f trên 5 từ %d ghi nhận của Hotelia; không phải đánh giá của khách"
+          }
+        }
+      }
+    },
+    "editorial_rating_count_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d Hotelia ratings"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d điểm Hotelia"
+          }
+        }
+      }
+    },
+    "Điểm Hotelia" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hotelia score"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Điểm Hotelia"
+          }
+        }
+      }
+    },
+    "Nhận xét Hotelia" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hotelia notes"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhận xét Hotelia"
+          }
+        }
+      }
+    },
+    "Nội dung do Hotelia tạo, không phải đánh giá của khách đã lưu trú." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content created by Hotelia, not reviews from guests who stayed here."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nội dung do Hotelia tạo, không phải đánh giá của khách đã lưu trú."
+          }
+        }
+      }
+    },
+    "Xếp hạng tham khảo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explore ranking"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xếp hạng tham khảo"
           }
         }
       }

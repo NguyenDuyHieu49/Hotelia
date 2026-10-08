@@ -2,8 +2,10 @@ import SwiftUI
 
 struct HotelDetailView: View {
     let hotel: Hotel
+    var recommendationImpression: RecommendationImpression? = nil
     @State private var showBooking = false
     @State private var reviews: [Review] = []
+    @State private var editorialReviews: [EditorialReview] = []
     @State private var isLoadingReviews = true
 
     var body: some View {
@@ -59,7 +61,7 @@ struct HotelDetailView: View {
             await loadReviews()
         }
         .task(id: hotel.id) {
-            await RecommendationService.shared.recordView(hotelId: hotel.id)
+            await RecommendationService.shared.recordView(hotelId: hotel.id, impression: recommendationImpression)
         }
     }
 
@@ -78,7 +80,7 @@ struct HotelDetailView: View {
 
             // Rating Badge
             HStack {
-                if let rating = hotel.guestRating {
+                if let rating = hotel.displayRating {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 4) {
                             Image(systemName: "star.fill")
@@ -87,8 +89,10 @@ struct HotelDetailView: View {
                                 .font(AppTypography.headline)
                                 .foregroundColor(.white)
                         }
-                        if hotel.guestReviewCount > 0 {
-                            Text(L10n.format("hotel_reviews_count_format", hotel.guestReviewCount))
+                        if hotel.displayRatingCount > 0 {
+                            Text(hotel.isEditorialRating
+                                 ? L10n.format("editorial_rating_count_format", hotel.displayRatingCount)
+                                 : L10n.format("hotel_reviews_count_format", hotel.displayRatingCount))
                                 .font(AppTypography.caption1)
                                 .foregroundColor(.white.opacity(0.8))
                         }
@@ -100,7 +104,7 @@ struct HotelDetailView: View {
 
                 Spacer()
 
-                if let stars = hotel.starRating {
+                if let stars = hotel.starRating, stars > 0 {
                     StarBadge(stars: stars)
                 }
             }
@@ -134,14 +138,14 @@ struct HotelDetailView: View {
                 .font(.caption.weight(.semibold))
                 .foregroundColor(hotel.isBookingEnabled ? AppColors.success : AppColors.textSecondary)
 
-            if hotel.guestRating == nil {
+            if hotel.displayRating == nil {
                 Text("Chưa có đánh giá từ khách lưu trú")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
             HStack {
-                if let stars = hotel.starRating {
+                if let stars = hotel.starRating, stars > 0 {
                     HStack(spacing: 4) {
                         ForEach(0..<stars, id: \.self) { _ in
                             Image(systemName: "star.fill")
@@ -187,6 +191,12 @@ struct HotelDetailView: View {
                 .font(AppTypography.body)
                 .foregroundColor(AppColors.textSecondary)
                 .lineSpacing(4)
+
+            if hotel.dataProvenance?.sourceLocationId != nil,
+               let source = URL(string: "https://zenodo.org/records/7967494") {
+                Link(L10n.text("hotel_catalog_zenodo_attribution"), destination: source)
+                    .font(.caption)
+            }
         }
     }
 
@@ -226,7 +236,7 @@ struct HotelDetailView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, AppSpacing.xl)
-            } else if reviews.isEmpty {
+            } else if reviews.isEmpty && editorialReviews.isEmpty {
                 VStack(spacing: AppSpacing.sm) {
                     Image(systemName: "bubble.left.and.bubble.right")
                         .font(.system(size: 40))
@@ -240,6 +250,16 @@ struct HotelDetailView: View {
             } else {
                 ForEach(reviews.prefix(3)) { review in
                     ReviewCardItemView(review: review)
+                }
+                if !editorialReviews.isEmpty {
+                    Text(L10n.text("Nhận xét Hotelia"))
+                        .font(.subheadline.weight(.semibold))
+                    Text(L10n.text("Nội dung do Hotelia tạo, không phải đánh giá của khách đã lưu trú."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    ForEach(Array(editorialReviews.prefix(3).enumerated()), id: \.offset) { _, review in
+                        EditorialReviewCard(review: review)
+                    }
                 }
             }
         }
@@ -287,6 +307,9 @@ struct HotelDetailView: View {
             reviews = response.reviews
         } catch {
             // Silent fail
+        }
+        if let detail = try? await ExploreService.shared.getHotel(id: hotel.id) {
+            editorialReviews = detail.editorialReviews ?? []
         }
         isLoadingReviews = false
     }

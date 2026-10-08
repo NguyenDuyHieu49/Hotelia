@@ -1,0 +1,556 @@
+{
+  "version": "explore-hotels-2026-10-06-v2",
+  "sourceNote": "The first 30 listings retain their operator sources. The next 50 names and coordinates come from TripAdvisor Vietnam Hotel Reviews, Zenodo DOI 10.5281/zenodo.7967494 (CC BY 4.0). Historical dataset listings are not evidence of current operations, rooms, rates, property imagery, or verified Hotelia guest reviews.",
+  "hotels": [
+    {
+      "name": "Vinpearl Resort Nha Trang",
+      "city": "Nha Trang",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Vinpearl Resort & Spa Nha Trang Bay",
+      "city": "Nha Trang",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Vinpearl Luxury Nha Trang",
+      "city": "Nha Trang",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Vinpearl Beachfront Nha Trang",
+      "city": "Nha Trang",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Vinpearl Resort & Spa Ha Long",
+      "city": "Hạ Long",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Vinpearl Resort & Golf Nam Hoi An",
+      "city": "Hội An",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Vinpearl Resort & Spa Phu Quoc",
+      "city": "Phú Quốc",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Vinpearl Wonderworld Phu Quoc",
+      "city": "Phú Quốc",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Vinpearl Landmark 81, Autograph Collection",
+      "city": "TP HCM",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Sheraton Hai Phong",
+      "city": "Hải Phòng",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Four Points by Sheraton Lang Son",
+      "city": "Lạng Sơn",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Sheraton Can Tho",
+      "city": "Cần Thơ",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Da Nang Marriott Resort & Spa",
+      "city": "Đà Nẵng",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Sheraton Phu Quoc Long Beach Resort",
+      "city": "Phú Quốc",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Nha Trang Marriott Resort & Spa, Hon Tre Island",
+      "city": "Nha Trang",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Da Nang Marriott Resort & Spa, Non Nuoc Beach Villas",
+      "city": "Đà Nẵng",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Renaissance Hoi An Resort & Spa",
+      "city": "Hội An",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Meliá Vinpearl Cam Ranh Beach Resort",
+      "city": "Cam Ranh",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Meliá Vinpearl Hue",
+      "city": "Huế",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Meliá Vinpearl Da Nang Riverfront",
+      "city": "Đà Nẵng",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Meliá Vinpearl Nha Trang Empire",
+      "city": "Nha Trang",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Meliá Vinpearl Phu Quoc",
+      "city": "Phú Quốc",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "VinHolidays Fiesta Phu Quoc",
+      "city": "Phú Quốc",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Hon Tam Resort Nha Trang",
+      "city": "Nha Trang",
+      "source": "https://statics.vinpearl.com/%5BENG%5D_VINPEARL%20AR25_C1-6_260330_1774882037.pdf"
+    },
+    {
+      "name": "Anantara Hoi An Resort",
+      "city": "Hội An",
+      "source": "https://www.anantara.com/en/hoi-an"
+    },
+    {
+      "name": "Four Seasons Resort The Nam Hai, Hoi An",
+      "city": "Hội An",
+      "source": "https://www.fourseasons.com/hoian/"
+    },
+    {
+      "name": "Anantara Quy Nhon Villas",
+      "city": "Quy Nhơn",
+      "source": "https://www.anantara.com/en/quy-nhon"
+    },
+    {
+      "name": "Avani Quy Nhon Resort",
+      "city": "Quy Nhơn",
+      "source": "https://www.avanihotels.com/en/quy-nhon"
+    },
+    {
+      "name": "Wyndham Legend Halong",
+      "city": "Hạ Long",
+      "source": "https://www.wyndhamhalong.com/location.html"
+    },
+    {
+      "name": "Azerai La Residence, Hue",
+      "city": "Huế",
+      "source": "https://azerai.com/azerai-la-residence-hue/"
+    },
+    {
+      "name": "Somerset Feliz Ho Chi Minh City",
+      "city": "TP HCM",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "23505518",
+      "latitude": 10.777355,
+      "longitude": 106.75603
+    },
+    {
+      "name": "Capri by Fraser Ho Chi Minh",
+      "city": "TP HCM",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "3641390",
+      "latitude": 10.730195,
+      "longitude": 106.72336
+    },
+    {
+      "name": "Somerset Vista Ho Chi Minh City",
+      "city": "TP HCM",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "3794532",
+      "latitude": 10.805696,
+      "longitude": 106.75264
+    },
+    {
+      "name": "Ibis Saigon South Hotel",
+      "city": "TP HCM",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "3312777",
+      "latitude": 10.730651,
+      "longitude": 106.7233
+    },
+    {
+      "name": "MerPerle Crystal Palace",
+      "city": "TP HCM",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "7847003",
+      "latitude": 10.726689,
+      "longitude": 106.7235
+    },
+    {
+      "name": "Mövenpick Resort Waverly Phu Quoc",
+      "city": "Phú Quốc",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "19892000",
+      "latitude": 10.281882,
+      "longitude": 103.92246
+    },
+    {
+      "name": "Camia Resort & Spa",
+      "city": "Phú Quốc",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "13344570",
+      "latitude": 10.264731,
+      "longitude": 103.93157
+    },
+    {
+      "name": "Green Bay Phu Quoc Resort & Spa",
+      "city": "Phú Quốc",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "12422287",
+      "latitude": 10.292877,
+      "longitude": 103.897316
+    },
+    {
+      "name": "Coco Palm Beach Resort & Spa",
+      "city": "Phú Quốc",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "3237706",
+      "latitude": 10.256774,
+      "longitude": 103.93878
+    },
+    {
+      "name": "Kingo Retreat Resort Phu Quoc",
+      "city": "Phú Quốc",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "19235922",
+      "latitude": 10.258562,
+      "longitude": 103.94086
+    },
+    {
+      "name": "Khách sạn Danang Golden Bay",
+      "city": "Đà Nẵng",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "13211927",
+      "latitude": 16.098248,
+      "longitude": 108.22454
+    },
+    {
+      "name": "Citadines Blue Cove Danang",
+      "city": "Đà Nẵng",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "14202194",
+      "latitude": 16.098269,
+      "longitude": 108.2248
+    },
+    {
+      "name": "AZUMAYA Da Nang",
+      "city": "Đà Nẵng",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "3947622",
+      "latitude": 16.085918,
+      "longitude": 108.21458
+    },
+    {
+      "name": "Lucky Danang Hotel & Apartment",
+      "city": "Đà Nẵng",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "12919404",
+      "latitude": 16.08618,
+      "longitude": 108.215355
+    },
+    {
+      "name": "Khách sạn Navy Đà Nẵng",
+      "city": "Đà Nẵng",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "13162065",
+      "latitude": 16.124546,
+      "longitude": 108.22173
+    },
+    {
+      "name": "Paragon Noi Bai Hotel & Pool",
+      "city": "Hà Nội",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "19819013",
+      "latitude": 21.220016,
+      "longitude": 105.78307
+    },
+    {
+      "name": "Haap Transit Hotel",
+      "city": "Hà Nội",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "9559833",
+      "latitude": 21.203035,
+      "longitude": 105.83231
+    },
+    {
+      "name": "Chio Hotel and Apartment",
+      "city": "Hà Nội",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "11716921",
+      "latitude": 21.21534,
+      "longitude": 105.78027
+    },
+    {
+      "name": "Airport Hotel Hanoi - Convenient & Friendly",
+      "city": "Hà Nội",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "19055800",
+      "latitude": 21.219336,
+      "longitude": 105.78215
+    },
+    {
+      "name": "Golden Lotus Airport Hotel & Travel",
+      "city": "Hà Nội",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "22978199",
+      "latitude": 21.21885,
+      "longitude": 105.78338
+    },
+    {
+      "name": "Bellerive Hoi An Hotel & Spa",
+      "city": "Hội An",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "24141865",
+      "latitude": 15.875891,
+      "longitude": 108.388885
+    },
+    {
+      "name": "Zest Villas & Spa Hoi An",
+      "city": "Hội An",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "17519364",
+      "latitude": 15.877184,
+      "longitude": 108.36571
+    },
+    {
+      "name": "Hoi An Eco Lodge & Spa",
+      "city": "Hội An",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "13425932",
+      "latitude": 15.877621,
+      "longitude": 108.363556
+    },
+    {
+      "name": "Fivitel Hoi An Hotel",
+      "city": "Hội An",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "17439928",
+      "latitude": 15.892652,
+      "longitude": 108.37278
+    },
+    {
+      "name": "Khách sạn Mường Thanh Holiday Hội An",
+      "city": "Hội An",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "7767171",
+      "latitude": 15.89292,
+      "longitude": 108.37215
+    },
+    {
+      "name": "Mia Resort Nha Trang",
+      "city": "Nha Trang",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "2316221",
+      "latitude": 12.134258,
+      "longitude": 109.21203
+    },
+    {
+      "name": "Diamond Bay Resort & Spa",
+      "city": "Nha Trang",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "1168678",
+      "latitude": 12.163022,
+      "longitude": 109.20022
+    },
+    {
+      "name": "Orbit Resort & Spa",
+      "city": "Nha Trang",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "15411022",
+      "latitude": 12.196228,
+      "longitude": 109.2083
+    },
+    {
+      "name": "Paragon Hotel",
+      "city": "Nha Trang",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "2056259",
+      "latitude": 12.196323,
+      "longitude": 109.210205
+    },
+    {
+      "name": "Crown Hotel Nha Trang",
+      "city": "Nha Trang",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "17463296",
+      "latitude": 12.21669,
+      "longitude": 109.1989
+    },
+    {
+      "name": "Kawara My An Onsen Resort",
+      "city": "Huế",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "23036858",
+      "latitude": 16.521015,
+      "longitude": 107.61323
+    },
+    {
+      "name": "Hue Four Seasons Hotel",
+      "city": "Huế",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "5498733",
+      "latitude": 16.472284,
+      "longitude": 107.596375
+    },
+    {
+      "name": "Hue Serene Shining Hotel & Spa",
+      "city": "Huế",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "8755459",
+      "latitude": 16.471594,
+      "longitude": 107.59804
+    },
+    {
+      "name": "Hotel la Perle - Hue",
+      "city": "Huế",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "10717679",
+      "latitude": 16.469618,
+      "longitude": 107.59697
+    },
+    {
+      "name": "Hue Serene Palace Hotel",
+      "city": "Huế",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "4357913",
+      "latitude": 16.470297,
+      "longitude": 107.597275
+    },
+    {
+      "name": "Iris Hotel Can Tho",
+      "city": "Cần Thơ",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "6446809",
+      "latitude": 10.026749,
+      "longitude": 105.77599
+    },
+    {
+      "name": "Hotel Xoai",
+      "city": "Cần Thơ",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "2634001",
+      "latitude": 10.03138,
+      "longitude": 105.77515
+    },
+    {
+      "name": "Kim Lan Homestay",
+      "city": "Cần Thơ",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "5445067",
+      "latitude": 10.03388,
+      "longitude": 105.77485
+    },
+    {
+      "name": "Spring Hotel",
+      "city": "Cần Thơ",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "3229215",
+      "latitude": 10.023856,
+      "longitude": 105.77138
+    },
+    {
+      "name": "Green Garden Homestay",
+      "city": "Cần Thơ",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "8307520",
+      "latitude": 10.052466,
+      "longitude": 105.75655
+    },
+    {
+      "name": "Dalat Wonder Resort",
+      "city": "Đà Lạt",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "15122569",
+      "latitude": 11.895897,
+      "longitude": 108.41555
+    },
+    {
+      "name": "Binh An Village Dalat",
+      "city": "Đà Lạt",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "6460260",
+      "latitude": 11.887269,
+      "longitude": 108.41833
+    },
+    {
+      "name": "Swiss-Belresort Tuyen Lam Dalat",
+      "city": "Đà Lạt",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "8856864",
+      "latitude": 11.884828,
+      "longitude": 108.45206
+    },
+    {
+      "name": "Zen Cafe Lakeside",
+      "city": "Đà Lạt",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "11909668",
+      "latitude": 11.90164,
+      "longitude": 108.41882
+    },
+    {
+      "name": "Dalat De Charme Village",
+      "city": "Đà Lạt",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "13495674",
+      "latitude": 11.93255,
+      "longitude": 108.46432
+    },
+    {
+      "name": "FLC Luxury Hotel Quy Nhon",
+      "city": "Quy Nhơn",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "11906776",
+      "latitude": 13.888252,
+      "longitude": 109.27737
+    },
+    {
+      "name": "FLC Luxury Resort Quy Nhon",
+      "city": "Quy Nhơn",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "11698018",
+      "latitude": 13.885612,
+      "longitude": 109.28106
+    },
+    {
+      "name": "FLC Grand Hotel Quy Nhon",
+      "city": "Quy Nhơn",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "21214034",
+      "latitude": 13.884006,
+      "longitude": 109.28142
+    },
+    {
+      "name": "Altara Serviced Residences Quy Nhon",
+      "city": "Quy Nhơn",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "23635790",
+      "latitude": 13.773368,
+      "longitude": 109.24107
+    },
+    {
+      "name": "Muong Thanh Quy Nhon Hotel",
+      "city": "Quy Nhơn",
+      "source": "https://zenodo.org/records/7967494",
+      "sourceLocationId": "4346095",
+      "latitude": 13.772292,
+      "longitude": 109.23879
+    }
+  ]
+}
