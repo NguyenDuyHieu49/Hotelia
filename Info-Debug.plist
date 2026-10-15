@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>Google Sign In</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.170450615011-834qjphaod1cgeitsic6k6jqvdn1gh87</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>Hotelia Payment</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>hotelia</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>momo</string>
+	</array>
+	<key>GIDClientID</key>
+	<string>170450615011-834qjphaod1cgeitsic6k6jqvdn1gh87.apps.googleusercontent.com</string>
+	<key>HoteliaAPIBaseURL</key>
+	<string>$(HOTELIA_API_BASE_URL)</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Hotelia kết nối máy chủ trên cùng mạng Wi-Fi để tải khách sạn và đặt phòng.</string>
+</dict>
+</plist>

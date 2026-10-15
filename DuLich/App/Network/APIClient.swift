@@ -3,7 +3,13 @@ import Foundation
 class APIClient {
     static let shared = APIClient()
 
-    private let baseURL = "http://127.0.0.1:3000/api/v1"
+    private let baseURL: String = {
+        if let configured = Bundle.main.object(forInfoDictionaryKey: "HoteliaAPIBaseURL") as? String {
+            let value = configured.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !value.isEmpty { return value.trimmingCharacters(in: CharacterSet(charactersIn: "/")) }
+        }
+        return "http://127.0.0.1:3000/api/v1"
+    }()
     private var accessToken: String?
 
     private init() {

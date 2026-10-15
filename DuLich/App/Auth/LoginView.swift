@@ -1,6 +1,8 @@
 import SwiftUI
+#if !PERSONAL_TEAM_DEMO
 import AuthenticationServices
 import CryptoKit
+#endif
 import GoogleSignIn
 
 struct LoginView: View {
@@ -267,7 +269,9 @@ private struct AuthPressStyle: ButtonStyle {
 
 struct SocialSignInOptions: View {
     @EnvironmentObject private var authViewModel: AuthViewModel
+#if !PERSONAL_TEAM_DEMO
     @State private var appleNonce = ""
+#endif
 
     var body: some View {
         VStack(spacing: AppSpacing.base) {
@@ -307,6 +311,7 @@ struct SocialSignInOptions: View {
             .buttonStyle(AuthPressStyle())
             .disabled(authViewModel.isLoading)
 
+#if !PERSONAL_TEAM_DEMO
             SignInWithAppleButton(.signIn, onRequest: { request in
                 appleNonce = UUID().uuidString + UUID().uuidString
                 let digest = SHA256.hash(data: Data(appleNonce.utf8))
@@ -336,6 +341,7 @@ struct SocialSignInOptions: View {
             .frame(height: 54)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .disabled(authViewModel.isLoading)
+#endif
         }
     }
 
