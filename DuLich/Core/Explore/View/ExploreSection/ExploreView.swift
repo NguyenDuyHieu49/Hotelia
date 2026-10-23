@@ -3,6 +3,7 @@ import SwiftUI
 struct ExploreView: View {
 
     @StateObject private var viewModel = ExploreViewModel()
+    @StateObject private var weatherViewModel = WeatherViewModel()
 
     @State private var showFilters = false
     @State private var searchText = ""
@@ -40,6 +41,13 @@ struct ExploreView: View {
                         )
 
                         ExploreDestinationBannerSection(onSelect: selectDestination)
+
+                        ExploreWeatherSection(
+                            viewModel: weatherViewModel,
+                            onRefresh: {
+                                Task { await weatherViewModel.load(forceRefresh: true) }
+                            }
+                        )
 
                         ExploreDestinationSection(
                             destinations: destinations,
@@ -90,7 +98,9 @@ struct ExploreView: View {
                     .padding(.bottom, 40)
                 }
                 .refreshable {
-                    await viewModel.refreshFromGesture()
+                    async let hotels: Void = viewModel.refreshFromGesture()
+                    async let weather: Void = weatherViewModel.load(forceRefresh: true)
+                    _ = await (hotels, weather)
                 }
             }
             .environment(\.hotelSearchFilters, viewModel.filters)
@@ -101,7 +111,9 @@ struct ExploreView: View {
             }
             .navigationBarHidden(true)
             .task {
-                await viewModel.refreshRanking()
+                async let hotels: Void = viewModel.refreshRanking()
+                async let weather: Void = weatherViewModel.load()
+                _ = await (hotels, weather)
                 try? await FavoritesStore.shared.load()
             }
         }
