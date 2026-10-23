@@ -402,6 +402,12 @@ docker-compose up -d
 | Database | MongoDB Atlas M0 |
 | Storage | Cloudinary |
 
+The current production endpoints are:
+
+- Customer web: `https://hotelia.asia`
+- Admin and owner dashboard: `https://admin.hotelia.asia`
+- API: `https://api.hotelia.asia/api/v1`
+
 ---
 
 ## 📊 Cost Analysis ($0 MVP)

@@ -22,7 +22,7 @@ After deploying the API to a public HTTPS host, register this URL for the payOS
 payment channel:
 
 ```text
-https://hotelia-api-eimb.onrender.com/api/v1/payments/webhooks/payos
+https://api.hotelia.asia/api/v1/payments/webhooks/payos
 ```
 
 The endpoint verifies the webhook with the channel checksum key through the
