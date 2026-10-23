@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: hotelia-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGINS
+        sync: false
+      - key: OPENWEATHER_API_KEY
+        sync: false
+      - key: PAYOS_CLIENT_ID
+        sync: false
+      - key: PAYOS_API_KEY
+        sync: false
+      - key: PAYOS_CHECKSUM_KEY
+        sync: false
+      - key: PAYOS_RETURN_URL
+        value: hotelia://payment/success
+      - key: PAYOS_CANCEL_URL
+        value: hotelia://payment/cancel
+      - key: GOOGLE_IOS_CLIENT_ID
+        value: 170450615011-834qjphaod1cgeitsic6k6jqvdn1gh87.apps.googleusercontent.com
+      - key: APPLE_BUNDLE_ID
+        value: HieuNguyen.DuLich

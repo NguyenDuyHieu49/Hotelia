@@ -69,7 +69,7 @@ async function bootstrap() {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  await app.listen(port, '::');
+  await app.listen(port, '0.0.0.0');
   console.log(`🚀 Hotelia API running on: http://0.0.0.0:${port}`);
   console.log(`📚 Swagger: http://localhost:${port}/docs`);
 }

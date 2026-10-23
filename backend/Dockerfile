@@ -8,7 +8,8 @@ RUN npm install --global "npm@${NPM_VERSION}" \
     && npm ci
 
 COPY . .
-RUN npm run build \
+RUN mkdir -p public \
+    && npm run build \
     && npm prune --omit=dev
 
 FROM node:20-alpine AS runtime
