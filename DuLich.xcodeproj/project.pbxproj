@@ -344,7 +344,7 @@
 				DEVELOPMENT_TEAM = UMBX69GFWD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				HOTELIA_API_BASE_URL = "";
+				HOTELIA_API_BASE_URL = "https://hotelia-api-eimb.onrender.com/api/v1";
 				INFOPLIST_FILE = DuLich/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
