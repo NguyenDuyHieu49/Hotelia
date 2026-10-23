@@ -1,0 +1,41 @@
+{
+  "model": "hotelia-lgbm-v1",
+  "version": "hotelia-lgbm-2026-10-23-v1",
+  "training_source": "generated_pre_release_interactions",
+  "catalog_hotels": 100,
+  "queries": 8000,
+  "train_queries": 6800,
+  "validation_queries": 1200,
+  "candidates_per_query": 8,
+  "features": [
+    "min_price_millions",
+    "price_relative",
+    "star_rating",
+    "rating",
+    "review_log",
+    "amenity_count",
+    "quality_prior",
+    "city_affinity",
+    "price_affinity",
+    "star_affinity",
+    "amenity_affinity",
+    "history_count",
+    "has_history",
+    "hour_sin",
+    "hour_cos",
+    "is_weekend"
+  ],
+  "best_iteration": 7,
+  "quality_baseline": {
+    "mrr@10": 0.3417906746031746,
+    "hit@10": 1.0,
+    "ndcg@10": 0.49644716482178886
+  },
+  "lightgbm": {
+    "mrr@10": 0.6201468253968253,
+    "hit@10": 1.0,
+    "ndcg@10": 0.7125725723487383
+  },
+  "serving": "enabled_with_rule_fallback",
+  "limitation": "Replace generated outcomes with consented served/open/booking outcomes before interpreting metrics as production performance."
+}

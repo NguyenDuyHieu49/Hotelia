@@ -9,6 +9,13 @@ The trained artifact is **not** used by Hotelia's API or mobile app. Trivago
 item IDs do not identify Hotelia hotels, and several context features need a
 matching Hotelia serving implementation before live ranking is possible.
 
+Hotelia has a separate pre-release ranker for its 100-property catalog. It uses
+only features the NestJS API can compute at request time and is served
+in-process from `backend/src/recommendations/models/`. Generated interactions
+bootstrap the ranking path without entering MongoDB bookings, reviews, or event
+collections. The API falls back to the content ranker if the model cannot load
+or score a request.
+
 ## Local workflow
 
 Place `train.csv`, `test.csv`, and `item_metadata.csv` in `data/raw/`.
@@ -27,6 +34,7 @@ venv/bin/python scripts/features.py
 venv/bin/python scripts/baselines.py
 venv/bin/python scripts/evaluate.py
 venv/bin/python scripts/train_lgb.py
+venv/bin/python scripts/train_hotelia_lgb.py
 venv/bin/python -m pytest tests -q
 ```
 
@@ -58,5 +66,12 @@ personalization. Hotelia now records served recommendation rows and detail
 opens separately, but live outcome volume, feature parity, and catalog
 validation are still required before the learned model can replace the current
 rule-based recommendation service.
+
+`train_hotelia_lgb.py` writes its report to
+`data/models/hotelia-lgbm-v1-report.json` and a compact serving artifact to the
+backend. Replace its generated labels with consented Hotelia impression,
+detail-open, and confirmed-booking outcomes once enough traffic is available.
+Until then, the reported MRR validates the training and serving pipeline; it is
+not evidence of recommendation quality among released users.
 
 Dataset: [Trivago RecSys Challenge 2019](https://recsys.trivago.cloud/).

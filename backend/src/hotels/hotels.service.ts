@@ -97,8 +97,13 @@ export class HotelsService {
     }
 
     if (dto.minRating) {
-      query.averageRating = { $gte: dto.minRating };
-      query.reviewCount = { $gt: 0 };
+      query.$and = [
+        ...(query.$and || []),
+        { $or: [
+          { averageRating: { $gte: dto.minRating }, reviewCount: { $gt: 0 } },
+          { demoRating: { $gte: dto.minRating }, demoReviewCount: { $gt: 0 }, reviewCount: { $not: { $gt: 0 } } },
+        ] },
+      ];
     }
     if(dto.amenities?.trim()) {
       const amenities=dto.amenities.split(',').map(a=>a.trim().toLowerCase()).filter(Boolean).slice(0,20);

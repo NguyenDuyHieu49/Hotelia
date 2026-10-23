@@ -1,16 +1,16 @@
 # Recommendation in the application
 
-The iOS Explore screen uses `GET /api/v1/recommendations` on the existing NestJS backend. It no longer calls the experimental Python ranking service or hashes hotel IDs into city IDs. The response explicitly reports `modelUsed: false`; this is content-based recommendation with transparent rules, not a trained probability model.
+The iOS Explore screen uses `GET /api/v1/recommendations` on the existing NestJS backend. NestJS loads the Hotelia LightGBM tree artifact in-process, so deployment does not require a second Python service. Successful learned ranking reports `modelUsed: true` and version `hotelia-lgbm-2026-10-23-v1`. A load or scoring error automatically falls back to the content ranker and reports `modelUsed: false`.
 
 ## Signals and ordering
 
-Only published hotels are candidates. Prices are the minimum positive base price among active room types; these are current application catalog prices, not guaranteed date-specific availability. All matching candidates are ranked before the response limit is applied (20 by default, maximum 100). The current 100-property catalog remains small enough for this in-memory approach; larger catalogs need indexed candidate retrieval. Twenty original hotels have bookable room types; the other eighty listings are browse-only until verified room inventory is available.
+Only published hotels are candidates. Prices are the minimum positive base price among active room types; these are current application catalog prices, not guaranteed date-specific availability. All matching candidates are ranked before the response limit is applied (20 by default, maximum 100). All 100 properties have an owner, four active room types, positive rates, capacity and inventory. The current catalog remains small enough for this in-memory approach; larger catalogs need indexed candidate retrieval.
 
-For new visitors, a Bayesian rating with a five-review prior at 3.5/5 provides the base score. A city diversity penalty spreads the first recommendations across destinations. Name and ID provide deterministic tie breaks. No invented ratings are written to verified guest-review fields.
+The model uses catalog price, relative price, star category, rating, review volume, amenity count, a Bayesian quality prior, history-derived city/price/star/amenity affinity, history volume and request time. For new visitors, history features are zero and catalog quality, price and amenities drive discovery. Name and ID provide deterministic tie breaks.
 
-Hotelia-generated UI scores and 10–50 comments per hotel are stored separately from `averageRating`, `reviewCount`, and verified booking-based reviews. Explore attributes these scores and comments to Hotelia, and detail screens state that they are not guest reviews. They never feed recommendation quality, minimum guest-rating filters, or booking eligibility. The additional fifty browse-only hotel names and coordinates are attributed to [TripAdvisor Vietnam Hotel Reviews on Zenodo](https://zenodo.org/records/7967494) (CC BY 4.0); this historical dataset does not establish current inventory, pricing, imagery or property operation.
+Hotelia catalog scores and 10–50 comments per hotel remain separate from `averageRating`, `reviewCount`, and verified booking-based reviews. When no verified guest rating exists, the catalog score can contribute a content-quality feature and minimum-rating discovery filter, while API responses continue to expose it as `editorialRating` rather than a verified guest aggregate. The additional fifty hotel names and coordinates are attributed to [TripAdvisor Vietnam Hotel Reviews on Zenodo](https://zenodo.org/records/7967494) (CC BY 4.0). Generated rates, room inventory and managed owner records retain internal provenance and await confirmation from each property.
 
-Personalization uses:
+The content fallback uses:
 
 - One most-recent view per actor and hotel from the last 90 days, with a 14-day half-life. Reopening the same hotel refreshes recency, not frequency.
 - Distinct hotels in the authenticated user's paid/confirmed/check-in/check-out/completed bookings created within 90 days, weighted three times a fresh view. Cancelled, expired and refunded bookings are excluded.
@@ -33,12 +33,11 @@ When the Explore recommendation row loads, the app sends `POST /recommendations/
 
 Explore loads recommendations on appearing and on pull-to-refresh, retaining the current destination. A request generation counter prevents a slow old search overwriting a newer destination. Backend failure falls back to the ordinary hotel list with an explicit nonpersonalized label. Visible text describes actual ranking instead of claiming AI. No separate port-8000 process is required.
 
-The original `B6_model.txt` has no learned splits, and the research service rejects it. The new `research/data/models/B6-candidates_model.txt` is trained on one candidate row per Trivago clickout impression. On 7,055 later labeled Trivago queries, its MRR@10 was 0.521 versus 0.389 for original impression order (100,000 action rows from the training file, with full item metadata). This is an offline result on another catalog, not evidence of better Hotelia bookings. The new model is not used by the app: Hotelia still needs matching inference features, valid bookable candidates, and enough actual served-row/detail-open/booking outcomes to evaluate its own users.
+The Trivago `B6-candidates_model.txt` remains a separate research benchmark because its item IDs do not map to Hotelia. The active Hotelia artifact is trained on 8,000 deterministic pre-release queries over the 100-property catalog with exact backend feature parity. Its held-out MRR@10 is 0.620 versus 0.342 for the catalog-quality baseline. This validates the training, export and TypeScript scoring path; it is not a production-quality claim. Once enough consented impression, detail-open and confirmed-booking outcomes exist, retrain with those labels and compare against the fallback in an online experiment.
 
 ## Verification
 
-- `npm --prefix backend test -- --runInBand recommendations`: 16 recommendation-service tests cover ranking behavior, identity, retry-safe served-row records, bounded candidates, and detail-open association.
+- `npm --prefix backend test -- --runInBand lightgbm-ranker.spec.ts recommendations.spec.ts ranking.spec.ts`: 18 tests cover Python/TypeScript prediction parity, learned ranking, fallback behavior, identity, retry-safe served-row records, bounded candidates, and detail-open association.
 - `research/venv/bin/python -m pytest research/tests -q` verifies candidate labels, past-only features, query grouping, baselines, evaluation and model training.
 - Backend build and Hotelia iOS Simulator build passed.
-- Local API against the real twenty-hotel database: initial five results span all five destinations; viewing HAIAN promotes HAIAN, Novotel Danang and Four Points. Repeated view remains one signal; a separate session stays unpersonalized; TP. Hồ Chí Minh returns four hotels; invalid session/token return 400/401.
-- Temporary test-session history was deleted. No hotel, room or booking records were modified by these checks.
+- The operational catalog migration verifies 80 generated owners, 320 active room types, a 700,000–3,500,000 VND rate range and 100 bookable hotels in one MongoDB transaction.

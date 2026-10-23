@@ -1,4 +1,4 @@
-import { Module, Injectable, ExecutionContext, Controller, Get, Post, Delete, Query, Body, Req, UseGuards, NotFoundException, BadRequestException, OnModuleInit } from '@nestjs/common';
+import { Module, Injectable, ExecutionContext, Controller, Get, Post, Delete, Query, Body, Req, UseGuards, NotFoundException, BadRequestException, OnModuleInit, Optional } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Types } from 'mongoose';
@@ -6,6 +6,7 @@ import { IsUUID, IsOptional, IsString, MaxLength, IsInt, Min, Max, IsMongoId, Is
 import { Candidate, Signal, cityKey, normalize, rank } from './ranking';
 import { CatalogFilter, eligibleRooms, hasRoomFilter } from '../hotels/catalog-filter';
 import { presentPublicHotel } from '../hotels/public-hotel';
+import { HoteliaLightGbmRanker } from './lightgbm-ranker';
 
 export class RecommendationQuery extends CatalogFilter {
   @IsUUID() sessionId: string;
@@ -31,7 +32,10 @@ export class OptionalRecommendationAuth extends AuthGuard('jwt') {
 }
 @Injectable()
 export class RecommendationsService implements OnModuleInit {
-  constructor(@InjectConnection() private readonly connection: Connection) {}
+  constructor(
+    @InjectConnection() private readonly connection: Connection,
+    @Optional() private readonly lightGbm?: HoteliaLightGbmRanker,
+  ) {}
   async onModuleInit() {
     const views=this.connection.db!.collection('recommendation_views');
     await views.createIndex({actor:1,viewedAt:-1});
@@ -107,7 +111,12 @@ export class RecommendationsService implements OnModuleInit {
       userId ? db.collection('bookings').find({userId:new Types.ObjectId(userId),status:{$in:['PAID','CONFIRMED','CHECKED_IN','CHECKED_OUT','COMPLETED']},createdAt:{$gte:since}}).sort({createdAt:-1}).limit(50).toArray() : Promise.resolve([]),
     ]);
     const priceMap=new Map(prices.map(p=>[String(p._id),p.price as number]));
-    const candidates: Candidate[]=hotels.map(h=>({id:String(h._id),name:h.name,city:h.city,amenities:h.amenities||[],stars:h.starRating||0,rating:h.averageRating||0,reviews:h.reviewCount||0,price:priceMap.get(String(h._id))}));
+    const candidates: Candidate[]=hotels.map(h=>{
+      const verifiedReviews=Number.isFinite(h.reviewCount) && h.reviewCount>0;
+      return {id:String(h._id),name:h.name,city:h.city,amenities:h.amenities||[],stars:h.starRating||0,
+        rating:verifiedReviews?h.averageRating||0:h.demoRating||0,
+        reviews:verifiedReviews?h.reviewCount:h.demoReviewCount||0,price:priceMap.get(String(h._id))};
+    });
     const byId=new Map(candidates.map(h=>[h.id,h]));
     const signals: Signal[]=[];
     for(const event of views) {
@@ -124,15 +133,17 @@ export class RecommendationsService implements OnModuleInit {
     const rooms=hasRoomFilter(dto)?await eligibleRooms(db,dto):undefined;
     const eligible=rooms?new Set(rooms.map(r=>String(r.hotelId))):undefined;
     const filtered=candidates.filter(h=>(!eligible || eligible.has(h.id)) && (!dto.minRating || (h.reviews>0 && h.rating>=dto.minRating)) && (!destination || cityKey(h.city)===cityKey(destination) || normalize(h.city).includes(normalize(destination)) || normalize(h.name).includes(normalize(destination))));
-    const ranked=rank(filtered,signals);
+    const modelRanked=this.lightGbm?.rank(filtered,signals);
+    const ranked=modelRanked ?? rank(filtered,signals);
     const documents=new Map(hotels.map(h=>[String(h._id),h]));
     const enabledIds=new Set(prices.map(price=>String(price._id)));
     return {hotels:ranked.slice(0,dto.limit||20).map(r=>({
       ...presentPublicHotel(documents.get(r.hotel.id)!,enabledIds),
       minPrice:r.hotel.price,recommendationReason:r.reason,
     })),total:filtered.length,
-      ranking:{mode:signals.length?'content':'discovery',version:'content-v1',personalized:signals.length>0,signalCount:signals.length,
-        description:signals.length?'Dựa trên khách sạn bạn đã xem và booking đã xác nhận':'Khám phá các khách sạn khi chưa có lịch sử',modelUsed:false}};
+      ranking:{mode:modelRanked?(signals.length?'lightgbm-personalized':'lightgbm-discovery'):(signals.length?'content':'discovery'),
+        version:modelRanked?this.lightGbm!.version:'content-v1',personalized:signals.length>0,signalCount:signals.length,
+        description:signals.length?'Dựa trên khách sạn bạn đã xem và booking đã xác nhận':'Khám phá các khách sạn khi chưa có lịch sử',modelUsed:Boolean(modelRanked)}};
   }
 }
 @Controller('recommendations')
@@ -144,5 +155,5 @@ export class RecommendationsController {
   @Post('views') view(@Body() dto:ViewEvent,@Req() req:any) {return this.service.record(dto,req.user?.sub);}
   @Delete('views') clear(@Query() dto:RecommendationQuery,@Req() req:any) {return this.service.clear(dto.sessionId,req.user?.sub);}
 }
-@Module({controllers:[RecommendationsController],providers:[RecommendationsService,OptionalRecommendationAuth]})
+@Module({controllers:[RecommendationsController],providers:[RecommendationsService,OptionalRecommendationAuth,HoteliaLightGbmRanker]})
 export class RecommendationsModule {}
