@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, ConflictException, Logger, Optional } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model, Types } from 'mongoose';
@@ -9,6 +9,7 @@ import { BookingStateService } from './booking-state.service';
 import { HotelsService } from '../hotels/hotels.service';
 import { stayDates, occupyingBookings, freeRooms, expiredHold } from './booking-rules';
 import { objectId } from '../account/account.module';
+import { PaymentsService } from '../payments/payments.service';
 
 @Injectable()
 export class BookingsService {
@@ -17,6 +18,7 @@ export class BookingsService {
     private stateService: BookingStateService,
     private hotelsService: HotelsService,
     @InjectConnection() private connection: Connection,
+    @Optional() private readonly paymentsService?: PaymentsService,
   ) {}
 
   async create(userId: string, dto: CreateBookingDto, requestKey?: string): Promise<BookingDocument> {
@@ -116,6 +118,13 @@ export class BookingsService {
       const current=await this.findById(id);
       if(current.status===next) return current;
       throw new BadRequestException('Booking đã thay đổi. Vui lòng tải lại');
+    }
+    if (next === BookingStatus.CANCELLED && this.paymentsService) {
+      try {
+        await this.paymentsService.cancelPendingCheckout(id);
+      } catch {
+        Logger.warn(`Could not cancel payOS checkout for booking ${id}`, 'BookingsService');
+      }
     }
     return updated;
   }

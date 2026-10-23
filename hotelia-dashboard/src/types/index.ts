@@ -112,14 +112,14 @@ export interface Booking {
   totalPrice: number;
   nights: number;
   status: BookingStatus;
-  paymentMethod?: 'PAY_AT_HOTEL';
+  paymentMethod?: 'PAY_AT_HOTEL' | 'PAYOS';
   holdExpiresAt?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 // Payment
-export type PaymentStatus = 'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FAILED' | 'REFUND_PENDING' | 'REFUNDED';
+export type PaymentStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'REFUNDED';
 
 export interface Payment {
   id: string;
@@ -129,6 +129,8 @@ export interface Payment {
   method: string;
   status: PaymentStatus;
   transactionId?: string;
+  orderCode?: number;
+  paymentUrl?: string;
   createdAt: string;
   updatedAt: string;
 }

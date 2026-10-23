@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, ServiceUnavailableException, ForbiddenException } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { PaymentsService } from './payments.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { Public } from '../common/decorators/public.decorator';
+import { Body, Controller, ForbiddenException, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { CreatePaymentDto } from './dto/create-payment.dto';
+import { PaymentsService } from './payments.service';
 
 @ApiTags('payments')
 @ApiBearerAuth()
@@ -14,37 +14,43 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create payment for booking' })
-  async create(@CurrentUser('sub') userId: string, @Body() dto: CreatePaymentDto) {
+  @ApiOperation({ summary: 'Create or reuse a payOS checkout for a booking' })
+  create(@CurrentUser('sub') userId: string, @Body() dto: CreatePaymentDto) {
     return this.paymentsService.create(userId, dto);
+  }
+
+  @Public()
+  @Post('webhooks/payos')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Receive and verify a payOS webhook' })
+  webhook(@Body() body: unknown) {
+    return this.paymentsService.handlePayOSWebhook(body);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get my payments' })
-  async findMyPayments(@CurrentUser('sub') userId: string) {
+  findMyPayments(@CurrentUser('sub') userId: string) {
     return this.paymentsService.findByUser(userId);
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Get payment by ID' })
-  async findById(@Param('id') id: string,@CurrentUser('sub') user:string) {
-    const payment=await this.paymentsService.findById(id);
-    if(String(payment.userId)!==user) throw new ForbiddenException('Not your payment');
-    return payment;
   }
 
   @Get('booking/:bookingId')
   @ApiOperation({ summary: 'Get payment by booking ID' })
-  async findByBooking(@Param('bookingId') bookingId: string,@CurrentUser('sub') user:string) {
-    const payment=await this.paymentsService.findByBooking(bookingId);
-    if(payment && String(payment.userId)!==user) throw new ForbiddenException('Not your payment');
+  async findByBooking(
+    @Param('bookingId') bookingId: string,
+    @CurrentUser('sub') userId: string,
+  ) {
+    const payment = await this.paymentsService.findByBooking(bookingId);
+    if (payment && String(payment.userId) !== userId) {
+      throw new ForbiddenException('Not your payment');
+    }
     return payment;
   }
 
-  @Public()
-  @Post('callback/:method')
-  @ApiOperation({ summary: 'Payment callback from provider' })
-  async callback(@Param('method') method: string, @Body() body: any) {
-    throw new ServiceUnavailableException('Chưa cấu hình callback thanh toán đã xác thực chữ ký');
+  @Get(':id')
+  @ApiOperation({ summary: 'Get payment by ID' })
+  async findById(@Param('id') id: string, @CurrentUser('sub') userId: string) {
+    const payment = await this.paymentsService.findById(id);
+    if (String(payment.userId) !== userId) throw new ForbiddenException('Not your payment');
+    return payment;
   }
 }

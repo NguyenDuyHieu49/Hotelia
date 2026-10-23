@@ -15,12 +15,10 @@
 		52E3BE712FAB34EB00B7DDC2 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 52E3BE702FAB34EB00B7DDC2 /* FirebaseStorage */; };
 		52E3BE842FAD1CF700B7DDC2 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 52E3BE832FAD1CF700B7DDC2 /* GoogleSignIn */; };
 		52E3BE862FAD1CF700B7DDC2 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 52E3BE852FAD1CF700B7DDC2 /* GoogleSignInSwift */; };
-		52F4B6D32FAE4D8300625FA8 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 52F4B6D22FAE4D8300625FA8 /* Secrets.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		52E3BD892FA91C4A00B7DDC2 /* Hotelia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hotelia.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		52F4B6D22FAE4D8300625FA8 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Secrets.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -66,7 +64,6 @@
 		52E3BD802FA91C4A00B7DDC2 = {
 			isa = PBXGroup;
 			children = (
-				52F4B6D22FAE4D8300625FA8 /* Secrets.plist */,
 				52E3BD8B2FA91C4A00B7DDC2 /* DuLich */,
 				52E3BE5D2FAB2C3200B7DDC2 /* Frameworks */,
 				52E3BD8A2FA91C4A00B7DDC2 /* Products */,
@@ -165,7 +162,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				52F4B6D32FAE4D8300625FA8 /* Secrets.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -348,6 +344,7 @@
 				DEVELOPMENT_TEAM = UMBX69GFWD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				HOTELIA_API_BASE_URL = "";
 				INFOPLIST_FILE = DuLich/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

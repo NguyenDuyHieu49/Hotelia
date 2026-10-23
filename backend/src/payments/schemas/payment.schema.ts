@@ -2,6 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
 export enum PaymentMethod {
+  PAYOS = 'PAYOS',
+  // Kept for reading historical records. New payments only accept PAYOS.
   MOMO = 'MOMO',
   VNPAY = 'VNPAY',
   BANK_TRANSFER = 'BANK_TRANSFER',
@@ -13,6 +15,7 @@ export enum PaymentStatus {
   PROCESSING = 'PROCESSING',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
+  CANCELLED = 'CANCELLED',
   REFUNDED = 'REFUNDED',
 }
 
@@ -20,6 +23,9 @@ export enum PaymentStatus {
 export class Payment extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Booking', required: true })
   bookingId: Types.ObjectId;
+
+  @Prop({ required: true })
+  bookingKey: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   userId: Types.ObjectId;
@@ -36,11 +42,20 @@ export class Payment extends Document {
   @Prop()
   transactionId: string;
 
+  @Prop({ type: Number })
+  orderCode: number;
+
   @Prop()
   paymentUrl: string;
 
   @Prop()
   returnUrl: string;
+
+  @Prop()
+  cancelUrl: string;
+
+  @Prop()
+  expiresAt: Date;
 
   @Prop()
   metadata: string;
@@ -59,6 +74,8 @@ export type PaymentDocument = Payment;
 export const PaymentSchema = SchemaFactory.createForClass(Payment);
 
 PaymentSchema.index({ bookingId: 1 });
+PaymentSchema.index({ bookingKey: 1 }, { unique: true });
 PaymentSchema.index({ userId: 1, createdAt: -1 });
 PaymentSchema.index({ transactionId: 1 });
+PaymentSchema.index({ orderCode: 1 }, { unique: true, sparse: true });
 PaymentSchema.index({ status: 1 });

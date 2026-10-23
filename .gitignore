@@ -30,6 +30,10 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+Secrets.plist
+
+# Local Xcode configuration overrides
+*.xcconfig.local
 
 # Test
 coverage/

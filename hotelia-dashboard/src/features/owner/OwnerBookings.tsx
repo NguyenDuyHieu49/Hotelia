@@ -197,9 +197,15 @@ export function OwnerBookings() {
                 </div>
               )}
 
+              {selectedBooking.paymentMethod === 'PAYOS' && (
+                <div className="rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                  Đã thanh toán qua payOS và được xác nhận bằng webhook có chữ ký.
+                </div>
+              )}
+
               {selectedBooking.status === 'PENDING_PAYMENT' && selectedBooking.holdExpiresAt && (
                 <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                  Giữ phòng đến {new Date(selectedBooking.holdExpiresAt).toLocaleString('vi-VN')}. Khách cần xác nhận trả tại khách sạn trước thời điểm này.
+                  Giữ phòng đến {new Date(selectedBooking.holdExpiresAt).toLocaleString('vi-VN')}. Khách cần thanh toán qua payOS hoặc xác nhận trả tại khách sạn trước thời điểm này.
                 </div>
               )}
 

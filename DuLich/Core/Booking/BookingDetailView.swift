@@ -1,11 +1,16 @@
 import SwiftUI
 
 struct BookingDetailView: View {
+    @Environment(\.openURL) private var openURL
+    @Environment(\.scenePhase) private var scenePhase
     @State var booking: Booking
     @State private var showCancel = false
     @State private var showSupport = false
     @State private var actionError: String?
     @State private var isCancelling = false
+    @State private var isConfirmingAtHotel = false
+    @State private var isStartingPayOS = false
+    @State private var launchedPayOS = false
     @State private var bookingHotel: Hotel?
 
     var body: some View {
@@ -45,6 +50,14 @@ struct BookingDetailView: View {
         }
         .task(id: booking.hotelId) {
             bookingHotel = try? await ExploreService.shared.getHotel(id: booking.hotelId)
+        }
+        .onOpenURL { url in
+            guard url.scheme?.lowercased() == "hotelia", url.host == "payment" else { return }
+            Task { await refreshBookingAfterPayment() }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active, launchedPayOS else { return }
+            Task { await refreshBookingAfterPayment() }
         }
     }
 
@@ -109,7 +122,7 @@ struct BookingDetailView: View {
         switch booking.status {
         case "COMPLETED": return L10n.text("Cảm ơn bạn đã sử dụng dịch vụ!")
         case "CONFIRMED": return L10n.text("Phòng của bạn đã được xác nhận")
-        case "PENDING_PAYMENT": return L10n.text("Xác nhận giữ phòng và thanh toán khi đến. Chưa thu tiền trực tuyến.")
+        case "PENDING_PAYMENT": return L10n.text("Hoàn tất thanh toán qua payOS hoặc xác nhận trả tại khách sạn trước khi thời gian giữ phòng kết thúc.")
         case "CANCELLED": return L10n.text("Đặt phòng đã bị hủy")
         default: return ""
         }
@@ -245,6 +258,15 @@ struct BookingDetailView: View {
                         .foregroundColor(AppColors.textPrimary)
                 }
             }
+            if booking.paymentMethod == "PAYOS" {
+                HStack {
+                    Text(L10n.text("payment_methods"))
+                        .foregroundColor(AppColors.textSecondary)
+                    Spacer()
+                    Text("payOS")
+                        .foregroundColor(AppColors.textPrimary)
+                }
+            }
 
             HStack {
                 Text("Tổng cộng")
@@ -267,23 +289,29 @@ struct BookingDetailView: View {
         VStack(spacing: AppSpacing.base) {
             if let actionError { Text(actionError).foregroundStyle(.red) }
             if booking.status == "PENDING_PAYMENT" {
-                PrimaryButton(title: "Thanh toán tại khách sạn", action: {
-                    isCancelling = true
+                PrimaryButton(title: "Thanh toán qua payOS", action: {
+                    startPayOSPayment()
+                }, isLoading: isStartingPayOS, isDisabled: isConfirmingAtHotel || isCancelling)
+
+                SecondaryButton(title: "Thanh toán tại khách sạn", action: {
+                    isConfirmingAtHotel = true
                     Task {
                         do {
                             booking = try await APIClient.shared.request(endpoint: "/bookings/\(booking.id)/pay-at-hotel", method: "POST")
                             actionError = nil
                         } catch { actionError = error.localizedDescription }
-                        isCancelling = false
+                        isConfirmingAtHotel = false
                     }
-                }, isLoading: isCancelling)
-                Text("Xác nhận giữ phòng và thanh toán khi đến. Chưa thu tiền trực tuyến.").font(.caption).foregroundStyle(.secondary)
+                }, isLoading: isConfirmingAtHotel, isDisabled: isStartingPayOS || isCancelling)
+                Text(L10n.text("payOS mở trang VietQR an toàn; trạng thái đặt phòng chỉ được xác nhận sau webhook có chữ ký."))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             // Cancel Button (only for pending bookings)
             if booking.status == "PENDING_PAYMENT" || booking.status == "CONFIRMED" {
                 SecondaryButton(title: "Hủy đặt phòng", action: {
                     showCancel = true
-                }, isDisabled: isCancelling)
+                }, isDisabled: isCancelling || isStartingPayOS || isConfirmingAtHotel)
             }
 
             if ["CHECKED_OUT", "COMPLETED"].contains(booking.status) {
@@ -303,6 +331,39 @@ struct BookingDetailView: View {
             do { booking = try await BookingService.shared.cancelBooking(id: booking.id); actionError = nil }
             catch { actionError = error.localizedDescription }
             isCancelling = false
+        }
+    }
+
+    private func startPayOSPayment() {
+        isStartingPayOS = true
+        actionError = nil
+        Task {
+            do {
+                let payment: BookingPayment = try await APIClient.shared.request(
+                    endpoint: "/payments",
+                    method: "POST",
+                    body: ["bookingId": booking.id, "method": "PAYOS"]
+                )
+                guard let rawURL = payment.paymentUrl, let url = URL(string: rawURL) else {
+                    throw APIError.message("Không nhận được liên kết thanh toán payOS.")
+                }
+                launchedPayOS = true
+                openURL(url)
+            } catch {
+                actionError = error.localizedDescription
+            }
+            isStartingPayOS = false
+        }
+    }
+
+    @MainActor
+    private func refreshBookingAfterPayment() async {
+        do {
+            booking = try await BookingService.shared.getBooking(id: booking.id)
+            if booking.status != "PENDING_PAYMENT" { launchedPayOS = false }
+            actionError = nil
+        } catch {
+            actionError = error.localizedDescription
         }
     }
 

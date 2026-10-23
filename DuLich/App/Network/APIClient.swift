@@ -8,7 +8,11 @@ class APIClient {
             let value = configured.trimmingCharacters(in: .whitespacesAndNewlines)
             if !value.isEmpty { return value.trimmingCharacters(in: CharacterSet(charactersIn: "/")) }
         }
+        #if DEBUG
         return "http://127.0.0.1:3000/api/v1"
+        #else
+        return ""
+        #endif
     }()
     private var accessToken: String?
 
@@ -26,12 +30,11 @@ class APIClient {
         return url
     }
 
-    // MARK: - Headers - Always read fresh token from UserDefaults
+    // MARK: - Headers - Always read the latest token from Keychain
     private var headers: [String: String] {
         var headers = ["Content-Type": "application/json"]
-        if let token = UserDefaults.standard.string(forKey: "accessToken") {
+        if let token = SecureTokenStore.shared.value(for: .access) {
             headers["Authorization"] = "Bearer \(token)"
-        } else {
         }
         return headers
     }
@@ -39,16 +42,16 @@ class APIClient {
     // MARK: - Token Management
     func setAccessToken(_ token: String) {
         self.accessToken = token
-        UserDefaults.standard.set(token, forKey: "accessToken")
+        SecureTokenStore.shared.set(token, for: .access)
     }
 
     func loadToken() {
-        self.accessToken = UserDefaults.standard.string(forKey: "accessToken")
+        self.accessToken = SecureTokenStore.shared.value(for: .access)
     }
 
     func clearToken() {
         self.accessToken = nil
-        UserDefaults.standard.removeObject(forKey: "accessToken")
+        SecureTokenStore.shared.remove(.access)
     }
 
     // MARK: - Request with Response
@@ -58,7 +61,7 @@ class APIClient {
         body: [String: Any]? = nil,
         extraHeaders: [String: String] = [:]
     ) async throws -> T {
-        guard let url = URL(string: "\(baseURL)\(endpoint)") else {
+        guard !baseURL.isEmpty, let url = URL(string: "\(baseURL)\(endpoint)") else {
             throw APIError.invalidURL
         }
 
@@ -103,7 +106,7 @@ class APIClient {
         let response = try await URLSession.shared.data(for: request)
         guard (response.1 as? HTTPURLResponse)?.statusCode == 401,
               !request.url!.path.contains("/auth/"),
-              let token = UserDefaults.standard.string(forKey: "refreshToken") else { return response }
+              let token = SecureTokenStore.shared.value(for: .refresh) else { return response }
         let access = try await AccessTokenRefresher.shared.refresh(baseURL: baseURL, token: token)
         var retry = request
         retry.setValue("Bearer \(access)", forHTTPHeaderField: "Authorization")
@@ -116,7 +119,7 @@ class APIClient {
         method: String = "POST",
         body: [String: Any]? = nil
     ) async throws {
-        guard let url = URL(string: "\(baseURL)\(endpoint)") else {
+        guard !baseURL.isEmpty, let url = URL(string: "\(baseURL)\(endpoint)") else {
             throw APIError.invalidURL
         }
 
@@ -181,9 +184,9 @@ private actor AccessTokenRefresher {
                   let body = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let access = body["accessToken"] as? String,
                   let refresh = body["refreshToken"] as? String,
-                  UserDefaults.standard.string(forKey: "refreshToken") == token else { throw APIError.unauthorized }
-            UserDefaults.standard.set(access, forKey: "accessToken")
-            UserDefaults.standard.set(refresh, forKey: "refreshToken")
+                  SecureTokenStore.shared.value(for: .refresh) == token else { throw APIError.unauthorized }
+            SecureTokenStore.shared.set(access, for: .access)
+            SecureTokenStore.shared.set(refresh, for: .refresh)
             return access
         }
         pending = job

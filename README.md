@@ -19,7 +19,7 @@
 - 🔍 **Smart Search** - Filter by location, date, price, amenities, rating
 - 🏨 **Hotel Discovery** - Browse hotels with images, amenities, and reviews
 - 📅 **Easy Booking** - Intuitive booking flow with real-time availability
-- 💳 **Multiple Payments** - Mock MoMo, VNPay, Bank Transfer, Cash on Delivery
+- 💳 **Payments** - Signed payOS checkout/webhooks plus pay-at-hotel confirmation
 - 📱 **Real-time Updates** - Booking status tracking and notifications
 - ⭐ **Reviews** - Share and read authentic guest reviews
 

@@ -7,9 +7,14 @@ describe('booking creation under contention', () => {
   const roomTypeId = new Types.ObjectId();
   const firstUser = new Types.ObjectId();
   const secondUser = new Types.ObjectId();
+  const futureDate = (daysFromNow: number) => {
+    const date = new Date();
+    date.setUTCDate(date.getUTCDate() + daysFromNow);
+    return date.toISOString().slice(0, 10);
+  };
   const dto: CreateBookingDto = {
     hotelId: String(hotelId), roomTypeId: String(roomTypeId),
-    checkIn: '2026-10-10', checkOut: '2026-10-11', guestCount: 1,
+    checkIn: futureDate(30), checkOut: futureDate(31), guestCount: 1,
     guestName: 'Demo Guest', guestEmail: 'guest@example.com', guestPhone: '0900000000',
   };
 

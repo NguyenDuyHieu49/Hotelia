@@ -72,15 +72,11 @@ class AuthService {
     }
 
     func isLoggedIn() -> Bool {
-        return UserDefaults.standard.string(forKey: "accessToken") != nil
+        return SecureTokenStore.shared.value(for: .access) != nil
     }
 
     private func saveRefreshToken(_ token: String) {
-        UserDefaults.standard.set(token, forKey: "refreshToken")
-    }
-
-    private func getRefreshToken() -> String? {
-        return UserDefaults.standard.string(forKey: "refreshToken")
+        SecureTokenStore.shared.set(token, for: .refresh)
     }
 
     private func saveUser(_ user: User) {
@@ -90,8 +86,7 @@ class AuthService {
     }
 
     private func clearUserData() {
-        UserDefaults.standard.removeObject(forKey: "accessToken")
-        UserDefaults.standard.removeObject(forKey: "refreshToken")
+        SecureTokenStore.shared.removeAll()
         UserDefaults.standard.removeObject(forKey: "currentUser")
     }
 }

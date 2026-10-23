@@ -38,7 +38,7 @@ async function run() {
     await db.collection('users').insertOne({_id,email,name,role,isActive:true,passwordHash,tokenVersion:0});
     actors[name]={id:_id,email,token:jwt.sign({sub:String(_id),email,role,tokenVersion:0},secret,{expiresIn:'1h'})};
   }
-  server=spawn(process.execPath,['dist/main.js'],{cwd:root,env:{...process.env,...env,MONGODB_URI:uri.toString(),JWT_SECRET:secret,PORT:port,RESET_EMAIL_WEBHOOK_URL:'',RESET_EMAIL_WEBHOOK_TOKEN:''},stdio:'ignore'});
+  server=spawn(process.execPath,['dist/main.js'],{cwd:root,env:{...process.env,...env,MONGODB_URI:uri.toString(),JWT_SECRET:secret,PORT:port,RESET_EMAIL_WEBHOOK_URL:'',RESET_EMAIL_WEBHOOK_TOKEN:'',PAYOS_CLIENT_ID:'',PAYOS_API_KEY:'',PAYOS_CHECKSUM_KEY:''},stdio:'ignore'});
   let ready=false;
   for(let i=0;i<60;i++) {try {ready=(await fetch(`http://127.0.0.1:${port}/health`)).ok;} catch {} if(ready)break;if(server.exitCode!==null)throw new Error('Test API failed to start');await wait(500);}
   assert(ready,'Test API did not start');
@@ -129,8 +129,7 @@ async function run() {
   await call('/admin/bookings',guest,'GET',undefined,403);
   const users=await call('/admin/users',admin);
   assert(users.users.every(u=>!u.passwordHash && !u.refreshToken));
-  await call('/payments',guest,'POST',{bookingId:next._id,method:'MOMO',returnUrl:'https://example.test/return'},503);
-  await call('/payments/callback/momo',null,'POST',{transactionId:'fake'},503);
+  await call('/payments',guest,'POST',{bookingId:next._id,method:'PAYOS'},503);
   await call('/auth/forgot-password',null,'POST',{email:actors.guest.email},503);
   assert((await call('/admin/audit-logs',admin)).length>0);
   await call('/admin/audit-logs',guest,'GET',undefined,403);

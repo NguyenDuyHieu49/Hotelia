@@ -143,3 +143,18 @@ struct Booking: Codable, Identifiable {
     // Extended properties for UI
 
 }
+
+struct BookingPayment: Decodable, Identifiable {
+    let id: String
+    let bookingId: String
+    let amount: Double
+    let method: String
+    let status: String
+    let paymentUrl: String?
+    let expiresAt: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case bookingId, amount, method, status, paymentUrl, expiresAt
+    }
+}

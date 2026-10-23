@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, ServiceUnavailableException } from '
 import { createHash } from 'node:crypto';
 import { createRemoteJWKSet, jwtVerify, JWTPayload } from 'jose';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { UserDocument } from '../users/schemas/user.schema';
 import { LoginDto } from './dto/login.dto';
@@ -84,7 +84,7 @@ export class AuthService {
   async refresh(refreshToken: string) {
     try {
       const payload = this.jwtService.verify<JwtPayload>(refreshToken, {
-        secret: this.configService.get<string>('JWT_SECRET'),
+        secret: this.configService.get<string>('JWT_SECRET')!,
       });
 
       const valid = await this.usersService.validateRefreshToken(payload.sub, refreshToken);
@@ -108,14 +108,16 @@ export class AuthService {
 
   private async generateTokens(user: UserDocument) {
     const payload: JwtPayload = { sub: user._id.toString(), email: user.email, role: user.role, tokenVersion:user.tokenVersion || 0 };
+    const accessLifetime = this.configService.get<string>('JWT_EXPIRES_IN', '15m') as JwtSignOptions['expiresIn'];
+    const refreshLifetime = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d') as JwtSignOptions['expiresIn'];
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_EXPIRES_IN', '15m'),
+        secret: this.configService.get<string>('JWT_SECRET')!,
+        expiresIn: accessLifetime,
       }),
       this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d'),
+        secret: this.configService.get<string>('JWT_SECRET')!,
+        expiresIn: refreshLifetime,
       }),
     ]);
     return { accessToken, refreshToken };

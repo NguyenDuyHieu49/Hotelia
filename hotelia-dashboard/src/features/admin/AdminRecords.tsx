@@ -9,7 +9,7 @@ export function AdminRecords({ kind }:{kind:'payments'|'reviews'|'audit-logs'}) 
   useEffect(()=>{setItems([]);setError('');load();return ()=>{requestId.current++;};},[kind]);
   return <div className="space-y-4"><div className="flex justify-between"><h1 className="text-2xl font-bold">{{payments:'Thanh toán',reviews:'Đánh giá','audit-logs':'Nhật ký thao tác'}[kind]}</h1><Button onClick={load} loading={busy}>Làm mới</Button></div>
     {error && <p role="alert">{error}</p>}
-    {kind==='payments' && <p>Thanh toán trực tuyến chưa được cấu hình. Đơn thanh toán tại khách sạn chỉ là xác nhận booking, không phải giao dịch đã thu tiền.</p>}
+    {kind==='payments' && <p>Giao dịch payOS chỉ được đánh dấu COMPLETED sau khi backend xác thực chữ ký webhook. Đơn PAY_AT_HOTEL không phải giao dịch đã thu tiền.</p>}
     {kind==='audit-logs' && <p>Hiển thị tối đa 200 thao tác mới nhất kể từ khi bật nhật ký. Không ghi mật khẩu hoặc nội dung yêu cầu.</p>}
     {!busy && !items.length && <p>Chưa có dữ liệu.</p>}
     {items.map(item=><article key={item.id} className="bg-white rounded p-5 space-y-2">

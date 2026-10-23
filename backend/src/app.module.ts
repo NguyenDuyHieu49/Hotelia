@@ -16,10 +16,15 @@ import { AdminModule } from './admin/admin.module';
 import { RecommendationsModule } from './recommendations/recommendations.module';
 import { OwnersModule } from './owners/owners.module';
 import { AccountModule } from './account/account.module';
+import { validateEnvironment } from './config/env.validation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env'] }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env'],
+      validate: validateEnvironment,
+    }),
 
     MongooseModule.forRootAsync({
       imports: [ConfigModule],

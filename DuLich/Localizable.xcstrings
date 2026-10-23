@@ -13110,6 +13110,74 @@
         }
       }
     },
+    "Hoàn tất thanh toán qua payOS hoặc xác nhận trả tại khách sạn trước khi thời gian giữ phòng kết thúc." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete payment with payOS or confirm payment at the hotel before the room hold expires."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoàn tất thanh toán qua payOS hoặc xác nhận trả tại khách sạn trước khi thời gian giữ phòng kết thúc."
+          }
+        }
+      }
+    },
+    "Không nhận được liên kết thanh toán payOS." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The payOS checkout link was not returned."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không nhận được liên kết thanh toán payOS."
+          }
+        }
+      }
+    },
+    "payOS mở trang VietQR an toàn; trạng thái đặt phòng chỉ được xác nhận sau webhook có chữ ký." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "payOS opens a secure VietQR checkout; the booking is confirmed only after a signed webhook."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "payOS mở trang VietQR an toàn; trạng thái đặt phòng chỉ được xác nhận sau webhook có chữ ký."
+          }
+        }
+      }
+    },
+    "Thanh toán qua payOS" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pay with payOS"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thanh toán qua payOS"
+          }
+        }
+      }
+    },
     "Thanh toán tại khách sạn" : {
       "extractionState" : "manual",
       "localizations" : {

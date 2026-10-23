@@ -25,10 +25,6 @@
 			</array>
 		</dict>
 	</array>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>momo</string>
-	</array>
 	<key>GIDClientID</key>
 	<string>170450615011-834qjphaod1cgeitsic6k6jqvdn1gh87.apps.googleusercontent.com</string>
 	<key>HoteliaAPIBaseURL</key>
