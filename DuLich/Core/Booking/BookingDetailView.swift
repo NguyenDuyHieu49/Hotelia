@@ -39,6 +39,7 @@ struct BookingDetailView: View {
         .background(AppColors.backgroundSecondary)
         .navigationTitle("Chi tiết đặt phòng")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.visible, for: .navigationBar)
         .sheet(isPresented: $showSupport) { NavigationStack { SupportView(bookingId: booking.id).toolbar { Button("Đóng") { showSupport = false } } } }
         .confirmationDialog("Hủy đặt phòng?", isPresented: $showCancel, titleVisibility: .visible) {
             Button("Xác nhận yêu cầu hủy", role: .destructive) { cancelBooking() }

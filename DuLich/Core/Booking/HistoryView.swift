@@ -14,52 +14,124 @@ struct HistoryView: View {
     }
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // Filter Tabs
-                filterTabs
+        NavigationStack {
+            ZStack {
+                AppColors.backgroundSecondary
+                    .ignoresSafeArea()
 
-                // Content
-                if isLoading {
-                    LoadingView(message: "Đang tải lịch sử...")
-                } else if let error = errorMessage {
-                    ErrorView(message: error) {
-                        Task { await loadBookings() }
+                VStack(spacing: 0) {
+                    header
+                    filterTabs
+
+                    Group {
+                        if isLoading {
+                            LoadingView(message: "Đang tải lịch sử...")
+                        } else if let error = errorMessage {
+                            ErrorView(message: error) {
+                                Task { await loadBookings() }
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        } else if filteredBookings.isEmpty {
+                            emptyBookingsState
+                        } else {
+                            bookingsList
+                        }
                     }
-                } else if filteredBookings.isEmpty {
-                    EmptyStateView(
-                        icon: "calendar.badge.exclamationmark",
-                        title: "Chưa có đặt phòng",
-                        message: "Bạn chưa có đặt phòng nào"
-                    )
-                } else {
-                    bookingsList
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
-            .background(AppColors.backgroundSecondary)
-            .navigationTitle("Lịch sử đặt phòng")
+            .toolbar(.hidden, for: .navigationBar)
             .task {
                 await loadBookings()
             }
         }
     }
 
+    private var header: some View {
+        HStack(alignment: .center, spacing: AppSpacing.md) {
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                Text("Lịch sử đặt phòng")
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .foregroundStyle(AppColors.textPrimary)
+
+                Text("booking_history_subtitle")
+                    .font(AppTypography.subheadline)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .lineLimit(2)
+            }
+
+            Spacer(minLength: AppSpacing.sm)
+
+            ZStack {
+                Circle()
+                    .fill(AppColors.primary.opacity(0.12))
+                Image(systemName: "calendar")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(AppColors.primary)
+            }
+            .frame(width: 48, height: 48)
+            .accessibilityHidden(true)
+        }
+        .padding(.horizontal, AppSpacing.lg)
+        .padding(.top, AppSpacing.base)
+        .padding(.bottom, AppSpacing.lg)
+        .background(AppColors.backgroundPrimary)
+    }
+
     // MARK: - Filter Tabs
     private var filterTabs: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppSpacing.sm) {
-                ForEach(BookingFilter.allCases, id: \.self) { filter in
-                    FilterChip(
-                        title: filter.rawValue,
-                        isSelected: selectedFilter == filter,
-                        action: { selectedFilter = filter }
-                    )
+        HStack(spacing: AppSpacing.sm) {
+            ForEach(BookingFilter.allCases, id: \.self) { filter in
+                FilterChip(
+                    title: filter.rawValue,
+                    isSelected: selectedFilter == filter,
+                    action: {
+                        withAnimation(.easeOut(duration: 0.18)) {
+                            selectedFilter = filter
+                        }
+                    }
+                )
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.horizontal, AppSpacing.lg)
+        .padding(.vertical, AppSpacing.md)
+        .background(AppColors.backgroundPrimary)
+    }
+
+    private var emptyBookingsState: some View {
+        ScrollView {
+            VStack(spacing: AppSpacing.lg) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: AppSpacing.radiusLarge)
+                        .fill(AppColors.primary.opacity(0.10))
+                    Image(systemName: "calendar.badge.exclamationmark")
+                        .font(.system(size: 42, weight: .medium))
+                        .foregroundStyle(AppColors.primary)
+                }
+                .frame(width: 88, height: 88)
+
+                VStack(spacing: AppSpacing.sm) {
+                    Text(selectedFilter == .all ? "Chưa có đặt phòng" : "booking_filter_empty_title")
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .foregroundStyle(AppColors.textPrimary)
+
+                    Text(selectedFilter == .all ? "Bạn chưa có đặt phòng nào" : "booking_filter_empty_message")
+                        .font(AppTypography.subheadline)
+                        .foregroundStyle(AppColors.textSecondary)
+                        .multilineTextAlignment(.center)
                 }
             }
-            .padding(.horizontal, AppSpacing.base)
-            .padding(.vertical, AppSpacing.md)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, AppSpacing.xxl)
+            .padding(.vertical, AppSpacing.massive)
+            .background(AppColors.backgroundPrimary, in: RoundedRectangle(cornerRadius: AppSpacing.radiusXLarge))
+            .padding(AppSpacing.lg)
         }
-        .background(Color.white)
+        .refreshable {
+            await loadBookings()
+        }
     }
 
     // MARK: - Bookings List
@@ -117,14 +189,16 @@ struct FilterChip: View {
     var body: some View {
         Button(action: action) {
             Text(LocalizedStringKey(title))
-                .font(AppTypography.subheadline)
-                .fontWeight(isSelected ? .semibold : .regular)
+                .font(.system(size: 13, weight: isSelected ? .semibold : .medium))
                 .foregroundColor(isSelected ? .white : AppColors.textPrimary)
-                .padding(.horizontal, AppSpacing.base)
-                .padding(.vertical, AppSpacing.sm)
-                .background(isSelected ? AppColors.primary : AppColors.backgroundSecondary)
-                .cornerRadius(AppSpacing.radiusFull)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .frame(maxWidth: .infinity)
+                .frame(height: 40)
+                .background(isSelected ? AppColors.primary : AppColors.backgroundSecondary, in: Capsule())
         }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
