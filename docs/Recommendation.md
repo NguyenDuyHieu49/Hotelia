@@ -1,6 +1,6 @@
 # Recommendation in the application
 
-The iOS Explore screen uses `GET /api/v1/recommendations` on the existing NestJS backend. NestJS loads the Hotelia LightGBM tree artifact in-process, so deployment does not require a second Python service. Successful learned ranking reports `modelUsed: true` and version `hotelia-lgbm-2026-10-23-v1`. A load or scoring error automatically falls back to the content ranker and reports `modelUsed: false`.
+The iOS Explore screen uses `GET /api/v1/recommendations` on the existing NestJS backend. NestJS loads the Hotelia LightGBM tree artifact in-process, so deployment does not require a second Python service. Successful learned ranking reports `modelUsed: true` and version `hotelia-lgbm-2026-10-23-v2`. A load or scoring error automatically falls back to the content ranker and reports `modelUsed: false`.
 
 ## Signals and ordering
 
@@ -33,7 +33,7 @@ When the Explore recommendation row loads, the app sends `POST /recommendations/
 
 Explore loads recommendations on appearing and on pull-to-refresh, retaining the current destination. A request generation counter prevents a slow old search overwriting a newer destination. Backend failure falls back to the ordinary hotel list with an explicit nonpersonalized label. Visible text describes actual ranking instead of claiming AI. No separate port-8000 process is required.
 
-The Trivago `B6-candidates_model.txt` remains a separate research benchmark because its item IDs do not map to Hotelia. The active Hotelia artifact is trained on 8,000 deterministic pre-release queries over the 100-property catalog with exact backend feature parity. Its held-out MRR@10 is 0.620 versus 0.342 for the catalog-quality baseline. This validates the training, export and TypeScript scoring path; it is not a production-quality claim. Once enough consented impression, detail-open and confirmed-booking outcomes exist, retrain with those labels and compare against the fallback in an online experiment.
+The Trivago `B6-candidates_model.txt` remains a separate research benchmark because its item IDs do not map to Hotelia. The active Hotelia artifact is trained on 8,000 deterministic pre-release queries over the 100-property catalog. Synthetic histories use the same recency decay, booking weight and affinity formulas as backend inference. Its held-out MRR@10 is 0.539 versus 0.373 for the catalog-quality baseline. This validates the training, export and TypeScript scoring path; it is not a production-quality claim. Once enough consented impression, detail-open and confirmed-booking outcomes exist, retrain with those labels and compare against the fallback in an online experiment.
 
 ## Verification
 

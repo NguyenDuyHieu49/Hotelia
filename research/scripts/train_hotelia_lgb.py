@@ -11,7 +11,12 @@ import argparse
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
+
+# Avoid platform-specific physical-core detection warnings in joblib. Training
+# below uses one worker so repeated runs produce the same artifact.
+os.environ.setdefault("LOKY_MAX_CPU_COUNT", str(os.cpu_count() or 1))
 
 import lightgbm as lgb
 import numpy as np
@@ -35,6 +40,9 @@ FEATURE_NAMES = [
     "hour_cos",
     "is_weekend",
 ]
+
+MODEL_NAME = "hotelia-lgbm-v2"
+MODEL_VERSION = "hotelia-lgbm-2026-10-23-v2"
 
 CITY_BASE_PRICE = {
     "TP HCM": 950_000, "Hà Nội": 900_000, "Đà Nẵng": 850_000,
@@ -101,13 +109,26 @@ def quality_prior(rating: float, reviews: int) -> float:
 
 
 def feature_row(hotel: dict, mean_price: float, profile: dict, hour: int, weekend: bool) -> list[float]:
-    has_history = profile["history_count"] > 0
+    signals = profile["signals"]
+    signal_weight = sum(signal["weight"] for signal in signals)
+    has_history = signal_weight > 0
     if has_history:
-        city_affinity = 1.0 if hotel["city"] == profile["city"] else 0.04
-        price_affinity = math.exp(-abs(math.log(hotel["price"]) - math.log(profile["price"])))
-        star_affinity = max(0.0, 1 - abs(hotel["stars"] - profile["stars"]) / 5)
-        union = hotel["amenities"] | profile["amenities"]
-        amenity_affinity = len(hotel["amenities"] & profile["amenities"]) / len(union) if union else 0
+        def weighted(values):
+            return sum(signal["weight"] * value for signal, value in zip(signals, values)) / signal_weight
+
+        city_affinity = weighted([float(hotel["city"] == signal["hotel"]["city"]) for signal in signals])
+        target_log_price = weighted([math.log(signal["hotel"]["price"]) for signal in signals])
+        price_affinity = math.exp(-abs(math.log(hotel["price"]) - target_log_price))
+        star_affinity = weighted([
+            max(0.0, 1 - abs(hotel["stars"] - signal["hotel"]["stars"]) / 5)
+            for signal in signals
+        ])
+        similarities = []
+        for signal in signals:
+            other = signal["hotel"]
+            union = hotel["amenities"] | other["amenities"]
+            similarities.append(len(hotel["amenities"] & other["amenities"]) / len(union) if union else 0)
+        amenity_affinity = weighted(similarities)
     else:
         city_affinity = price_affinity = star_affinity = amenity_affinity = 0.0
     angle = 2 * math.pi * hour / 24
@@ -123,7 +144,7 @@ def feature_row(hotel: dict, mean_price: float, profile: dict, hour: int, weeken
         price_affinity,
         star_affinity,
         amenity_affinity,
-        float(profile["history_count"]),
+        float(len(signals)),
         1.0 if has_history else 0.0,
         math.sin(angle),
         math.cos(angle),
@@ -141,15 +162,29 @@ def generate_training(catalog: list[dict], queries: int, rng: np.random.Generato
         preferred_city = cities[int(rng.integers(len(cities)))]
         preferred = by_city[preferred_city][int(rng.integers(len(by_city[preferred_city])))]
         history_count = int(rng.integers(1, 13)) if rng.random() < 0.76 else 0
-        profile = {
-            "city": preferred_city,
-            "price": preferred["price"] * float(rng.uniform(0.8, 1.25)),
-            "stars": preferred["stars"],
-            "amenities": set(rng.choice(sorted(preferred["amenities"]),
-                                            size=max(1, min(4, len(preferred["amenities"]))),
-                                            replace=False).tolist()),
-            "history_count": history_count,
-        }
+        preferred_price = preferred["price"] * float(rng.uniform(0.8, 1.25))
+        preferred_amenities = set(rng.choice(
+            sorted(preferred["amenities"]), size=max(1, min(4, len(preferred["amenities"]))), replace=False
+        ).tolist())
+        history_scores = []
+        for item in catalog:
+            union = item["amenities"] | preferred_amenities
+            amenity_match = len(item["amenities"] & preferred_amenities) / len(union) if union else 0
+            history_scores.append(
+                1.8 * float(item["city"] == preferred_city)
+                + math.exp(-abs(math.log(item["price"]) - math.log(preferred_price)))
+                + 0.6 * max(0.0, 1 - abs(item["stars"] - preferred["stars"]) / 5)
+                + 0.5 * amenity_match
+            )
+        probabilities = np.exp(np.asarray(history_scores) - np.max(history_scores))
+        probabilities /= probabilities.sum()
+        history_hotels = rng.choice(catalog, size=history_count, replace=False, p=probabilities).tolist() if history_count else []
+        signals = []
+        for history_hotel in history_hotels:
+            age_days = float(rng.uniform(0, 60))
+            weight = 3.0 if rng.random() < 0.18 else math.pow(0.5, age_days / 14)
+            signals.append({"hotel": history_hotel, "weight": weight})
+        profile = {"signals": signals}
         preferred_pool = by_city[preferred_city]
         local_count = min(4, len(preferred_pool))
         local = rng.choice(preferred_pool, size=local_count, replace=False).tolist()
@@ -209,20 +244,21 @@ def main() -> None:
         objective="lambdarank", metric="ndcg", n_estimators=240,
         learning_rate=0.045, num_leaves=24, min_child_samples=35,
         colsample_bytree=0.9, subsample=0.9, subsample_freq=1,
-        random_state=args.seed, verbosity=-1,
+        random_state=args.seed, n_jobs=1, verbosity=-1,
     )
     model.fit(
         X[train_mask], y[train_mask], group=train_groups,
-        eval_set=[(X[validation_mask], y[validation_mask])],
+        eval_X=(X[validation_mask],),
+        eval_y=(y[validation_mask],),
         eval_group=[validation_groups], eval_at=[5, 10],
         callbacks=[lgb.early_stopping(30, verbose=False)],
         feature_name=FEATURE_NAMES,
     )
-    validation_scores = model.predict(X[validation_mask], num_iteration=model.best_iteration_)
+    validation_scores = model.booster_.predict(X[validation_mask], num_iteration=model.best_iteration_)
     quality_index = FEATURE_NAMES.index("quality_prior")
     report = {
-        "model": "hotelia-lgbm-v1",
-        "version": "hotelia-lgbm-2026-10-23-v1",
+        "model": MODEL_NAME,
+        "version": MODEL_VERSION,
         "training_source": "generated_pre_release_interactions",
         "catalog_hotels": len(catalog),
         "queries": args.queries,
@@ -249,8 +285,8 @@ def main() -> None:
             for index in range(5)
         ],
     }
-    research_output = root / "research/data/models/hotelia-lgbm-v1-report.json"
-    serving_output = root / "backend/src/recommendations/models/hotelia-lgbm.v1.json"
+    research_output = root / "research/data/models/hotelia-lgbm-v2-report.json"
+    serving_output = root / "backend/src/recommendations/models/hotelia-lgbm.active.json"
     research_output.parent.mkdir(parents=True, exist_ok=True)
     serving_output.parent.mkdir(parents=True, exist_ok=True)
     research_output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")

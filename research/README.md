@@ -68,7 +68,7 @@ validation are still required before the learned model can replace the current
 rule-based recommendation service.
 
 `train_hotelia_lgb.py` writes its report to
-`data/models/hotelia-lgbm-v1-report.json` and a compact serving artifact to the
+`data/models/hotelia-lgbm-v2-report.json` and a compact serving artifact to the
 backend. Replace its generated labels with consented Hotelia impression,
 detail-open, and confirmed-booking outcomes once enough traffic is available.
 Until then, the reported MRR validates the training and serving pipeline; it is

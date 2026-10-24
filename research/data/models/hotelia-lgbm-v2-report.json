@@ -1,6 +1,6 @@
 {
-  "model": "hotelia-lgbm-v1",
-  "version": "hotelia-lgbm-2026-10-23-v1",
+  "model": "hotelia-lgbm-v2",
+  "version": "hotelia-lgbm-2026-10-23-v2",
   "training_source": "generated_pre_release_interactions",
   "catalog_hotels": 100,
   "queries": 8000,
@@ -25,16 +25,16 @@
     "hour_cos",
     "is_weekend"
   ],
-  "best_iteration": 7,
+  "best_iteration": 41,
   "quality_baseline": {
-    "mrr@10": 0.3417906746031746,
+    "mrr@10": 0.3726507936507937,
     "hit@10": 1.0,
-    "ndcg@10": 0.49644716482178886
+    "ndcg@10": 0.520168468756361
   },
   "lightgbm": {
-    "mrr@10": 0.6201468253968253,
+    "mrr@10": 0.5387876984126985,
     "hit@10": 1.0,
-    "ndcg@10": 0.7125725723487383
+    "ndcg@10": 0.6496809019975458
   },
   "serving": "enabled_with_rule_fallback",
   "limitation": "Replace generated outcomes with consented served/open/booking outcomes before interpreting metrics as production performance."

@@ -105,7 +105,7 @@ export class HoteliaLightGbmRanker {
 
   constructor() {
     try {
-      const path = join(__dirname, 'models', 'hotelia-lgbm.v1.json');
+      const path = join(__dirname, 'models', 'hotelia-lgbm.active.json');
       const parsed = JSON.parse(readFileSync(path, 'utf8')) as Artifact;
       if (JSON.stringify(parsed.feature_names) !== JSON.stringify(HOTELIA_FEATURES)) {
         throw new Error('Model feature contract does not match backend');
