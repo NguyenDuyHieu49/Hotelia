@@ -135,30 +135,33 @@
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| Swift | 5.9 | Programming language |
-| SwiftUI | iOS 17+ | UI Framework |
-| Xcode | 15+ | IDE |
-| MapKit | Native | Maps integration |
-| Combine | Built-in | Reactive programming |
+| Swift | 5 | Programming language |
+| SwiftUI | iOS 26.2 deployment target | UI framework (MVVM) |
+| Xcode | 26 | IDE |
+| Combine | Built-in | View-model state publishing |
+| String Catalog | `Localizable.xcstrings` | Vietnamese and English UI |
 
 ### Backend
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | Node.js | 20 LTS | Runtime |
-| NestJS | 10 | Framework |
-| TypeScript | 5.3 | Language |
-| MongoDB | 6 | Database |
+| NestJS | 11 | Framework |
+| TypeScript | 5.9 | Language |
+| MongoDB | Atlas (production), 6–7 (local) | Database; transactions need a replica set |
 | Mongoose | 8 | ODM |
 
 ### Infrastructure
 
 | Technology | Purpose | Tier |
 |------------|---------|------|
-| MongoDB Atlas | Database | Free M0 |
-| Railway | Backend hosting | Free tier |
-| Cloudinary | Image storage | Free tier |
-| Docker | Containerization | Local dev |
+| MongoDB Atlas | Database | Managed |
+| Render | Backend hosting (Docker, `render.yaml`) | Free |
+| Vercel | Owner/admin dashboard (`hotelia-dashboard`) | Hobby |
+| payOS | VietQR checkout and signed webhooks | Merchant account |
+| Docker | API image and local MongoDB | Local dev |
+
+Hotel and room photos are served by the API from `backend/public/media`; there is no separate image CDN.
 
 ---
 
@@ -367,15 +370,15 @@ npm run test
 # Test coverage
 npm run test:cov
 
-# E2E tests
-npm run test:e2e
+# Booking concurrency against a real MongoDB replica set on port 27018
+npm run build && npm run test:booking-db
 ```
 
 ### Mobile Testing
 
-- Manual testing in iOS Simulator
-- UI tests with XCTest
-- Integration tests with API mocking
+- Manual testing in iOS Simulator against a local API and MongoDB
+- `tests/ExploreRefreshRegression.swift` regression check for Explore refresh
+- No XCTest UI test target yet
 
 ---
 
@@ -396,17 +399,18 @@ docker-compose up -d
 
 ### Production Deployment
 
-| Component | Recommended Platform |
-|-----------|-------------------|
-| Backend | Railway, Render |
-| Database | MongoDB Atlas M0 |
-| Storage | Cloudinary |
+| Component | Platform |
+|-----------|----------|
+| API | Render web service from `backend/Dockerfile` (`render.yaml`) |
+| Database | MongoDB Atlas |
+| Owner/admin dashboard | Vercel, `hotelia-dashboard` |
+| Mobile app | iOS (Simulator/development builds) |
 
 The current production endpoints are:
 
-- Customer web: `https://hotelia.asia`
-- Admin and owner dashboard: `https://admin.hotelia.asia`
+- Owner and admin dashboard: `https://admin.hotelia.asia` (`hotelia-dashboard`)
 - API: `https://api.hotelia.asia/api/v1`
+- `https://hotelia.asia` currently serves the older `hotelia-web` admin prototype. There is no customer web app; guests use the iOS app.
 
 ---
 
@@ -414,11 +418,11 @@ The current production endpoints are:
 
 | Component | Technology | Cost |
 |-----------|------------|------|
-| Backend | Railway | Free |
-| Database | MongoDB Atlas M0 | Free |
-| Storage | Cloudinary | Free |
+| Backend | Render | Free |
+| Database | MongoDB Atlas | Free tier |
+| Dashboard | Vercel | Free |
 | Auth | JWT (self-hosted) | Free |
-| Payment | Mock | Free |
+| Payment | payOS | Per-transaction provider fees |
 | **Total** | | **$0/month** |
 
 ---
