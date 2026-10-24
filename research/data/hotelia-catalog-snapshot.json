@@ -1,0 +1,1844 @@
+{
+ "source": "https://api.hotelia.asia/api/v1/recommendations",
+ "fetchedAt": "2026-10-24T14:30:28+00:00",
+ "sha256": "3070e53ce6556a8d85d3b6ff4628b67dce4b6089890a0888f3d0faf03d3d1ba5",
+ "hotels": [
+  {
+   "id": "0217763d7bfddc371eb7df27",
+   "name": "Swiss-Belresort Tuyen Lam Dalat",
+   "city": "Đà Lạt",
+   "stars": 4,
+   "price": 950000.0,
+   "rating": 4.4,
+   "reviews": 16,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "0530bde13b3434c23fef4df4",
+   "name": "Hue Serene Shining Hotel & Spa",
+   "city": "Huế",
+   "stars": 4,
+   "price": 850000.0,
+   "rating": 3.9,
+   "reviews": 10,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "1435335ec9b9b711746e1648",
+   "name": "Vinpearl Resort & Spa Nha Trang Bay",
+   "city": "Nha Trang",
+   "stars": 5,
+   "price": 1300000.0,
+   "rating": 4.3,
+   "reviews": 39,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "1744b7637a05d247da1bd50c",
+   "name": "Wyndham Legend Halong",
+   "city": "Hạ Long",
+   "stars": 4,
+   "price": 1150000.0,
+   "rating": 4.3,
+   "reviews": 47,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "18927740d43b88d5c05b96ee",
+   "name": "Capri by Fraser Ho Chi Minh",
+   "city": "TP HCM",
+   "stars": 3,
+   "price": 1150000.0,
+   "rating": 4.3,
+   "reviews": 16,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "1a6c166e7ba74df1880a8957",
+   "name": "Vinpearl Landmark 81, Autograph Collection",
+   "city": "TP HCM",
+   "stars": 5,
+   "price": 1350000.0,
+   "rating": 4.3,
+   "reviews": 35,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "1cd345552196d2c19e28a162",
+   "name": "Four Points by Sheraton Lang Son",
+   "city": "Lạng Sơn",
+   "stars": 5,
+   "price": 900000.0,
+   "rating": 4.0,
+   "reviews": 28,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "2c48c07e433592961f40fdf1",
+   "name": "Altara Serviced Residences Quy Nhon",
+   "city": "Quy Nhơn",
+   "stars": 3,
+   "price": 800000.0,
+   "rating": 4.1,
+   "reviews": 36,
+   "amenities": [
+    "family_friendly",
+    "front_desk_24h",
+    "housekeeping",
+    "kitchenette",
+    "laundry",
+    "outdoor_pool",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "2cc4a859e7a11ede76f80a1b",
+   "name": "Lucky Danang Hotel & Apartment",
+   "city": "Đà Nẵng",
+   "stars": 3,
+   "price": 1200000.0,
+   "rating": 4.1,
+   "reviews": 15,
+   "amenities": [
+    "family_friendly",
+    "front_desk_24h",
+    "housekeeping",
+    "kitchenette",
+    "laundry",
+    "outdoor_pool",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "324719e128647c8b1dd7b7bb",
+   "name": "Renaissance Hoi An Resort & Spa",
+   "city": "Hội An",
+   "stars": 4,
+   "price": 1150000.0,
+   "rating": 4.3,
+   "reviews": 48,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "364c270ed2af5b9f9b67b15d",
+   "name": "Zest Villas & Spa Hoi An",
+   "city": "Hội An",
+   "stars": 4,
+   "price": 1100000.0,
+   "rating": 4.5,
+   "reviews": 28,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "393ad7c254860ced8b52d25a",
+   "name": "Hue Four Seasons Hotel",
+   "city": "Huế",
+   "stars": 5,
+   "price": 1000000.0,
+   "rating": 4.3,
+   "reviews": 34,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "3a554f570dede86cd56edd0c",
+   "name": "Vinpearl Resort & Spa Ha Long",
+   "city": "Hạ Long",
+   "stars": 5,
+   "price": 1150000.0,
+   "rating": 4.5,
+   "reviews": 49,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "3b2cd027e30d8cde99f35660",
+   "name": "Haap Transit Hotel",
+   "city": "Hà Nội",
+   "stars": 3,
+   "price": 1050000.0,
+   "rating": 4.5,
+   "reviews": 25,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "3d00fd10180789cc6a8589a6",
+   "name": "Muong Thanh Quy Nhon Hotel",
+   "city": "Quy Nhơn",
+   "stars": 4,
+   "price": 850000.0,
+   "rating": 3.5,
+   "reviews": 12,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "3d98b6fe1b650f5d2dd7f0d1",
+   "name": "Avani Quy Nhon Resort",
+   "city": "Quy Nhơn",
+   "stars": 4,
+   "price": 1000000.0,
+   "rating": 4.3,
+   "reviews": 30,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "415d62b8040b5d856be44889",
+   "name": "Paragon Noi Bai Hotel & Pool",
+   "city": "Hà Nội",
+   "stars": 3,
+   "price": 1150000.0,
+   "rating": 4.3,
+   "reviews": 49,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "456271b1cf729129059c98b9",
+   "name": "Meliá Vinpearl Nha Trang Empire",
+   "city": "Nha Trang",
+   "stars": 5,
+   "price": 1200000.0,
+   "rating": 4.2,
+   "reviews": 34,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "46925cde1bc75e7b4bd0363f",
+   "name": "Binh An Village Dalat",
+   "city": "Đà Lạt",
+   "stars": 3,
+   "price": 950000.0,
+   "rating": 4.1,
+   "reviews": 40,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "4cbb95395d7ab083d96c950d",
+   "name": "Vinpearl Luxury Nha Trang",
+   "city": "Nha Trang",
+   "stars": 5,
+   "price": 1200000.0,
+   "rating": 3.7,
+   "reviews": 15,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "4fb71c4be782cca937360669",
+   "name": "Bellerive Hoi An Hotel & Spa",
+   "city": "Hội An",
+   "stars": 4,
+   "price": 1150000.0,
+   "rating": 4.6,
+   "reviews": 11,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "51018acc0e99a35ccfb8aae1",
+   "name": "Zen Cafe Lakeside",
+   "city": "Đà Lạt",
+   "stars": 3,
+   "price": 1050000.0,
+   "rating": 4.2,
+   "reviews": 33,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "51a0c6cf7f90bf6a930c0fa2",
+   "name": "Green Garden Homestay",
+   "city": "Cần Thơ",
+   "stars": 3,
+   "price": 800000.0,
+   "rating": 4.0,
+   "reviews": 47,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "524502a7cf45815314d09909",
+   "name": "Kawara My An Onsen Resort",
+   "city": "Huế",
+   "stars": 4,
+   "price": 900000.0,
+   "rating": 4.2,
+   "reviews": 17,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "528392c7f6fa5fee69c8269a",
+   "name": "MerPerle Crystal Palace",
+   "city": "TP HCM",
+   "stars": 3,
+   "price": 1250000.0,
+   "rating": 4.1,
+   "reviews": 26,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "56cc78d39c0e512a1e9dd40a",
+   "name": "AZUMAYA Da Nang",
+   "city": "Đà Nẵng",
+   "stars": 3,
+   "price": 1000000.0,
+   "rating": 4.4,
+   "reviews": 39,
+   "amenities": [
+    "family_friendly",
+    "front_desk_24h",
+    "housekeeping",
+    "outdoor_pool",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "56ed90d7546c200e42508ec2",
+   "name": "Diamond Bay Resort & Spa",
+   "city": "Nha Trang",
+   "stars": 4,
+   "price": 1150000.0,
+   "rating": 4.0,
+   "reviews": 31,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "57f8a979d1f370c477b20905",
+   "name": "Vinpearl Resort & Golf Nam Hoi An",
+   "city": "Hội An",
+   "stars": 5,
+   "price": 1150000.0,
+   "rating": 4.1,
+   "reviews": 25,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "5ab60f9a79897d0a24644938",
+   "name": "Airport Hotel Hanoi - Convenient & Friendly",
+   "city": "Hà Nội",
+   "stars": 3,
+   "price": 1150000.0,
+   "rating": 4.3,
+   "reviews": 18,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "5bcd6b5b0d7ee68ddaa003bc",
+   "name": "Nha Trang Marriott Resort & Spa, Hon Tre Island",
+   "city": "Nha Trang",
+   "stars": 5,
+   "price": 1350000.0,
+   "rating": 4.0,
+   "reviews": 14,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "5eb6e9c874c7aeffa0eec8c1",
+   "name": "Hotel Xoai",
+   "city": "Cần Thơ",
+   "stars": 3,
+   "price": 700000.0,
+   "rating": 4.3,
+   "reviews": 37,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "5f76fc17c503b41ff8afcd88",
+   "name": "Somerset Feliz Ho Chi Minh City",
+   "city": "TP HCM",
+   "stars": 4,
+   "price": 1300000.0,
+   "rating": 4.4,
+   "reviews": 40,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "kitchenette",
+    "laundry",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "6007f885fa56bdedcacd546f",
+   "name": "Vinpearl Beachfront Nha Trang",
+   "city": "Nha Trang",
+   "stars": 5,
+   "price": 1150000.0,
+   "rating": 4.4,
+   "reviews": 32,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "6878b771887bfaffbf02f92d",
+   "name": "Sheraton Phu Quoc Long Beach Resort",
+   "city": "Phú Quốc",
+   "stars": 5,
+   "price": 1550000.0,
+   "rating": 4.2,
+   "reviews": 38,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "68bab3b93e0f14c63ce37d3b",
+   "name": "Dalat De Charme Village",
+   "city": "Đà Lạt",
+   "stars": 3,
+   "price": 1000000.0,
+   "rating": 4.2,
+   "reviews": 50,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "68bef67a3c398cebe96c27a0",
+   "name": "Citadines Blue Cove Danang",
+   "city": "Đà Nẵng",
+   "stars": 4,
+   "price": 1200000.0,
+   "rating": 4.1,
+   "reviews": 22,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "kitchenette",
+    "laundry",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "68cbd229b7ce6a513f42d634",
+   "name": "FLC Grand Hotel Quy Nhon",
+   "city": "Quy Nhơn",
+   "stars": 5,
+   "price": 1000000.0,
+   "rating": 4.2,
+   "reviews": 19,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5cd",
+   "name": "Caravelle Saigon",
+   "city": "TP HCM",
+   "stars": 5,
+   "price": 927838.0,
+   "rating": 4.0,
+   "reviews": 10,
+   "amenities": [
+    "Pool",
+    "Restaurant",
+    "Spa"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5ce",
+   "name": "HAIAN Beach Hotel & Spa",
+   "city": "Đà Nẵng",
+   "stars": 4,
+   "price": 562738.0,
+   "rating": 4.0,
+   "reviews": 27,
+   "amenities": [
+    "Gym",
+    "Pool",
+    "Restaurant",
+    "Spa"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5cf",
+   "name": "Novotel Nha Trang",
+   "city": "Nha Trang",
+   "stars": 4,
+   "price": 916404.0,
+   "rating": 4.3,
+   "reviews": 44,
+   "amenities": [
+    "Pool",
+    "Spa"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5d0",
+   "name": "Pullman Phu Quoc Beach Resort",
+   "city": "Phú Quốc",
+   "stars": 5,
+   "price": 699658.0,
+   "rating": 4.0,
+   "reviews": 20,
+   "amenities": [
+    "Gym",
+    "Parking",
+    "Pool",
+    "Restaurant",
+    "Spa",
+    "Wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5d1",
+   "name": "Sofitel Legend Metropole Hanoi",
+   "city": "Hà Nội",
+   "stars": 5,
+   "price": 580767.0,
+   "rating": 4.1,
+   "reviews": 37,
+   "amenities": [
+    "Gym",
+    "Pool",
+    "Restaurant",
+    "Spa",
+    "Wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5d2",
+   "name": "Rex Hotel Saigon",
+   "city": "TP HCM",
+   "stars": 5,
+   "price": 520933.0,
+   "rating": 4.5,
+   "reviews": 13,
+   "amenities": [
+    "Gym",
+    "Parking",
+    "Pool",
+    "Restaurant",
+    "Spa",
+    "Wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5d3",
+   "name": "Hilton Da Nang",
+   "city": "Đà Nẵng",
+   "stars": 5,
+   "price": 996179.0,
+   "rating": 4.4,
+   "reviews": 30,
+   "amenities": [
+    "Gym",
+    "Parking",
+    "Pool",
+    "Restaurant",
+    "Wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5d4",
+   "name": "Sheraton Nha Trang Hotel & Spa",
+   "city": "Nha Trang",
+   "stars": 5,
+   "price": 893541.0,
+   "rating": 4.1,
+   "reviews": 47,
+   "amenities": [
+    "Gym",
+    "Pool",
+    "Restaurant",
+    "Spa",
+    "Wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5d5",
+   "name": "Novotel Phu Quoc Resort",
+   "city": "Phú Quốc",
+   "stars": 5,
+   "price": 504408.0,
+   "rating": 4.2,
+   "reviews": 23,
+   "amenities": [
+    "Gym",
+    "Parking",
+    "Pool",
+    "Spa",
+    "Wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5d6",
+   "name": "Meliá Hanoi",
+   "city": "Hà Nội",
+   "stars": 5,
+   "price": 834490.0,
+   "rating": 4.0,
+   "reviews": 40,
+   "amenities": [
+    "Gym",
+    "Parking",
+    "Pool",
+    "Restaurant",
+    "Spa",
+    "Wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5d7",
+   "name": "Hotel Majestic Saigon",
+   "city": "TP HCM",
+   "stars": 5,
+   "price": 755766.0,
+   "rating": 4.0,
+   "reviews": 16,
+   "amenities": [
+    "Gym",
+    "Parking",
+    "Pool",
+    "Restaurant",
+    "Spa",
+    "Wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5d8",
+   "name": "Novotel Danang Premier Han River",
+   "city": "Đà Nẵng",
+   "stars": 5,
+   "price": 508730.0,
+   "rating": 4.5,
+   "reviews": 33,
+   "amenities": [
+    "Gym",
+    "Pool",
+    "Restaurant"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5d9",
+   "name": "InterContinental Nha Trang",
+   "city": "Nha Trang",
+   "stars": 5,
+   "price": 611062.0,
+   "rating": 4.4,
+   "reviews": 50,
+   "amenities": [
+    "Gym",
+    "Parking",
+    "Pool",
+    "Restaurant",
+    "Wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5da",
+   "name": "Salinda Resort Phu Quoc Island",
+   "city": "Phú Quốc",
+   "stars": 5,
+   "price": 903479.0,
+   "rating": 4.5,
+   "reviews": 26,
+   "amenities": [
+    "Gym",
+    "Pool",
+    "Spa"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5db",
+   "name": "Pan Pacific Hanoi",
+   "city": "Hà Nội",
+   "stars": 5,
+   "price": 632722.0,
+   "rating": 4.2,
+   "reviews": 43,
+   "amenities": [
+    "Gym",
+    "Parking",
+    "Pool",
+    "Restaurant",
+    "Spa"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5dc",
+   "name": "Hotel Nikko Saigon",
+   "city": "TP HCM",
+   "stars": 5,
+   "price": 781091.0,
+   "rating": 4.2,
+   "reviews": 19,
+   "amenities": [
+    "Gym",
+    "Parking",
+    "Pool",
+    "Restaurant",
+    "Spa",
+    "Wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5dd",
+   "name": "Four Points by Sheraton Danang",
+   "city": "Đà Nẵng",
+   "stars": 5,
+   "price": 607516.0,
+   "rating": 4.4,
+   "reviews": 36,
+   "amenities": [
+    "Gym",
+    "Parking",
+    "Pool",
+    "Restaurant",
+    "Spa",
+    "Wifi"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5de",
+   "name": "Havana Nha Trang",
+   "city": "Nha Trang",
+   "stars": 5,
+   "price": 859580.0,
+   "rating": 3.8,
+   "reviews": 12,
+   "amenities": [
+    "Gym",
+    "Pool",
+    "Restaurant",
+    "Spa"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5df",
+   "name": "InterContinental Phu Quoc Long Beach Resort",
+   "city": "Phú Quốc",
+   "stars": 0,
+   "price": 555141.0,
+   "rating": 4.2,
+   "reviews": 29,
+   "amenities": [
+    "Gym",
+    "Pool",
+    "Restaurant",
+    "Spa"
+   ]
+  },
+  {
+   "id": "6ab44332b2c6d0b444f3b5e0",
+   "name": "LOTTE HOTEL HANOI",
+   "city": "Hà Nội",
+   "stars": 5,
+   "price": 756902.0,
+   "rating": 4.3,
+   "reviews": 46,
+   "amenities": [
+    "Gym",
+    "Pool",
+    "Restaurant",
+    "Spa"
+   ]
+  },
+  {
+   "id": "71bc9e78e69e59f520bce6f7",
+   "name": "Anantara Quy Nhon Villas",
+   "city": "Quy Nhơn",
+   "stars": 5,
+   "price": 1100000.0,
+   "rating": 4.1,
+   "reviews": 13,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "762ece8c2bd9475e91820ac0",
+   "name": "Vinpearl Resort Nha Trang",
+   "city": "Nha Trang",
+   "stars": 5,
+   "price": 1200000.0,
+   "rating": 4.4,
+   "reviews": 22,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "7a2ed7269f92915274f4f434",
+   "name": "Meliá Vinpearl Phu Quoc",
+   "city": "Phú Quốc",
+   "stars": 5,
+   "price": 1500000.0,
+   "rating": 4.3,
+   "reviews": 10,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "7caf012bdb43933f8c475f45",
+   "name": "Spring Hotel",
+   "city": "Cần Thơ",
+   "stars": 3,
+   "price": 800000.0,
+   "rating": 4.1,
+   "reviews": 30,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "7ee39051f0adf94a52bd08aa",
+   "name": "Paragon Hotel",
+   "city": "Nha Trang",
+   "stars": 3,
+   "price": 1000000.0,
+   "rating": 4.0,
+   "reviews": 24,
+   "amenities": [
+    "family_friendly",
+    "front_desk_24h",
+    "housekeeping",
+    "outdoor_pool",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "809f0727731aa6fe084d0115",
+   "name": "Hoi An Eco Lodge & Spa",
+   "city": "Hội An",
+   "stars": 4,
+   "price": 1100000.0,
+   "rating": 4.3,
+   "reviews": 45,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "87c954f0a6de8e8ee101da28",
+   "name": "Iris Hotel Can Tho",
+   "city": "Cần Thơ",
+   "stars": 3,
+   "price": 800000.0,
+   "rating": 4.3,
+   "reviews": 20,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "8dc17d0c5f7f0fee5ead917e",
+   "name": "Hon Tam Resort Nha Trang",
+   "city": "Nha Trang",
+   "stars": 4,
+   "price": 1050000.0,
+   "rating": 4.1,
+   "reviews": 44,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "97b297ef9c5d2dad416376b0",
+   "name": "Sheraton Can Tho",
+   "city": "Cần Thơ",
+   "stars": 5,
+   "price": 850000.0,
+   "rating": 4.2,
+   "reviews": 45,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "99abc39c50772f903218182c",
+   "name": "Chio Hotel and Apartment",
+   "city": "Hà Nội",
+   "stars": 3,
+   "price": 1150000.0,
+   "rating": 4.4,
+   "reviews": 42,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "kitchenette",
+    "laundry",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "9ca3abe93ee88442e3d02dc0",
+   "name": "Hotel la Perle - Hue",
+   "city": "Huế",
+   "stars": 3,
+   "price": 750000.0,
+   "rating": 4.5,
+   "reviews": 27,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "9cdf3ddd500607eb6a403063",
+   "name": "Coco Palm Beach Resort & Spa",
+   "city": "Phú Quốc",
+   "stars": 4,
+   "price": 1400000.0,
+   "rating": 4.3,
+   "reviews": 12,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "9d8aea88e7a99a5b90ebabf5",
+   "name": "Hue Serene Palace Hotel",
+   "city": "Huế",
+   "stars": 3,
+   "price": 750000.0,
+   "rating": 4.3,
+   "reviews": 44,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "a17749b6135c7f225deeb1e4",
+   "name": "Khách sạn Mường Thanh Holiday Hội An",
+   "city": "Hội An",
+   "stars": 4,
+   "price": 1150000.0,
+   "rating": 4.2,
+   "reviews": 38,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "a7255406a7de32a7c90e60cc",
+   "name": "Crown Hotel Nha Trang",
+   "city": "Nha Trang",
+   "stars": 3,
+   "price": 1000000.0,
+   "rating": 4.2,
+   "reviews": 41,
+   "amenities": [
+    "family_friendly",
+    "front_desk_24h",
+    "housekeeping",
+    "outdoor_pool",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "b34a3846229308bb04e89606",
+   "name": "Vinpearl Wonderworld Phu Quoc",
+   "city": "Phú Quốc",
+   "stars": 5,
+   "price": 1500000.0,
+   "rating": 4.5,
+   "reviews": 18,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "bc4fa952d5bd169be806b58d",
+   "name": "Vinpearl Resort & Spa Phu Quoc",
+   "city": "Phú Quốc",
+   "stars": 5,
+   "price": 1500000.0,
+   "rating": 4.3,
+   "reviews": 42,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "bdaaeabef050f099574826b4",
+   "name": "Ibis Saigon South Hotel",
+   "city": "TP HCM",
+   "stars": 3,
+   "price": 1150000.0,
+   "rating": 4.4,
+   "reviews": 50,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "c08588ee6b64c46528962918",
+   "name": "Meliá Vinpearl Hue",
+   "city": "Huế",
+   "stars": 5,
+   "price": 950000.0,
+   "rating": 4.2,
+   "reviews": 41,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "c275eee3d65da5fc34ee9fd7",
+   "name": "VinHolidays Fiesta Phu Quoc",
+   "city": "Phú Quốc",
+   "stars": 3,
+   "price": 1200000.0,
+   "rating": 4.1,
+   "reviews": 27,
+   "amenities": [
+    "family_friendly",
+    "front_desk_24h",
+    "housekeeping",
+    "outdoor_pool",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "c4a66a963e2aba5669922cdd",
+   "name": "Green Bay Phu Quoc Resort & Spa",
+   "city": "Phú Quốc",
+   "stars": 4,
+   "price": 1450000.0,
+   "rating": 4.4,
+   "reviews": 36,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "c57bb32323c24cdabb8c1f4a",
+   "name": "Sheraton Hai Phong",
+   "city": "Hải Phòng",
+   "stars": 5,
+   "price": 900000.0,
+   "rating": 4.2,
+   "reviews": 11,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "c80a2eb78cd3556c0ec689b8",
+   "name": "Meliá Vinpearl Da Nang Riverfront",
+   "city": "Đà Nẵng",
+   "stars": 5,
+   "price": 1250000.0,
+   "rating": 3.9,
+   "reviews": 17,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "c8de54654446ca1565f70e4b",
+   "name": "Meliá Vinpearl Cam Ranh Beach Resort",
+   "city": "Cam Ranh",
+   "stars": 5,
+   "price": 1350000.0,
+   "rating": 4.0,
+   "reviews": 24,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "c927ad3947c8f9b3433ddcc8",
+   "name": "Anantara Hoi An Resort",
+   "city": "Hội An",
+   "stars": 5,
+   "price": 1150000.0,
+   "rating": 4.3,
+   "reviews": 20,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "c9456b1daa235b3b40adb608",
+   "name": "Camia Resort & Spa",
+   "city": "Phú Quốc",
+   "stars": 4,
+   "price": 1400000.0,
+   "rating": 3.9,
+   "reviews": 19,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "cfc5b4f07f8a03fd19b17cdf",
+   "name": "Golden Lotus Airport Hotel & Travel",
+   "city": "Hà Nội",
+   "stars": 3,
+   "price": 1050000.0,
+   "rating": 4.2,
+   "reviews": 35,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "d0611683b9ba0bbeafb5e6a5",
+   "name": "Da Nang Marriott Resort & Spa, Non Nuoc Beach Villas",
+   "city": "Đà Nẵng",
+   "stars": 5,
+   "price": 1250000.0,
+   "rating": 4.3,
+   "reviews": 31,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "d5f77a7ea1674c5daf8f5d67",
+   "name": "Four Seasons Resort The Nam Hai, Hoi An",
+   "city": "Hội An",
+   "stars": 5,
+   "price": 1150000.0,
+   "rating": 4.2,
+   "reviews": 37,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "d5ff92fe5212973e6d9222cd",
+   "name": "Da Nang Marriott Resort & Spa",
+   "city": "Đà Nẵng",
+   "stars": 5,
+   "price": 1200000.0,
+   "rating": 4.4,
+   "reviews": 21,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "d62a458754e772326552b6bd",
+   "name": "Khách sạn Navy Đà Nẵng",
+   "city": "Đà Nẵng",
+   "stars": 3,
+   "price": 1200000.0,
+   "rating": 4.1,
+   "reviews": 32,
+   "amenities": [
+    "family_friendly",
+    "front_desk_24h",
+    "housekeeping",
+    "outdoor_pool",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "d6e48202fc6ef0533f2e2115",
+   "name": "FLC Luxury Hotel Quy Nhon",
+   "city": "Quy Nhơn",
+   "stars": 5,
+   "price": 1000000.0,
+   "rating": 4.2,
+   "reviews": 26,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "d972e2639707da47d6204aa1",
+   "name": "Fivitel Hoi An Hotel",
+   "city": "Hội An",
+   "stars": 3,
+   "price": 1000000.0,
+   "rating": 3.9,
+   "reviews": 21,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "de6bea6e06c172abfa19ce19",
+   "name": "Dalat Wonder Resort",
+   "city": "Đà Lạt",
+   "stars": 4,
+   "price": 1000000.0,
+   "rating": 4.4,
+   "reviews": 23,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "defa2d90cfad439f8261adf7",
+   "name": "FLC Luxury Resort Quy Nhon",
+   "city": "Quy Nhơn",
+   "stars": 5,
+   "price": 1050000.0,
+   "rating": 4.1,
+   "reviews": 43,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "e4b4d663ac463bd7513fbda7",
+   "name": "Orbit Resort & Spa",
+   "city": "Nha Trang",
+   "stars": 4,
+   "price": 1150000.0,
+   "rating": 4.1,
+   "reviews": 48,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "ee9c3bcfa2484a34824e49d2",
+   "name": "Kingo Retreat Resort Phu Quoc",
+   "city": "Phú Quốc",
+   "stars": 4,
+   "price": 1450000.0,
+   "rating": 4.3,
+   "reviews": 29,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "efd8031ae9fd9c5f7df91aff",
+   "name": "Kim Lan Homestay",
+   "city": "Cần Thơ",
+   "stars": 3,
+   "price": 700000.0,
+   "rating": 4.4,
+   "reviews": 13,
+   "amenities": [
+    "front_desk_24h",
+    "housekeeping",
+    "restaurant",
+    "wifi"
+   ]
+  },
+  {
+   "id": "f6891729fe360a79cc9c7e77",
+   "name": "Mövenpick Resort Waverly Phu Quoc",
+   "city": "Phú Quốc",
+   "stars": 5,
+   "price": 1600000.0,
+   "rating": 4.3,
+   "reviews": 43,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "f8920c0a02e8cd4b8c68dcb6",
+   "name": "Khách sạn Danang Golden Bay",
+   "city": "Đà Nẵng",
+   "stars": 4,
+   "price": 1200000.0,
+   "rating": 4.1,
+   "reviews": 46,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "fd012765c0634096c9316f49",
+   "name": "Mia Resort Nha Trang",
+   "city": "Nha Trang",
+   "stars": 4,
+   "price": 1150000.0,
+   "rating": 4.3,
+   "reviews": 14,
+   "amenities": [
+    "airport_transfer",
+    "family_friendly",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "outdoor_pool",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "fd3494a8a54e960f22bfcb4f",
+   "name": "Somerset Vista Ho Chi Minh City",
+   "city": "TP HCM",
+   "stars": 4,
+   "price": 1450000.0,
+   "rating": 4.3,
+   "reviews": 33,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "kitchenette",
+    "laundry",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  },
+  {
+   "id": "fd42e6daa61420493e60f7ae",
+   "name": "Azerai La Residence, Hue",
+   "city": "Huế",
+   "stars": 4,
+   "price": 800000.0,
+   "rating": 4.0,
+   "reviews": 23,
+   "amenities": [
+    "airport_transfer",
+    "front_desk_24h",
+    "gym",
+    "housekeeping",
+    "kitchenette",
+    "laundry",
+    "pool",
+    "restaurant",
+    "spa",
+    "wifi"
+   ]
+  }
+ ]
+}

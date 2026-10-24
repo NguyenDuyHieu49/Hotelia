@@ -4,280 +4,188 @@ Tài liệu này mô tả cách Hotelia tạo dữ liệu trước phát hành, 
 LightGBM LambdaRank, đánh giá kết quả, xuất model sang NestJS và kiểm tra model
 trước khi triển khai.
 
-Phiên bản được tạo ngày 23/10/2026:
+Phiên bản được tạo ngày 24/10/2026:
 
-- Model: `hotelia-lgbm-v2`
-- Serving version: `hotelia-lgbm-2026-10-23-v2`
-- Seed: `20261023`
-- Catalog: 100 khách sạn
-- Số query: 8.000
-- Số candidate mỗi query: 8
-- Train: 6.800 query
-- Validation: 1.200 query
-- Best iteration: 41
-- LightGBM MRR@10: 0,539
-- Baseline MRR@10: 0,373
-- LightGBM NDCG@10: 0,650
+- Model: `hotelia-lgbm-v3`
+- Serving version: `hotelia-lgbm-2026-10-24-v3`
+- Seed: `20261024`
+- Catalog: snapshot 100 khách sạn từ API production
+  (`research/data/hotelia-catalog-snapshot.json`, SHA-256 `3070e53c…`)
+- Số query: 20.000 (train 14.000, validation 3.000, test 3.000)
+- Best iteration: 10
+- Kết quả trên tập test (3.000 query):
 
-Các metric trên được tính bằng hành vi tạo trước phát hành. Chúng xác nhận
-pipeline train–export–serve hoạt động và model học được quy luật trong tập dữ
-liệu. Chúng không phải bằng chứng rằng người dùng thật sẽ tăng tỷ lệ đặt phòng.
+| Phương pháp | MRR@10 | NDCG@10 | Hit@10 |
+|---|---|---|---|
+| Baseline `quality_prior` | 0,286 | 0,405 | 0,796 |
+| Content fallback (`ranking.ts`) | 0,416 | 0,526 | 0,879 |
+| LightGBM v3 | 0,415 | 0,524 | 0,871 |
+| Oracle (utility kỳ vọng, không nhiễu) | 0,424 | 0,534 | 0,884 |
 
-## 1. Luồng tổng thể
+Các metric trên được tính bằng hành vi tạo trước phát hành. LightGBM học gần tới
+giới hạn trên của tập dữ liệu (oracle), nhưng không vượt content fallback, vì
+utility sinh nhãn dùng gần cùng các tín hiệu mà content fallback đã mã hóa.
+Kết quả xác nhận pipeline train–export–serve, không chứng minh model tốt hơn
+fallback hay làm tăng tỷ lệ đặt phòng của người dùng thật.
+
+## 1. Thay đổi so với v1 và v2
+
+| | v1 | v2 | v3 |
+|---|---|---|---|
+| Thuộc tính khách sạn | Sinh bằng hash | Sinh bằng hash | Snapshot từ API đang phục vụ |
+| Lịch sử người dùng | Persona cố định | Signal có trọng số như backend | Như v2, tối đa 50 signal, 90 ngày |
+| Candidate mỗi query | 8 | 8 | 8, toàn bộ một thành phố, hoặc toàn catalog 100 |
+| Tập báo cáo metric | Validation dùng early stopping | Như v1 | Tập test tách riêng |
+| Baseline so sánh | `quality_prior` | `quality_prior` | Thêm content fallback và oracle |
+| Giờ trong feature | Giờ server | Giờ server | Giờ Việt Nam (UTC+7) |
+| Parity test | Score 5 vector | Score 5 vector | Score + từng feature của 16 feature |
+
+Số liệu lịch sử: v1 MRR@10 0,620 / NDCG@10 0,713 (best iteration 7); v2 MRR@10
+0,539 / NDCG@10 0,650 (best iteration 41). Hai bản này báo cáo trên tập validation
+dùng cho early stopping, chỉ so với baseline chất lượng và có candidate cố định 8,
+nên không so sánh trực tiếp được với v3.
+
+## 2. Luồng tổng thể
 
 ```mermaid
 flowchart LR
-    A[Catalog 100 khách sạn] --> B[Tạo lịch sử người dùng]
-    B --> C[Tạo 8 candidate mỗi query]
-    C --> D[Tính 16 feature]
+    S[API recommendations production] --> A[Snapshot catalog 100 khách sạn]
+    A --> B[Tạo lịch sử người dùng]
+    B --> C[Tạo nhóm candidate 8 / theo thành phố / 100]
+    C --> D[Tính 16 feature như backend]
     D --> E[Gán một label dương]
-    E --> F[Chia train và validation]
+    E --> F[Chia train / validation / test]
     F --> G[LightGBM LambdaRank]
-    G --> H[MRR và NDCG]
-    G --> I[Artifact JSON]
+    G --> H[MRR và NDCG trên test]
+    G --> I[Artifact JSON + parity case]
     I --> J[NestJS tree evaluator]
     J --> K[Recommendation API]
     J -. lỗi tải hoặc chấm điểm .-> L[Content fallback]
 ```
 
-Script chính nằm tại
-[`research/scripts/train_hotelia_lgb.py`](../research/scripts/train_hotelia_lgb.py).
-
-## 2. Chuẩn bị môi trường
-
-Chạy từ thư mục gốc của dự án:
+## 3. Snapshot catalog
 
 ```bash
 cd research
-python3 -m venv venv
-venv/bin/python -m pip install -r requirements.txt
+venv/bin/python scripts/export_hotelia_catalog.py
 ```
 
-Các thư viện chính gồm LightGBM 4.7, NumPy, Polars, scikit-learn và pytest.
+Script gọi `GET /api/v1/recommendations?limit=100` (chỉ đọc) và lưu giá thấp nhất
+của room type đang bán, hạng sao, tiện nghi, thành phố, rating và số review theo
+đúng quy tắc của `RecommendationsService.recommend`: review đã xác minh nếu có,
+nếu không thì dùng giá trị biên tập, nếu không có nữa thì bằng 0. Snapshot có
+checksum SHA-256 và được commit để mỗi lần train tái lập được.
 
-## 3. Đọc catalog khách sạn
-
-Pipeline đọc hai nguồn trong repository:
-
-- `backend/data/real-hotels.v1.json`: 20 khách sạn ban đầu.
-- `backend/data/explore-hotels.v2.json`: 80 khách sạn mở rộng.
-
-Mỗi khách sạn được chuyển thành một bản ghi có thành phố, số sao, mức giá,
-điểm catalog, số lượt đánh giá và tập tiện nghi. Giá dùng khi tạo dữ liệu được
-suy ra ổn định từ thành phố, hạng sao và hash tên khách sạn. Khi phục vụ thật,
-backend luôn dùng giá thấp nhất từ room type đang hoạt động trong MongoDB.
-
-Pipeline dừng ngay nếu không đọc được đúng 100 tên khách sạn duy nhất.
+Khi catalog production thay đổi (giá, khách sạn mới), cần xuất snapshot mới,
+train lại và tăng version.
 
 ## 4. Tạo lịch sử hành vi
 
-Mỗi query đại diện cho một lần người dùng nhận danh sách đề xuất. Khoảng 76%
-query có lịch sử; phần còn lại dùng để model học cold start.
+Khoảng 76% query có lịch sử. Số signal lấy từ 1–12 (70%) hoặc 13–50 (30%), khớp
+giới hạn `history_count ≤ 50` của backend. Khách sạn trong lịch sử được chọn theo
+xác suất ưu tiên thành phố, giá, sao và tiện nghi của một persona. Trọng số:
 
-Một người dùng mô phỏng được gán:
+- View: `0.5 ^ (age_days / 14)`, tuổi tối đa 90 ngày.
+- Booking xác nhận: `3.0` (18% signal).
 
-- Thành phố ưa thích.
-- Khoảng giá ưa thích.
-- Hạng sao ưa thích.
-- Một nhóm tiện nghi quan tâm.
-- Từ 1 đến 12 khách sạn từng tương tác.
+Dữ liệu tạo ra chỉ tồn tại trong bộ nhớ; script không ghi vào MongoDB.
 
-Khách sạn trong lịch sử được lấy theo xác suất ưu tiên những nơi phù hợp với
-thành phố, mức giá, số sao và tiện nghi của persona. Mỗi signal có trọng số:
+## 5. Candidate và label
 
-- View dùng suy giảm theo thời gian: `0.5 ^ (age_days / 14)`.
-- Một booking được xác nhận có trọng số `3.0`.
+Backend chấm điểm mọi khách sạn còn lại sau bộ lọc, nên nhóm candidate có ba dạng:
 
-Đây cũng là cơ chế backend sử dụng khi tổng hợp lịch sử 90 ngày của người dùng.
-Dữ liệu tạo ra chỉ tồn tại trong bộ nhớ lúc train; script không ghi booking,
-review hay recommendation event vào MongoDB.
+- `sample_8` (45%): 4 khách sạn cùng thành phố ưa thích + 4 khách sạn khác.
+- `destination` (35%): toàn bộ khách sạn của một thành phố, trung bình 8,8.
+- `full_catalog` (20%): cả 100 khách sạn, tương ứng truy vấn không chọn điểm đến.
 
-## 5. Tạo candidate và label
-
-Mỗi query có tám candidate:
-
-- Tối đa bốn khách sạn cùng thành phố ưu tiên.
-- Các vị trí còn lại được lấy từ phần còn lại của catalog.
-- Thứ tự candidate được xáo trộn trước khi tính label.
-
-Pipeline tính utility từ độ phù hợp thành phố, giá, sao, tiện nghi, chất lượng
-và một lượng nhiễu Gumbel. Candidate có utility cao nhất nhận `label = 1`; bảy
-candidate còn lại nhận `label = 0`.
-
-Nhiễu làm cho người dùng mô phỏng không luôn chọn phương án hoàn hảo. Tuy vậy,
-nhãn vẫn phản ánh chính các quy tắc tạo dữ liệu, nên không được gọi là hành vi
-người dùng thật.
+Utility kỳ vọng là tổ hợp tuyến tính của `city_affinity`, `price_affinity`,
+`star_affinity`, `amenity_affinity`, `quality_prior` và `price_relative`, cộng
+thưởng nhỏ cho tiện nghi gia đình vào cuối tuần. Cộng nhiễu Gumbel rồi lấy
+argmax tương đương lựa chọn softmax; candidate được chọn có `label = 1`.
 
 ## 6. Bộ 16 feature
 
-Model nhận feature theo đúng thứ tự sau:
+Thứ tự feature và công thức nằm trong `lightgbm-ranker.ts` (`candidateFeatures`)
+và được port sang Python (`candidate_features`):
 
-1. `min_price_millions`: giá thấp nhất theo đơn vị triệu đồng.
-2. `price_relative`: giá candidate chia giá trung bình của tám candidate.
-3. `star_rating`: hạng sao.
-4. `rating`: điểm đánh giá dùng cho discovery.
-5. `review_log`: `log(1 + review_count)`.
-6. `amenity_count`: số tiện nghi.
-7. `quality_prior`: điểm chất lượng có prior năm đánh giá ở mức 3,5/5.
-8. `city_affinity`: tỷ lệ trọng số lịch sử thuộc cùng thành phố.
-9. `price_affinity`: độ gần giữa giá candidate và giá trung bình có trọng số.
-10. `star_affinity`: độ gần giữa hạng sao candidate và lịch sử.
-11. `amenity_affinity`: Jaccard tiện nghi trung bình có trọng số.
-12. `history_count`: số signal lịch sử.
-13. `has_history`: bằng 1 nếu có lịch sử, ngược lại bằng 0.
-14. `hour_sin`: biểu diễn chu kỳ giờ bằng hàm sin.
-15. `hour_cos`: biểu diễn chu kỳ giờ bằng hàm cos.
-16. `is_weekend`: bằng 1 vào cuối tuần.
+1. `min_price_millions` 2. `price_relative` 3. `star_rating` 4. `rating`
+5. `review_log` 6. `amenity_count` 7. `quality_prior` 8. `city_affinity`
+9. `price_affinity` 10. `star_affinity` 11. `amenity_affinity`
+12. `history_count` (tối đa 50) 13. `has_history` 14. `hour_sin` 15. `hour_cos`
+16. `is_weekend`
 
-Danh sách và thứ tự feature được lưu trong artifact. Backend từ chối model nếu
-feature contract không khớp với mã inference.
+Tên thành phố và tiện nghi được chuẩn hóa giống backend (bỏ dấu, `đ → d`, chữ
+thường, bỏ ký tự không phải chữ số), nên `Pool` và `pool` là cùng một tiện nghi.
+Giờ và ngày cuối tuần được tính theo giờ Việt Nam (UTC+7), không phụ thuộc múi
+giờ của server.
 
-## 7. Chia dữ liệu
+## 7. Chia dữ liệu và cấu hình
 
-Pipeline giữ nguyên toàn bộ candidate của một query trong cùng một tập:
-
-- 85% query đầu được dùng để train.
-- 15% query cuối được dùng để validation.
-
-Với cấu hình mặc định, train có 6.800 query và validation có 1.200 query. Việc
-chia theo query ngăn candidate hoặc label của cùng một lần đề xuất xuất hiện ở
-cả hai tập.
-
-## 8. Cấu hình LambdaRank
-
-Model được tạo bằng `lightgbm.LGBMRanker` với các tham số chính:
+Chia theo query: 70% train, 15% validation (chỉ dùng cho early stopping), 15% test
+(chỉ dùng để báo cáo).
 
 ```python
 lgb.LGBMRanker(
-    objective="lambdarank",
-    metric="ndcg",
-    n_estimators=240,
-    learning_rate=0.045,
-    num_leaves=24,
-    min_child_samples=35,
-    colsample_bytree=0.9,
-    subsample=0.9,
-    subsample_freq=1,
-    random_state=20261023,
-    n_jobs=1,
+    objective="lambdarank", metric="ndcg", n_estimators=1000,
+    learning_rate=0.05, num_leaves=31, min_child_samples=50,
+    colsample_bytree=0.9, subsample=0.9, subsample_freq=1,
+    random_state=20261024, n_jobs=1,
 )
 ```
 
-Early stopping dừng khi validation không cải thiện trong 30 vòng. Lần train
-hiện tại chọn iteration 41.
+Early stopping theo NDCG@10 trên validation, dừng sau 50 vòng không cải thiện.
 
-## 9. Cách đọc metric
+## 8. Kết quả theo loại nhóm candidate (tập test)
 
-MRR@10 lấy nghịch đảo vị trí của khách sạn được chọn trong tối đa 10 kết quả:
+| Nhóm | Số query | Candidate TB | Quality | Content | LightGBM | Oracle |
+|---|---|---|---|---|---|---|
+| `sample_8` | 1.311 | 8 | 0,335 | 0,519 | 0,529 | 0,537 |
+| `destination` | 1.106 | 8,8 | 0,363 | 0,414 | 0,407 | 0,414 |
+| `full_catalog` | 583 | 100 | 0,029 | 0,190 | 0,176 | 0,191 |
 
-```text
-rank 1 → 1,000
-rank 2 → 0,500
-rank 3 → 0,333
-ngoài top 10 → 0
-```
+(Giá trị là MRR@10.) Với 8 candidate Hit@10 luôn bằng 1 nên không dùng để so sánh;
+với 100 candidate, Hit@10 có ý nghĩa: quality 0,084, content 0,458, LightGBM 0,419.
 
-NDCG@10 cũng ưu tiên kết quả đúng ở vị trí cao nhưng dùng giảm logarithm.
-
-Kết quả mới nhất:
-
-- Baseline chất lượng: MRR@10 `0.373`, NDCG@10 `0.520`.
-- LightGBM: MRR@10 `0.539`, NDCG@10 `0.650`.
-- MRR@10 tăng tuyệt đối khoảng `0.166` trên validation trước phát hành.
-
-Hit@10 bằng 1 vì mỗi query chỉ có tám candidate. Metric này chưa giúp phân biệt
-model trong thí nghiệm hiện tại; MRR và NDCG có ý nghĩa hơn.
-
-## 10. Chạy huấn luyện
-
-Từ thư mục gốc:
+## 9. Chạy huấn luyện và artifact
 
 ```bash
 cd research
 venv/bin/python scripts/train_hotelia_lgb.py
 ```
 
-Có thể thay số query hoặc seed:
+Script tạo `research/data/models/hotelia-lgbm-v3-report.json` và
+`backend/src/recommendations/models/hotelia-lgbm.active.json`. Artifact chứa
+version, thứ tự feature, cây quyết định, báo cáo, 5 parity case điểm số và 2 kịch
+bản parity feature (có lịch sử lúc 20:30 thứ Sáu giờ Việt Nam, và cold start lúc
+01:00 thứ Bảy giờ Việt Nam nhưng vẫn là thứ Sáu theo UTC).
 
-```bash
-venv/bin/python scripts/train_hotelia_lgb.py --queries 12000 --seed 20261023
-```
-
-Giữ nguyên seed và đầu vào sẽ tạo artifact có cùng checksum. Đổi seed hoặc số
-query tạo ra một thí nghiệm khác và cần version mới trước khi deploy.
-
-## 11. Artifact đầu ra
-
-Script tạo hai file:
-
-- Báo cáo: `research/data/models/hotelia-lgbm-v2-report.json`.
-- Model đang phục vụ: `backend/src/recommendations/models/hotelia-lgbm.active.json`.
-
-Artifact backend chứa version, thứ tự feature, các cây quyết định, báo cáo và
-năm parity case. NestJS cộng leaf value của tất cả cây để tạo score cuối.
-
-## 12. Kiểm thử sau huấn luyện
-
-Chạy parity test, recommendation tests và build:
+## 10. Kiểm thử sau huấn luyện
 
 ```bash
 cd backend
 npm test -- --runInBand lightgbm-ranker.spec.ts recommendations.spec.ts ranking.spec.ts
 npm run build
+cd ../research
+venv/bin/python -m pytest tests -q
 ```
 
-Parity test dùng cùng vector feature và xác nhận TypeScript cho điểm giống
-LightGBM Python đến chín chữ số thập phân. Nếu model không tải được hoặc scoring
-lỗi, API tự dùng content fallback và trả `modelUsed: false`.
+- Parity điểm số: TypeScript cho cùng score với LightGBM Python đến 9 chữ số thập phân.
+- Parity feature: backend tính lại 16 feature cho từng candidate trong kịch bản cố định và so khớp đến 9 chữ số.
+- Múi giờ: kết quả giống nhau khi chạy test với `TZ=UTC` và `TZ=America/Los_Angeles`.
 
-Sau khi deploy, kiểm tra:
+Sau khi deploy:
 
 ```bash
 curl 'https://api.hotelia.asia/api/v1/recommendations?sessionId=<UUID>&limit=5'
 ```
 
-Response đúng phải có:
+Response phải có `"version": "hotelia-lgbm-2026-10-24-v3"` và `"modelUsed": true`.
 
-```json
-{
-  "ranking": {
-    "mode": "lightgbm-discovery",
-    "version": "hotelia-lgbm-2026-10-23-v2",
-    "modelUsed": true
-  }
-}
-```
+## 11. Chuyển sang dữ liệu thật
 
-Sau khi ghi một view hợp lệ cho cùng session, `mode` phải đổi thành
-`lightgbm-personalized` và `signalCount` phải lớn hơn 0.
+Khi có người dùng, thay phần sinh label bằng impression, detail-open, hold và
+booking xác nhận do server ghi nhận; chia train/test theo thời gian và session;
+so sánh với content fallback bằng A/B test trước khi bật cho toàn bộ traffic.
 
-## 13. Chuyển sang dữ liệu thật
-
-Khi ứng dụng có người dùng, thay phần sinh label bằng pipeline từ:
-
-1. Recommendation impression đã được server ghi nhận.
-2. Detail open gắn đúng impression và candidate.
-3. Hold phòng hoặc booking xác nhận.
-4. Loại booking hủy, hết hạn hoặc hoàn tiền theo mục tiêu thí nghiệm.
-5. Tạo label theo một thang relevance, ví dụ open = 1, hold = 2, confirmed = 3.
-6. Chia train/validation theo thời gian và theo session.
-7. So sánh với content fallback trước khi bật cho toàn bộ traffic.
-
-Nên giữ model trước phát hành làm baseline kỹ thuật. Chỉ gọi model mới tốt hơn
-cho người dùng khi A/B test cho thấy cải thiện trên conversion, MRR/NDCG từ hành
-vi thật và không làm tăng hủy phòng hoặc thời gian phản hồi.
-
-## 14. Nội dung có thể chứng minh khi thuyết trình
-
-Có thể chứng minh:
-
-- Pipeline có thể tái tạo bằng một câu lệnh.
-- Train và validation được tách theo query.
-- LightGBM vượt baseline trên validation trước phát hành.
-- Python và TypeScript cho cùng score.
-- API có fallback khi model lỗi.
-- Hai lịch sử khác nhau tạo thứ tự đề xuất khác nhau.
-
-Không nên tuyên bố rằng MRR hiện tại phản ánh người dùng thật hoặc model đã làm
-tăng doanh thu. Bằng chứng đó chỉ có sau khi thu thập outcome thật và chạy A/B
-test trên production.
+Không tuyên bố rằng MRR hiện tại phản ánh người dùng thật hoặc model đã làm tăng
+doanh thu. Với dữ liệu sinh hiện tại, LightGBM chỉ ngang content fallback.

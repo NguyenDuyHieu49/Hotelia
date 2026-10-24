@@ -61,7 +61,7 @@ function amenitySimilarity(left: string[], right: string[]) {
   return union.size ? [...a].filter(value => b.has(value)).length / union.size : 0;
 }
 
-function candidateFeatures(candidate: Candidate, candidates: Candidate[], signals: Signal[], now: Date) {
+export function candidateFeatures(candidate: Candidate, candidates: Candidate[], signals: Signal[], now: Date) {
   const prices = candidates.map(item => item.price).filter((price): price is number => Number.isFinite(price) && price! > 0);
   const meanPrice = prices.length ? prices.reduce((sum, price) => sum + price, 0) / prices.length : 1;
   const price = Number.isFinite(candidate.price) && candidate.price! > 0 ? candidate.price! : meanPrice;
@@ -74,9 +74,11 @@ function candidateFeatures(candidate: Candidate, candidates: Candidate[], signal
   const starAffinity = weighted(signal => signal.hotel.stars > 0 && candidate.stars > 0
     ? Math.max(0, 1 - Math.abs(signal.hotel.stars - candidate.stars) / 5) : 0);
   const amenityAffinity = weighted(signal => amenitySimilarity(candidate.amenities, signal.hotel.amenities));
-  const hour = now.getHours();
+  // Guests are in Vietnam (UTC+7, no daylight saving); the server may run in UTC.
+  const local = new Date(now.getTime() + 7 * 3600_000);
+  const hour = local.getUTCHours();
   const angle = 2 * Math.PI * hour / 24;
-  const day = now.getDay();
+  const day = local.getUTCDay();
   const values: Record<(typeof HOTELIA_FEATURES)[number], number> = {
     min_price_millions: price / 1_000_000,
     price_relative: price / meanPrice,

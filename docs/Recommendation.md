@@ -1,6 +1,6 @@
 # Recommendation in the application
 
-The iOS Explore screen uses `GET /api/v1/recommendations` on the existing NestJS backend. NestJS loads the Hotelia LightGBM tree artifact in-process, so deployment does not require a second Python service. Successful learned ranking reports `modelUsed: true` and version `hotelia-lgbm-2026-10-23-v2`. A load or scoring error automatically falls back to the content ranker and reports `modelUsed: false`.
+The iOS Explore screen uses `GET /api/v1/recommendations` on the existing NestJS backend. NestJS loads the Hotelia LightGBM tree artifact in-process, so deployment does not require a second Python service. Successful learned ranking reports `modelUsed: true` and version `hotelia-lgbm-2026-10-24-v3`. A load or scoring error automatically falls back to the content ranker and reports `modelUsed: false`.
 
 ## Signals and ordering
 
@@ -33,11 +33,11 @@ When the Explore recommendation row loads, the app sends `POST /recommendations/
 
 Explore loads recommendations on appearing and on pull-to-refresh, retaining the current destination. A request generation counter prevents a slow old search overwriting a newer destination. Backend failure falls back to the ordinary hotel list with an explicit nonpersonalized label. Visible text describes actual ranking instead of claiming AI. No separate port-8000 process is required.
 
-The Trivago `B6-candidates_model.txt` remains a separate research benchmark because its item IDs do not map to Hotelia. The active Hotelia artifact is trained on 8,000 deterministic pre-release queries over the 100-property catalog. Synthetic histories use the same recency decay, booking weight and affinity formulas as backend inference. Its held-out MRR@10 is 0.539 versus 0.373 for the catalog-quality baseline. This validates the training, export and TypeScript scoring path; it is not a production-quality claim. Once enough consented impression, detail-open and confirmed-booking outcomes exist, retrain with those labels and compare against the fallback in an online experiment.
+The Trivago `B6-candidates_model.txt` remains a separate research benchmark because its item IDs do not map to Hotelia. The active Hotelia artifact is trained on 20,000 pre-release queries over a snapshot of the 100 hotels the API serves (`research/data/hotelia-catalog-snapshot.json`), so hotel attributes and all 16 feature formulas match backend inference; time features use Vietnam time. Histories and clicks are still generated. On a held-out test split its MRR@10 is 0.415 versus 0.416 for the content fallback, 0.286 for the catalog-quality baseline and 0.424 for the noise-free generator (oracle). The model is therefore not better than the fallback on this data. This validates the training, export and TypeScript scoring path; it is not a production-quality claim. Once enough consented impression, detail-open and confirmed-booking outcomes exist, retrain with those labels and compare against the fallback in an online experiment. See `docs/LightGBM-Training-Process.md`.
 
 ## Verification
 
-- `npm --prefix backend test -- --runInBand lightgbm-ranker.spec.ts recommendations.spec.ts ranking.spec.ts`: 18 tests cover Python/TypeScript prediction parity, learned ranking, fallback behavior, identity, retry-safe served-row records, bounded candidates, and detail-open association.
+- `npm --prefix backend test -- --runInBand lightgbm-ranker.spec.ts recommendations.spec.ts ranking.spec.ts`: 20 tests cover Python/TypeScript prediction and per-feature parity, Vietnam-time features, learned ranking, fallback behavior, identity, retry-safe served-row records, bounded candidates, and detail-open association.
 - `research/venv/bin/python -m pytest research/tests -q` verifies candidate labels, past-only features, query grouping, baselines, evaluation and model training.
 - Backend build and Hotelia iOS Simulator build passed.
 - The operational catalog migration verifies 80 generated owners, 320 active room types, a 700,000–3,500,000 VND rate range and 100 bookable hotels in one MongoDB transaction.

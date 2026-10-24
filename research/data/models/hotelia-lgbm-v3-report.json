@@ -1,0 +1,176 @@
+{
+  "model": "hotelia-lgbm-v3",
+  "version": "hotelia-lgbm-2026-10-24-v3",
+  "training_source": "generated_pre_release_interactions_over_live_catalog_snapshot",
+  "catalog_snapshot": {
+    "source": "https://api.hotelia.asia/api/v1/recommendations",
+    "fetchedAt": "2026-10-24T14:30:28+00:00",
+    "sha256": "3070e53ce6556a8d85d3b6ff4628b67dce4b6089890a0888f3d0faf03d3d1ba5"
+  },
+  "catalog_hotels": 100,
+  "queries": 20000,
+  "train_queries": 14000,
+  "validation_queries": 3000,
+  "test_queries": 3000,
+  "candidate_groups": {
+    "destination": 7084,
+    "full_catalog": 3914,
+    "sample_8": 9002
+  },
+  "features": [
+    "min_price_millions",
+    "price_relative",
+    "star_rating",
+    "rating",
+    "review_log",
+    "amenity_count",
+    "quality_prior",
+    "city_affinity",
+    "price_affinity",
+    "star_affinity",
+    "amenity_affinity",
+    "history_count",
+    "has_history",
+    "hour_sin",
+    "hour_cos",
+    "is_weekend"
+  ],
+  "best_iteration": 10,
+  "evaluation_split": "test",
+  "quality_baseline": {
+    "all": {
+      "mrr@10": 0.2856636243386243,
+      "hit@10": 0.796,
+      "ndcg@10": 0.4052733684452209,
+      "queries": 3000
+    },
+    "destination": {
+      "mrr@10": 0.3625782169407848,
+      "hit@10": 0.9294755877034359,
+      "ndcg@10": 0.49605608561573805,
+      "queries": 1106,
+      "mean_candidates": 8.827305605786618
+    },
+    "full_catalog": {
+      "mrr@10": 0.028993438427400695,
+      "hit@10": 0.08404802744425385,
+      "ndcg@10": 0.04149773124661374,
+      "queries": 583,
+      "mean_candidates": 100.0
+    },
+    "sample_8": {
+      "mrr@10": 0.33491700265155644,
+      "hit@10": 1.0,
+      "ndcg@10": 0.49045682481150304,
+      "queries": 1311,
+      "mean_candidates": 8.0
+    }
+  },
+  "content_fallback": {
+    "all": {
+      "mrr@10": 0.41609140211640216,
+      "hit@10": 0.8793333333333333,
+      "ndcg@10": 0.5264122461823763,
+      "queries": 3000
+    },
+    "destination": {
+      "mrr@10": 0.4137561353655386,
+      "hit@10": 0.9584086799276673,
+      "ndcg@10": 0.5428483198017722,
+      "queries": 1106,
+      "mean_candidates": 8.827305605786618
+    },
+    "full_catalog": {
+      "mrr@10": 0.18987652808407526,
+      "hit@10": 0.45797598627787306,
+      "ndcg@10": 0.2523817990219432,
+      "queries": 583,
+      "mean_candidates": 100.0
+    },
+    "sample_8": {
+      "mrr@10": 0.5186589662562203,
+      "hit@10": 1.0,
+      "ndcg@10": 0.6344072524916675,
+      "queries": 1311,
+      "mean_candidates": 8.0
+    }
+  },
+  "lightgbm": {
+    "all": {
+      "mrr@10": 0.41543888888888886,
+      "hit@10": 0.8713333333333333,
+      "ndcg@10": 0.5242826889075008,
+      "queries": 3000
+    },
+    "destination": {
+      "mrr@10": 0.40714321593616354,
+      "hit@10": 0.9575045207956601,
+      "ndcg@10": 0.5375481271272639,
+      "queries": 1106,
+      "mean_candidates": 8.827305605786618
+    },
+    "full_catalog": {
+      "mrr@10": 0.17613262000054453,
+      "hit@10": 0.41852487135506006,
+      "ndcg@10": 0.23314859822767606,
+      "queries": 583,
+      "mean_candidates": 100.0
+    },
+    "sample_8": {
+      "mrr@10": 0.5288565616940902,
+      "hit@10": 1.0,
+      "ndcg@10": 0.6425585090412004,
+      "queries": 1311,
+      "mean_candidates": 8.0
+    }
+  },
+  "oracle_expected_utility": {
+    "all": {
+      "mrr@10": 0.42410793650793643,
+      "hit@10": 0.884,
+      "ndcg@10": 0.5337269873424166,
+      "queries": 3000
+    },
+    "destination": {
+      "mrr@10": 0.41375075346594337,
+      "hit@10": 0.9593128390596745,
+      "ndcg@10": 0.54320142111398,
+      "queries": 1106,
+      "mean_candidates": 8.827305605786618
+    },
+    "full_catalog": {
+      "mrr@10": 0.1906824307767704,
+      "hit@10": 0.48027444253859347,
+      "ndcg@10": 0.2582544320810654,
+      "queries": 583,
+      "mean_candidates": 100.0
+    },
+    "sample_8": {
+      "mrr@10": 0.5366495950019977,
+      "hit@10": 1.0,
+      "ndcg@10": 0.6482363511608901,
+      "queries": 1311,
+      "mean_candidates": 8.0
+    }
+  },
+  "feature_importance_gain": {
+    "min_price_millions": 2567.2238273620605,
+    "price_relative": 8450.43009185791,
+    "star_rating": 947.6552963256836,
+    "rating": 532.8952941894531,
+    "review_log": 2985.3706016540527,
+    "amenity_count": 647.4795074462891,
+    "quality_prior": 3167.403522491455,
+    "city_affinity": 27040.475551605225,
+    "price_affinity": 7770.386257171631,
+    "star_affinity": 1212.4568099975586,
+    "amenity_affinity": 3455.2932891845703,
+    "history_count": 1315.1907119750977,
+    "has_history": 0.0,
+    "hour_sin": 304.6824951171875,
+    "hour_cos": 182.68699645996094,
+    "is_weekend": 0.0
+  },
+  "serving": "enabled_with_rule_fallback",
+  "limitation": "Hotel attributes match serving; histories and click outcomes are generated. Replace them with consented served/open/booking outcomes before interpreting metrics as production performance."
+}
