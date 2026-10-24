@@ -1,0 +1,34 @@
+\begin{tikzpicture}[font=\sffamily\scriptsize]
+  \tikzset{s/.style={bstate, minimum width=26mm, minimum height=8mm, font=\sffamily\footnotesize},
+           t/.style={->}, tl/.style={font=\sffamily\scriptsize, fill=white, inner sep=1pt, align=center}}
+  % hotel
+  \node[font=\sffamily\small\bfseries] at (1.3,1.4) {Khách sạn};
+  \node[startnode] (hs) at (0,0.6) {};
+  \node[s] (draft) at (0,-0.6) {DRAFT};
+  \node[s] (pa) at (0,-2.8) {PENDING\_APPROVAL};
+  \node[s] (pub) at (0,-5.0) {PUBLISHED};
+  \node[s] (rej) at (4.6,-2.8) {REJECTED};
+  \node[s] (sus) at (4.6,-6.6) {SUSPENDED};
+  \draw[t] (hs) -- (draft);
+  \draw[t] (draft) -- node[tl] {chủ KS gửi duyệt} (pa);
+  \draw[t] (pa) -- node[tl] {quản trị duyệt} (pub);
+  \draw[t] (pa.10) -- node[tl, above] {từ chối + lý do} (rej.170);
+  \draw[t] (rej.190) -- node[tl, below] {sửa, gửi lại} (pa.350);
+  \draw[t] (pub.south) |- node[tl, pos=0.7] {chủ KS ngừng} (sus.west);
+  % payment
+  \begin{scope}[xshift=8.4cm]
+  \node[font=\sffamily\small\bfseries] at (1.3,1.4) {Thanh toán payOS};
+  \node[startnode] (ps) at (0,0.6) {};
+  \node[s] (proc) at (0,-0.6) {PROCESSING};
+  \node[s] (pen) at (0,-2.8) {PENDING};
+  \node[s] (comp) at (0,-5.0) {COMPLETED};
+  \node[s] (fail) at (4.6,-0.6) {FAILED};
+  \node[s] (canc) at (4.6,-4.4) {CANCELLED};
+  \draw[t] (ps) -- node[tl, right] {tạo bản ghi, orderCode} (proc);
+  \draw[t] (proc) -- node[tl] {payOS trả\\checkoutUrl} (pen);
+  \draw[t] (pen) -- node[tl] {webhook hợp lệ,\\đúng số tiền} (comp);
+  \draw[t] (proc.10) -- node[tl, above] {lỗi/timeout} (fail.170);
+  \draw[t] (fail.190) -- node[tl, below] {thử lại} (proc.350);
+  \draw[t] (pen.east) -| node[tl, pos=0.3, above=1pt] {đặt phòng bị hủy} (canc.north);
+  \end{scope}
+\end{tikzpicture}

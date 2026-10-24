@@ -1,0 +1,130 @@
+\section{Thiết kế đường ống gợi ý}\label{sec:rec-design}
+
+\subsection{Kiến trúc tổng quát}
+
+Đường ống gợi ý của Hotelia gồm hai nửa tách biệt (\cref{fig:rec-pipeline}). Nửa \textbf{ngoại tuyến} chạy bằng Python trên máy phát triển: xuất ảnh chụp danh mục từ API, sinh dữ liệu huấn luyện, huấn luyện LightGBM LambdaRank, đánh giá và xuất mô hình ra JSON. Nửa \textbf{trực tuyến} chạy trong NestJS: lọc ứng viên, tổng hợp tín hiệu, tính 16 đặc trưng, chấm điểm bằng mô hình đã nạp và ghi nhận tương tác. Hai nửa giao tiếp qua đúng hai tệp: ảnh chụp danh mục (đầu vào huấn luyện) và tệp mô hình \code{hotelia-lgbm.active.json} (đầu ra huấn luyện, được commit cùng mã nguồn máy chủ). Tệp mô hình chứa thứ tự đặc trưng; máy chủ từ chối nạp nếu thứ tự này khác hằng \code{HOTELIA\_FEATURES} trong mã TypeScript.
+
+\begin{figure}[H]
+\centering
+\diagram{rec-pipeline}
+\caption{Kiến trúc đường ống gợi ý: huấn luyện ngoại tuyến và phục vụ trực tuyến}\label{fig:rec-pipeline}
+\end{figure}
+
+\subsection{Lọc ứng viên và tín hiệu người dùng}
+
+Tập ứng viên là các khách sạn PUBLISHED có ít nhất một loại phòng đang bán, sau khi áp dụng điểm đến và bộ lọc phòng như \cref{sec:search-design}. Không giới hạn số ứng viên trước khi xếp hạng: mọi ứng viên hợp lệ đều được chấm điểm rồi mới cắt theo \code{limit} (mặc định 20). Ca kiểm thử TC-R03 kiểm chứng điều này.
+
+Tín hiệu của một tác nhân gồm:
+\begin{itemize}
+\item \textbf{Lượt xem}: tối đa 50 lượt xem trong 90 ngày, mỗi khách sạn một bản ghi. Trọng số tính theo \cref{eq:decay}: $w = 2^{-d/14}$.
+\item \textbf{Đặt phòng đã xác nhận}: tối đa 50 đặt phòng trong 90 ngày ở các trạng thái PAID, CONFIRMED, CHECKED\_IN, CHECKED\_OUT, COMPLETED. Mỗi khách sạn có trọng số 3, chỉ tính một lần.
+\end{itemize}
+Tác nhân là \code{user:<id>} khi có access token hợp lệ, ngược lại là \code{session:<uuid>} do ứng dụng sinh và lưu trên thiết bị. Khi người dùng đã đăng nhập, hệ thống không trộn lịch sử của phiên ẩn danh vào hồ sơ tài khoản (BR-22). Cách này tránh việc gán nhầm hành vi của người dùng chung thiết bị.
+
+\subsection{Mười sáu đặc trưng}
+
+\Cref{tab:features} định nghĩa 16 đặc trưng của mỗi cặp (truy vấn, khách sạn). Ký hiệu: $p$ là giá thấp nhất của khách sạn (thay bằng $\bar p$ nếu thiếu); $\bar p$ là giá trung bình của các ứng viên trong truy vấn; $\mathcal{S}$ là tập tín hiệu với trọng số $w_j$ và $W = \sum_j w_j$; $r$, $R$ lần lượt là số đánh giá và điểm trung bình; $\mathcal{A}$ là tập tiện nghi đã chuẩn hóa (bỏ dấu, chữ thường); $h$ là giờ hiện tại theo giờ Việt Nam.
+
+\begin{rtable}
+\begin{longtable}{|C{0.6cm}|L{3.3cm}|L{5.6cm}|L{5.2cm}|}
+\caption{Mười sáu đặc trưng của mô hình xếp hạng}\label{tab:features}\\
+\hline
+\thead{\#} & \thead{Tên} & \thead{Công thức} & \thead{Ý nghĩa} \\ \hline
+\endfirsthead
+\hline
+\thead{\#} & \thead{Tên} & \thead{Công thức} & \thead{Ý nghĩa} \\ \hline
+\endhead
+\multicolumn{4}{|l|}{\textit{Nhóm thuộc tính khách sạn}} \\ \hline
+1 & min\_price\_millions & $p / 10^6$ & Mức giá tuyệt đối \\ \hline
+2 & price\_relative & $p / \bar p$ & Đắt hay rẻ so với các lựa chọn khác trong cùng truy vấn \\ \hline
+3 & star\_rating & $\max(0, \text{sao})$; 0 nếu chưa rõ & Hạng sao \\ \hline
+4 & rating & $\max(0, R)$ & Điểm đánh giá \\ \hline
+5 & review\_log & $\ln(1 + r)$ & Độ tin cậy của điểm, nén theo logarit \\ \hline
+6 & amenity\_count & $|\mathcal{A}_{\text{raw}}|$ & Số tiện nghi khai báo \\ \hline
+7 & quality\_prior & $\dfrac{r \cdot \min(5,R) + 5 \cdot 3{,}5}{(r + 5)\cdot 5}$ & Điểm chất lượng có prior Bayes: 5 đánh giá ảo ở mức 3,5 sao, tránh để một đánh giá 5 sao duy nhất đứng đầu \\ \hline
+\multicolumn{4}{|l|}{\textit{Nhóm phù hợp với lịch sử (bằng 0 khi chưa có lịch sử)}} \\ \hline
+8 & city\_affinity & $\frac{1}{W}\sum_j w_j \,[\text{city} = \text{city}_j]$ & Tỷ lệ trọng số lịch sử ở cùng thành phố \\ \hline
+9 & price\_affinity & $\exp\!\big(-\big|\ln p - \frac{1}{W}\sum_j w_j \ln p_j\big|\big)$ & Độ gần với mức giá quen thuộc (theo tỷ lệ, không theo hiệu) \\ \hline
+10 & star\_affinity & $\frac{1}{W}\sum_j w_j \max\!\big(0, 1 - \frac{|s - s_j|}{5}\big)$ & Độ gần về hạng sao \\ \hline
+11 & amenity\_affinity & $\frac{1}{W}\sum_j w_j \frac{|\mathcal{A} \cap \mathcal{A}_j|}{|\mathcal{A} \cup \mathcal{A}_j|}$ & Độ tương đồng Jaccard về tiện nghi \\ \hline
+12 & history\_count & $\min(50, |\mathcal{S}|)$ & Lượng lịch sử \\ \hline
+13 & has\_history & $[W > 0]$ & Phân biệt khám phá và cá nhân hóa \\ \hline
+\multicolumn{4}{|l|}{\textit{Nhóm ngữ cảnh thời gian (giờ Việt Nam)}} \\ \hline
+14 & hour\_sin & $\sin(2\pi h / 24)$ & Mã hóa tuần hoàn giờ trong ngày: 23 giờ và 0 giờ gần nhau \\ \hline
+15 & hour\_cos & $\cos(2\pi h / 24)$ & Như trên \\ \hline
+16 & is\_weekend & $[\text{thứ Bảy hoặc Chủ nhật}]$ & Cuối tuần \\ \hline
+\end{longtable}
+\end{rtable}
+
+\textbf{Ví dụ.} Một khách đã đặt một resort 5 sao ở Đà Nẵng giá 1,2 triệu đồng ($w = 3$), đang xem danh sách ở Đà Nẵng với giá trung bình 1,0 triệu. Một ứng viên 4 sao ở Đà Nẵng giá 1,1 triệu có \code{price\_relative} $= 1{,}1$, \code{city\_affinity} $= 1$, \code{price\_affinity} $= e^{-|\ln 1{,}1 - \ln 1{,}2|} \approx 0{,}917$ và \code{star\_affinity} $= 1 - 1/5 = 0{,}8$. Một ứng viên 3 sao ở Hội An giá 0,6 triệu có \code{city\_affinity} $= 0$, \code{price\_affinity} $= 0{,}5$ và \code{star\_affinity} $= 0{,}6$.
+
+\subsection{Dữ liệu huấn luyện trước phát hành}\label{sec:training-data}
+
+Vì chưa có đủ hành vi người dùng thật, dữ liệu huấn luyện được sinh có kiểm soát. Phiên bản v3 sinh dữ liệu như sau:
+\begin{enumerate}
+\item \textbf{Danh mục}: dùng nguyên 100 khách sạn trong ảnh chụp API, với giá, hạng sao, điểm, số đánh giá và tiện nghi đúng như lúc phục vụ.
+\item \textbf{Người dùng mô phỏng}: chọn ngẫu nhiên một thành phố và một khách sạn ``ưa thích''. 76\% truy vấn có lịch sử. Số tín hiệu là 1--12 (70\%) hoặc 13--50 (30\%). Khách sạn trong lịch sử được chọn theo phân phối softmax của độ hợp về thành phố, giá, sao và tiện nghi. 18\% tín hiệu là đặt phòng (trọng số 3), còn lại là lượt xem có tuổi ngẫu nhiên 0--90 ngày.
+\item \textbf{Nhóm ứng viên}: 45\% truy vấn có 8 ứng viên (4 cùng thành phố, 4 ngẫu nhiên); 35\% là toàn bộ khách sạn của một thành phố (trung bình 8,8); 20\% là cả 100 khách sạn, tương ứng truy vấn không chọn điểm đến.
+\item \textbf{Nhãn}: lợi ích kỳ vọng của mỗi ứng viên là tổ hợp tuyến tính
+$U = 1{,}75\,x_8 + 1{,}0\,x_9 + 0{,}65\,x_{10} + 0{,}55\,x_{11} + 0{,}7\,x_7 - 0{,}12\,x_2$, cộng 0,12 cho tiện nghi gia đình vào cuối tuần. Cộng nhiễu Gumbel với tham số tỷ lệ 0,34 rồi chọn ứng viên lớn nhất. Cách làm này tương đương lựa chọn theo mô hình logit đa thức. Ứng viên được chọn có nhãn 1, các ứng viên khác có nhãn 0.
+\end{enumerate}
+Các hệ số trên là \emph{giả định} của người thiết kế dữ liệu, không được ước lượng từ người dùng thật. \Cref{sec:eval-model} phân tích hệ quả của giả định này đối với kết quả đánh giá.
+
+\subsection{Mô hình và tiêu chí chọn}
+
+Mô hình là \code{LGBMRanker} với mục tiêu \code{lambdarank}, tối đa 1000 cây, tốc độ học 0,05, 31 lá mỗi cây, tối thiểu 50 mẫu mỗi lá, lấy mẫu 90\% đặc trưng và 90\% dữ liệu mỗi vòng. Dữ liệu chia theo truy vấn thành 70\% huấn luyện, 15\% kiểm định và 15\% kiểm tra. Số cây được chọn bằng dừng sớm theo NDCG@10 trên tập kiểm định (dừng sau 50 vòng không cải thiện). Mọi chỉ số báo cáo đều tính trên tập kiểm tra, vốn không tham gia vào bất kỳ quyết định huấn luyện nào.
+
+\subsection{Cơ chế dự phòng và ghi nhận tương tác}
+
+Bộ xếp hạng dự phòng trong \code{ranking.ts} cho điểm
+\begin{equation}
+  \text{score} = \begin{cases}
+    0{,}7 \cdot \frac{1}{W}\sum_j w_j\, \text{sim}(h, h_j) + 0{,}3 \cdot \text{quality\_prior} & \text{nếu } W > 0,\\
+    \text{quality\_prior} & \text{nếu } W = 0,
+  \end{cases}
+  \label{eq:content-score}
+\end{equation}
+với $\text{sim} = 0{,}4\,[\text{cùng thành phố}] + 0{,}25\,\text{Jaccard tiện nghi} + 0{,}2\,\frac{\min(p, p_j)}{\max(p, p_j)} + 0{,}15\,(1 - |s - s_j|/5)$. Sau đó các khách sạn được chọn tham lam, mỗi lần trừ điểm theo số khách sạn cùng thành phố đã được chọn: 0,08 cho chế độ khám phá và 0,015 khi có lịch sử. Bước này tạo sự đa dạng thành phố cho người dùng mới, tương tự ý tưởng xếp hạng lại theo độ đa dạng \cite{carbonell1998}. Bộ xếp hạng dự phòng được dùng khi tệp mô hình không tồn tại, sai thứ tự đặc trưng, không có cây, hoặc khi chấm điểm gặp lỗi. Phản hồi của API cho biết bộ xếp hạng nào đã được dùng (\code{ranking.modelUsed}, \code{ranking.version}).
+
+Ứng dụng ghi nhận hai loại sự kiện. \textbf{Lượt hiển thị} (impression) là thứ tự tối đa 8 khách sạn đầu tiên của hàng gợi ý, kèm ngữ cảnh truy vấn. \textbf{Lượt mở chi tiết} chỉ được gắn vào một lượt hiển thị khi đúng tác nhân, đúng mã lượt hiển thị và khách sạn có trong danh sách. Thiết kế này nhằm sau này tạo được nhãn ``hiển thị nhưng không mở'' và ``hiển thị và mở'' từ hành vi thật. Để bảo vệ quyền riêng tư, hệ thống không lưu văn bản tìm kiếm tự do (chỉ lưu thành phố nếu khớp danh mục), dữ liệu tự xóa sau 90 ngày, và người dùng có thể tự xóa lịch sử (UC12). Các thiết kế này nhằm đáp ứng nguyên tắc tối thiểu hóa dữ liệu của Nghị định 13/2023/NĐ-CP \cite{nd13}. Cơ chế xin đồng ý trước khi thu thập chưa được cài đặt và được nêu trong hướng phát triển.
+
+\section{Thiết kế giao diện người dùng song ngữ}\label{sec:ui-design}
+
+\subsection{Nguyên tắc thiết kế}
+
+Giao diện iOS tuân theo hướng dẫn giao diện người của Apple \cite{applehig}: thanh tab dưới cùng cho ba khu vực chính, bảng (sheet) trượt từ dưới lên cho các tác vụ ngắn như đặt phòng hay chọn ngôn ngữ, và nút hành động chính đặt ở cuối màn hình. Bảng điều khiển web dùng bố cục thanh bên cố định, phân nhóm ``Vận hành'' và ``Theo dõi'' cho chủ khách sạn, ``Điều hành'' và ``Kiểm soát'' cho quản trị viên. Ba nguyên tắc nội dung được áp dụng nhất quán:
+\begin{itemize}
+\item \textbf{Trung thực về dữ liệu}: điểm biên tập luôn kèm nhãn ``Điểm Hotelia'' và ghi chú không phải đánh giá của khách đã lưu trú; khách sạn chỉ để xem không có nút đặt phòng; ảnh minh họa điểm đến được gắn nhãn ``Ảnh điểm đến''.
+\item \textbf{Nói rõ điều sẽ xảy ra}: màn đặt phòng ghi rõ thời gian giữ 15 phút, giá cuối được xác nhận khi tạo đặt phòng, và ``chưa có cam kết hoàn tiền tự động''.
+\item \textbf{Trạng thái nhìn thấy được}: mỗi đặt phòng có nhãn trạng thái màu (chờ thanh toán màu cam, đã xác nhận màu xanh dương, đã hủy màu đỏ).
+\end{itemize}
+
+\subsection{Cấu trúc điều hướng}
+
+\Cref{fig:nav-ios} trình bày sơ đồ điều hướng của ứng dụng iOS và \cref{fig:nav-web} trình bày sơ đồ trang của bảng điều khiển. Bảng điều khiển định tuyến theo vai trò: \code{/owner/*} cho OWNER và ADMIN, \code{/admin/*} chỉ cho ADMIN. Người dùng không đủ quyền được chuyển về trang đăng nhập.
+
+\begin{figure}[H]
+\centering
+\diagram{nav-ios}
+\caption{Sơ đồ điều hướng của ứng dụng iOS}\label{fig:nav-ios}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\diagram{nav-web}
+\caption{Sơ đồ trang của bảng điều khiển chủ khách sạn và quản trị viên}\label{fig:nav-web}
+\end{figure}
+
+\subsection{Thiết kế song ngữ}
+
+Ứng dụng iOS có ba lựa chọn ngôn ngữ: theo hệ thống, tiếng Việt và tiếng Anh. Lựa chọn được lưu trong \code{UserDefaults} (khóa \code{appLanguage}). Hàm \code{L10n.text} đọc chuỗi từ gói ngôn ngữ tương ứng trong String Catalog, hiện có 920 khóa. Ngày, số và tiền tệ được định dạng theo \code{Locale} của ngôn ngữ đã chọn. Ví dụ, cùng một số tiền hiển thị là ``520.933'' trong tiếng Việt và ``520,933'' trong tiếng Anh. Khi người dùng đổi ngôn ngữ, toàn bộ cây giao diện được dựng lại để không còn chuỗi cũ. Thông điệp lỗi do máy chủ trả về được dịch ở phía ứng dụng nếu có khóa tương ứng.
+
+Hai giới hạn được ghi nhận. Thứ nhất, nội dung dữ liệu như mô tả khách sạn và nhận xét biên tập phần lớn chỉ có tiếng Việt, nên vẫn hiển thị tiếng Việt khi giao diện ở tiếng Anh. Thứ hai, bảng điều khiển web hiện chỉ có tiếng Việt; bản tiếng Anh là hướng phát triển.
+
+\subsection{Hệ thống thiết kế}
+
+Ứng dụng iOS định nghĩa màu, khoảng cách và kiểu chữ dưới dạng hằng số dùng chung (\code{AppColors}, \code{AppSpacing}, \code{AppTypography}). Màu chính là xanh dương \code{\#007AFF}; các màu trạng thái gồm xanh lá \code{\#34C759}, đỏ \code{\#FF3B30} và cam \code{\#FF9500}. Bảng điều khiển định nghĩa token thiết kế trong \code{styles/tokens.css} và dùng Tailwind CSS. Hai nền tảng có giao diện riêng, nhưng cùng nguyên tắc nhãn trạng thái và cùng thuật ngữ nghiệp vụ.
+
+\section{Kết luận chương}
+
+Chương này đã phân tích yêu cầu của Hotelia với 37 yêu cầu chức năng, 16 yêu cầu phi chức năng và 37 ca sử dụng. Chương cũng đặc tả 25 quy tắc nghiệp vụ của luồng đặt phòng, máy trạng thái của đặt phòng, khách sạn và thanh toán, cùng các biểu đồ tuần tự chính. Về cấu trúc, chương trình bày kiến trúc phân lớp, cơ sở dữ liệu 13 bộ sưu tập, 78 điểm cuối API, ma trận phân quyền, đường ống gợi ý với 16 đặc trưng và thiết kế giao diện song ngữ. \Cref{chap:implementation} trình bày cách các thiết kế này được cài đặt.

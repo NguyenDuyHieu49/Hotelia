@@ -1,0 +1,32 @@
+\begin{tikzpicture}[font=\sffamily\footnotesize]
+  \tikzset{b/.style={box, text width=30mm, font=\sffamily\footnotesize, inner sep=3pt},
+           m/.style={box, text width=19mm, font=\sffamily\scriptsize, inner sep=2pt, minimum height=7mm},
+           frame/.style={draw, thick}, ftitle/.style={anchor=north west, font=\sffamily\scriptsize\bfseries}}
+  % presentation layer
+  \draw[frame] (0,0.9) rectangle (9.8,-1.25); \node[ftitle] at (0,0.9) {LỚP TRÌNH BÀY};
+  \node[b] (ios) at (2.5,-0.3) {\textbf{Ứng dụng iOS}\\SwiftUI, MVVM, vi/en};
+  \node[b] (web) at (7.3,-0.3) {\textbf{Bảng điều khiển}\\React, Owner/Admin};
+  % API layer
+  \draw[frame] (0,-1.9) rectangle (9.8,-5.3); \node[ftitle] at (0,-1.9) {LỚP API -- NestJS, Docker trên Render};
+  \foreach \t [count=\i from 0] in {Auth,{Users, Account},{Hotels, RoomTypes},Bookings,Payments,Reviews,{Owners, Admin},{Notifi-\\cations},{Recommen-\\dations},{LightGBM (JSON)},{Guards, Audit},{Exception Filter}} {
+    \pgfmathtruncatemacro\r{int(\i/4)}\pgfmathtruncatemacro\c{mod(\i,4)}
+    \node[m] at (1.4+\c*2.35,-2.75-\r*0.9) {\t};
+  }
+  % data layer
+  \draw[frame] (0,-6.0) rectangle (9.8,-8.2); \node[ftitle] at (0,-6.0) {LỚP DỮ LIỆU};
+  \node[store, minimum width=34mm] (mongo) at (4.3,-7.3) {MongoDB Atlas\\\scriptsize 13 bộ sưu tập};
+  \node[store, minimum width=24mm] (media) at (8.1,-7.3) {/media\\\scriptsize ảnh khách sạn};
+  % external services
+  \draw[frame] (11.0,0.9) rectangle (15.6,-5.3); \node[ftitle] at (11.0,0.9) {DỊCH VỤ NGOÀI};
+  \node[b, text width=30mm] (meteo) at (13.3,-0.3) {\textbf{Open-Meteo}\\dự báo thời tiết};
+  \node[b, text width=27mm] (payos) at (13.4,-2.6) {\textbf{payOS}\\VietQR, webhook ký số};
+  \node[b, text width=27mm] (idp) at (13.4,-4.3) {\textbf{Google / Apple}\\JWKS, ID token};
+  % links
+  \draw[<->] (ios.south) -- node[lbl, right] {HTTPS, JSON} (2.5,-1.9);
+  \draw[<->] (web.south) -- node[lbl, right] {HTTPS, JSON} (7.3,-1.9);
+  \draw[<->] (4.3,-5.3) -- (mongo.north);
+  \draw[->] (8.1,-5.3) -- (media.north);
+  \draw[->] (ios.north) -- ++(0,0.75) -| node[lbl, pos=0.25, above] {gọi trực tiếp từ iOS} (meteo.north);
+  \draw[<->] (9.8,-2.6) -- node[lbl, above, font=\sffamily\tiny] {webhook} (payos.west);
+  \draw[->] (9.8,-4.3) -- node[lbl, above, font=\sffamily\tiny] {JWKS} (idp.west);
+\end{tikzpicture}

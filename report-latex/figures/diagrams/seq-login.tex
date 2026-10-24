@@ -1,0 +1,27 @@
+\begin{seqdiagram}
+  \participant{app}{0}{Ứng dụng iOS}
+  \participant{ctl}{3.0}{Auth-\\Controller}
+  \participant{auth}{6.0}{AuthService}
+  \participant{users}{9.0}{UsersService}
+  \participant{db}{12.0}{MongoDB (users)}
+  \participant{kc}{14.6}{Keychain}
+  \msg{app}{ctl}{POST /auth/login}
+  \msg{ctl}{auth}{login(dto)}
+  \msg{auth}{users}{findByEmail(email)}
+  \msg{users}{db}{findOne(email)}
+  \ret{db}{users}{user | null}
+  \fragopen{app}{db}{alt}{[không tìm thấy]}
+  \ret{auth}{app}{401 Invalid credentials}
+  \fragelse{[đang bị khóa tạm]}
+  \ret{auth}{app}{400 Account is temporarily locked}
+  \fragelse{[sai mật khẩu]}
+  \msg{users}{db}{tăng đếm sai; lần 5 khóa 15 phút}
+  \ret{auth}{app}{401 Invalid credentials}
+  \fragelse{[đúng mật khẩu]}
+  \msg{users}{db}{đặt lại đếm sai, lastLoginAt}
+  \self{auth}{ký access (15 phút), refresh (7 ngày)}
+  \msg{users}{db}{lưu bcrypt(refreshToken)}
+  \ret{auth}{app}{200 \{user, accessToken, refreshToken\}}
+  \msg{app}{kc}{lưu hai token}
+  \fragclose
+\end{seqdiagram}

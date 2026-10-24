@@ -1,0 +1,26 @@
+\begin{tikzpicture}[font=\sffamily\footnotesize, node distance=5mm and 10mm]
+  \tikzset{a/.style={act, text width=40mm, font=\sffamily\scriptsize, minimum height=7mm, inner sep=3pt},
+           d/.style={decision, font=\sffamily\scriptsize, inner sep=0pt, text width=24mm, aspect=2.4}}
+  \node[startnode] (s) {};
+  \node[a, below=of s] (a1) {Khách chọn hủy, nhập lý do};
+  \node[d, below=of a1] (d1) {Trạng thái hiện tại?};
+  \node[a, below left=8mm and -6mm of d1] (p1) {PENDING\_PAYMENT $\rightarrow$ CANCELLED; giải phóng tồn kho};
+  \node[a, below=of p1] (p2) {Hủy liên kết payOS đang chờ (nếu có)};
+  \node[a, below right=8mm and -6mm of d1] (c1) {CONFIRMED $\rightarrow$ CANCEL\_REQUESTED; vẫn giữ tồn kho};
+  \node[a, below=of c1] (c2) {Chủ khách sạn hoặc quản trị viên xem xét};
+  \node[d, below=of c2] (d2) {Đã có thanh toán payOS hoàn tất?};
+  \node[a, below left=6mm and -14mm of d2] (c3) {CANCELLED, giải phóng tồn kho};
+  \node[a, below right=6mm and -14mm of d2] (c4) {Từ chối xác nhận: cần hoàn tiền thủ công trước};
+  \node[a, right=10mm of d1, text width=30mm] (x) {Trạng thái khác: 400 không thể hủy};
+  \node[endnode, below=of p2] (e1) {};
+  \node[endnode, below=6mm of c3] (e2) {};
+  \draw[flow] (s) -- (a1); \draw[flow] (a1) -- (d1);
+  \draw[flow] (d1) -| node[lbl, pos=0.3, above] {chờ thanh toán} (p1);
+  \draw[flow] (d1) -| node[lbl, pos=0.3, above] {đã xác nhận} (c1);
+  \draw[flow] (d1) -- (x);
+  \draw[flow] (p1) -- (p2); \draw[flow] (p2) -- (e1);
+  \draw[flow] (c1) -- (c2); \draw[flow] (c2) -- (d2);
+  \draw[flow] (d2) -| node[lbl, pos=0.3, above] {không} (c3);
+  \draw[flow] (d2) -| node[lbl, pos=0.3, above] {có} (c4);
+  \draw[flow] (c3) -- (e2);
+\end{tikzpicture}

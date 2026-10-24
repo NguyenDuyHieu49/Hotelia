@@ -1,0 +1,29 @@
+\fronttitle{Kết luận}
+
+\section*{Kết quả đạt được}
+
+Đồ án đã xây dựng và triển khai Hotelia, một nền tảng đặt phòng khách sạn gồm ứng dụng iOS song ngữ viết bằng SwiftUI theo mô hình MVVM, máy chủ NestJS với MongoDB, bảng điều khiển React cho chủ khách sạn và quản trị viên, và thành phần gợi ý khách sạn dựa trên LightGBM LambdaRank. Hệ thống đang chạy với API tại \code{api.hotelia.asia} (Render), bảng điều khiển tại \code{admin.hotelia.asia} (Vercel) và cơ sở dữ liệu MongoDB Atlas, phục vụ danh mục 100 khách sạn tại 14 điểm đến.
+
+Đối chiếu với bốn câu hỏi nghiên cứu nêu ở phần Mở đầu:
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=1.4cm]
+\item \textbf{Chống bán trùng và lũy đẳng.} Việc kết hợp quy ước ngày nửa mở, đếm phòng trống theo từng đêm, giao dịch MongoDB với tài liệu khóa theo loại phòng và khóa \code{Idempotency-Key} có băm nội dung đã ngăn được bán trùng và đặt phòng trùng. Điều này được kiểm chứng trên MongoDB thật, trong đó hai khách tranh căn phòng cuối thì chỉ một người thành công, và các yêu cầu gửi lại cùng khóa chỉ tạo một đặt phòng.
+\item \textbf{Xác thực, phân quyền và thanh toán an toàn.} Máy chủ tự xác minh ID token của Google và Apple, phân quyền ba vai trò kết hợp kiểm tra quyền sở hữu, và chỉ xác nhận thanh toán payOS qua webhook có chữ ký với số tiền khớp. Quá trình đối chiếu khi viết báo cáo đã phát hiện và sửa một lỗ hổng: refresh token dùng được thay access token. 13 ca kiểm thử phân quyền qua HTTP đều đạt.
+\item \textbf{Gợi ý chạy trong NestJS.} Đường ống lọc ứng viên, ghi nhận lượt hiển thị và lượt mở chi tiết, tính 16 đặc trưng và chấm điểm mô hình LightGBM từ tệp JSON hoạt động trong chính tiến trình NestJS mà không cần dịch vụ Python. Điểm số và từng đặc trưng khớp với Python tới 9 chữ số thập phân. Mọi lỗi của tệp mô hình đều được chuyển sang bộ xếp hạng dự phòng.
+\item \textbf{Ý nghĩa của MRR, NDCG trên dữ liệu trước phát hành.} Phiên bản v2 đạt MRR@10 = 0,539 và NDCG@10 = 0,650, so với 0,373 và 0,520 của đường cơ sở chất lượng. Khi đánh giá chặt hơn ở v3 (tập kiểm tra riêng, so với bộ xếp hạng nội dung và mức oracle), LightGBM đạt MRR@10 = 0,415, ngang bộ xếp hạng nội dung (0,416) và gần giới hạn trên của dữ liệu (0,424). Các con số này xác nhận đường ống hoạt động đúng và mô hình học được quy luật của dữ liệu sinh. Chúng không chứng minh mô hình gợi ý tốt hơn trên người dùng thật.
+\end{enumerate}
+
+\section*{Giới hạn}
+
+Đồ án có các giới hạn sau, đã được trình bày chi tiết ở \cref{sec:limitations}:
+\begin{itemize}
+\item Mô hình gợi ý chưa được huấn luyện hay đánh giá trên hành vi người dùng thật và chưa qua thử nghiệm A/B. Vì vậy chưa thể khẳng định mô hình cải thiện trải nghiệm hay tỷ lệ đặt phòng.
+\item 80 trong 100 khách sạn có giá, tồn kho và chủ khách sạn mô phỏng; điểm đánh giá hiển thị là điểm biên tập.
+\item Thanh toán payOS chưa được kiểm thử với giao dịch thật; hoàn tiền tự động chưa được cài đặt.
+\item Sign in with Apple phụ thuộc tài khoản Apple Developer Program trả phí khi triển khai thật.
+\item Bảng điều khiển web chỉ có tiếng Việt; chưa có kiểm thử tải và kiểm thử giao diện tự động; hạ tầng đang dùng gói miễn phí.
+\end{itemize}
+
+\section*{Hướng phát triển}
+
+Bước tiếp theo quan trọng nhất là thu thập dữ liệu hành vi có sự đồng ý của người dùng, rồi huấn luyện lại mô hình bằng nhãn thật và so sánh với bộ xếp hạng nội dung qua thử nghiệm A/B. Song song là các việc hoàn thiện sản phẩm: kích hoạt và kiểm thử thanh toán trực tuyến, cài đặt hoàn tiền, giám sát mô hình và hệ thống, tối ưu tập ứng viên khi danh mục lớn lên, đa dạng hóa kết quả gợi ý, hoàn thiện bảo mật môi trường vận hành và bổ sung bản tiếng Anh cho bảng điều khiển.

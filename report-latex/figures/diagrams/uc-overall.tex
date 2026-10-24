@@ -1,0 +1,24 @@
+\begin{tikzpicture}[font=\sffamily\small]
+  \tikzset{uc/.style={usecase, minimum width=44mm, text width=40mm, inner sep=0pt, minimum height=9mm, font=\sffamily\footnotesize}}
+  \draw[sysbox] (2.3,1.2) rectangle (11.7,-11.4);
+  \node[font=\sffamily\small\bfseries, anchor=north] at (7,1.15) {Hệ thống Hotelia};
+  \node[uc] (auth) at (7,-0.4) {Xác thực và tài khoản};
+  \node[uc] (search) at (7,-1.65) {Khám phá, tìm kiếm khách sạn};
+  \node[uc] (rec) at (7,-2.9) {Xem gợi ý cá nhân hóa};
+  \node[uc] (weather) at (7,-4.15) {Xem thời tiết};
+  \node[uc] (book) at (7,-5.4) {Đặt phòng};
+  \node[uc] (pay) at (7,-6.65) {Thanh toán};
+  \node[uc] (hist) at (7,-7.9) {Lịch sử, hủy, đánh giá};
+  \node[uc] (owner) at (7,-9.15) {Quản lý khách sạn, đặt phòng, lưu trú};
+  \node[uc] (admin) at (7,-10.4) {Quản trị nền tảng};
+  \actor{guest}{0.9,-3.0}{Khách}
+  \actor{own}{0.9,-8.3}{Chủ khách sạn}
+  \actor{adm}{0.9,-10.6}{Quản trị viên}
+  \actor{idp}{13.2,-0.9}{Google/Apple}
+  \actor{meteo}{13.2,-4.2}{Open-Meteo}
+  \actor{payos}{13.2,-7.0}{payOS}
+  \foreach \u in {auth,search,rec,weather,book,pay,hist} \draw (guest) -- (\u.west);
+  \draw (own) -- (auth.west); \draw (own) -- (owner.west);
+  \draw (adm) -- (auth.west); \draw (adm) -- (admin.west);
+  \draw (auth.east) -- (idp); \draw (weather.east) -- (meteo); \draw (pay.east) -- (payos);
+\end{tikzpicture}

@@ -1,0 +1,137 @@
+\chapter{Tổng quan đề tài}\label{chap:overview}
+
+Chương này trình bày lý do chọn đề tài, bối cảnh chuyển đổi số trong lĩnh vực du lịch và đặt phòng khách sạn, mục tiêu, đối tượng, phạm vi và phương pháp nghiên cứu. Cuối chương nêu các đóng góp của đề tài và cấu trúc của báo cáo.
+
+\section{Lý do chọn đề tài}\label{sec:reason}
+
+Ứng dụng đặt phòng là một bài toán phần mềm quen thuộc, nhưng phần khó của nó không nằm ở giao diện danh sách khách sạn. Phần khó nằm ở những tình huống mà người dùng hiếm khi nhìn thấy: hai khách cùng bấm đặt căn phòng cuối cùng trong cùng một giây; điện thoại mất sóng ngay sau khi gửi yêu cầu nên ứng dụng không biết đặt phòng đã được tạo hay chưa; cổng thanh toán báo tiền về sau khi thời gian giữ phòng đã hết; hay một chủ khách sạn giảm số phòng xuống thấp hơn số phòng đã bán cho tương lai. Một hệ thống đặt phòng chỉ có giá trị khi xử lý đúng những tình huống này, vì sai sót ở đây dẫn trực tiếp tới khách đến nơi mà không có phòng hoặc bị trừ tiền hai lần.
+
+Lý do thứ hai là nhu cầu gợi ý. Khi danh mục có hàng trăm khách sạn, việc sắp xếp theo điểm đánh giá hoặc theo giá không phản ánh sở thích riêng của từng người. Người đã xem nhiều khu nghỉ dưỡng ven biển ở Đà Nẵng với mức giá khoảng một triệu đồng có lẽ không muốn thấy một khách sạn thành phố ở Hà Nội đứng đầu danh sách. Các hệ thống gợi ý trong thương mại điện tử và du lịch giải quyết vấn đề này bằng cách học thứ tự hiển thị từ hành vi người dùng \cite{ricci2022,adamczak2019}. Tuy nhiên, với một nền tảng mới, việc đưa học máy vào ngay từ đầu đặt ra câu hỏi về dữ liệu: khi chưa có người dùng thật thì mô hình học từ đâu, và kết quả đánh giá có ý nghĩa gì. Đề tài chọn đối diện trực tiếp câu hỏi này thay vì trình bày một con số chính xác cao mà không giải thích nguồn gốc dữ liệu.
+
+Lý do thứ ba mang tính học thuật: đề tài là đồ án liên ngành, đòi hỏi kết hợp phát triển ứng dụng di động, phát triển máy chủ, phát triển web, cơ sở dữ liệu, an toàn thông tin và học máy trong cùng một sản phẩm. Hotelia đáp ứng yêu cầu đó với năm thành phần chính: ứng dụng iOS viết bằng SwiftUI, máy chủ NestJS, bảng điều khiển React, cơ sở dữ liệu MongoDB và đường ống huấn luyện mô hình bằng Python.
+
+\section{Bối cảnh chuyển đổi số ngành du lịch và đặt phòng khách sạn}\label{sec:context}
+
+\subsection{Chính sách chuyển đổi số trong du lịch}
+
+Chiến lược phát triển du lịch Việt Nam đến năm 2030 xác định ứng dụng khoa học công nghệ và chuyển đổi số là một trong những giải pháp phát triển du lịch \cite{qd147}. Trước đó, Đề án tổng thể ứng dụng công nghệ thông tin trong lĩnh vực du lịch giai đoạn 2018--2020, định hướng đến năm 2025 đặt mục tiêu hình thành hệ sinh thái du lịch thông minh, trong đó doanh nghiệp và du khách sử dụng các nền tảng số trong tìm kiếm thông tin, đặt dịch vụ và thanh toán \cite{qd1671}. Cùng với đó, Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân đặt ra yêu cầu về sự đồng ý của chủ thể dữ liệu và trách nhiệm của bên xử lý dữ liệu \cite{nd13}. Yêu cầu này ảnh hưởng trực tiếp tới cách một hệ thống gợi ý thu thập và lưu trữ hành vi người dùng.
+
+\subsection{Các mô hình phân phối phòng khách sạn}
+
+Phòng khách sạn hiện được phân phối qua ba kênh chính. Kênh thứ nhất là các đại lý du lịch trực tuyến (OTA), nơi một nền tảng tổng hợp hàng nghìn khách sạn, cung cấp tìm kiếm, đánh giá, thanh toán và chương trình khách hàng thân thiết. Kênh thứ hai là kênh bán trực tiếp qua website hoặc tổng đài của khách sạn. Kênh thứ ba là hệ thống quản lý vận hành khách sạn (PMS) kết nối với các kênh bán thông qua bộ quản lý kênh. \Cref{tab:channels} so sánh định tính các kênh này với phạm vi mà Hotelia hướng tới. Bảng không đánh giá một sản phẩm thương mại cụ thể nào, vì đồ án không có số liệu đo lường độc lập về chúng.
+
+\begin{table}[H]
+\centering
+\caption{So sánh định tính các kênh phân phối phòng và phạm vi của Hotelia}\label{tab:channels}
+\begin{rtable}
+\begin{tabular}{|L{3.4cm}|L{3.6cm}|L{3.6cm}|L{4.0cm}|}
+\hline
+\thead{Khía cạnh} & \thead{OTA quy mô lớn} & \thead{Website riêng của khách sạn} & \thead{Hotelia (đồ án)} \\ \hline
+Danh mục & Rất nhiều khách sạn, nhiều quốc gia & Một khách sạn hoặc chuỗi & 100 khách sạn tại 14 điểm đến của Việt Nam \\ \hline
+Kiểm soát tồn kho & Đồng bộ qua bộ quản lý kênh & Trực tiếp & Trực tiếp trong MongoDB, theo từng loại phòng và từng đêm \\ \hline
+Thanh toán & Nhiều phương thức & Thường qua cổng thanh toán riêng & Trả tại khách sạn và payOS (VietQR) \\ \hline
+Gợi ý cá nhân hóa & Dựa trên dữ liệu hành vi lớn & Thường không có & Lọc ứng viên, LightGBM LambdaRank, có cơ chế dự phòng \\ \hline
+Công cụ cho chủ khách sạn & Cổng đối tác & Hệ thống nội bộ & Bảng điều khiển web và màn hình quản lý trên iOS \\ \hline
+\end{tabular}
+\end{rtable}
+\end{table}
+
+\subsection{Khoảng trống mà đề tài hướng tới}
+
+Đồ án không cạnh tranh với các OTA về quy mô. Khoảng trống đề tài nhắm tới là một hệ thống hoàn chỉnh ở quy mô nhỏ nhưng đúng nghiệp vụ. Cụ thể, quy tắc tồn kho được kiểm thử bằng các tình huống tranh chấp thật trên cơ sở dữ liệu; thanh toán trực tuyến chỉ được xác nhận bằng webhook có chữ ký; và thành phần gợi ý vừa có mô hình học máy, vừa có đường dự phòng khi mô hình lỗi, vừa được đánh giá với đầy đủ giới hạn của dữ liệu. Đây cũng là những điểm mà các báo cáo đồ án về ứng dụng đặt phòng thường chỉ mô tả ở mức chức năng mà ít khi kiểm chứng.
+
+\section{Mục tiêu nghiên cứu}\label{sec:objectives}
+
+\subsection{Mục tiêu tổng quát}
+
+Xây dựng và triển khai nền tảng đặt phòng khách sạn Hotelia gồm ứng dụng iOS song ngữ Việt -- Anh cho khách, bảng điều khiển web cho chủ khách sạn và quản trị viên, máy chủ REST API và thành phần gợi ý khách sạn cá nhân hóa; đồng thời đánh giá tính đúng của nghiệp vụ đặt phòng và giới hạn của mô hình gợi ý bằng kiểm thử có thể tái lập.
+
+\subsection{Mục tiêu cụ thể}
+
+\Cref{tab:objectives} liệt kê các mục tiêu cụ thể cùng nơi trình bày bằng chứng tương ứng trong báo cáo.
+
+\begin{rtable}
+\begin{longtable}{|C{1.2cm}|L{8.4cm}|L{5.2cm}|}
+\caption{Mục tiêu cụ thể và bằng chứng đối chiếu}\label{tab:objectives}\\
+\hline
+\thead{Mã} & \thead{Mục tiêu} & \thead{Bằng chứng} \\ \hline
+\endfirsthead
+\hline
+\thead{Mã} & \thead{Mục tiêu} & \thead{Bằng chứng} \\ \hline
+\endhead
+MT1 & Tìm kiếm khách sạn theo điểm đến, ngày lưu trú, số khách, giá và điểm đánh giá; chỉ trả về khách sạn còn ít nhất một loại phòng phù hợp. & \Cref{sec:search-design}, \cref{sec:impl-backend} \\ \hline
+MT2 & Đặt phòng không bán trùng, giữ phòng 15 phút, lũy đẳng khi gửi lại, hết hạn tự động. & \Cref{sec:booking-rules}, \cref{sec:test-booking} \\ \hline
+MT3 & Thanh toán trả tại khách sạn và qua payOS; chỉ xác nhận thanh toán trực tuyến bằng webhook có chữ ký hợp lệ. & \Cref{sec:payment-design}, \cref{sec:impl-payment} \\ \hline
+MT4 & Hủy, xử lý yêu cầu hủy, nhận phòng, trả phòng và đánh giá sau lưu trú theo máy trạng thái. & \Cref{sec:state-machine} \\ \hline
+MT5 & Đăng ký/đăng nhập bằng email -- mật khẩu, Google và Apple; JWT kèm refresh token; phân quyền User/Owner/Admin. & \Cref{sec:auth-design}, \cref{sec:test-auth} \\ \hline
+MT6 & Bảng điều khiển cho chủ khách sạn (khách sạn, loại phòng, đặt phòng, doanh thu, đánh giá) và quản trị viên (duyệt, người dùng, đánh giá, thanh toán, nhật ký). & \Cref{sec:impl-web} \\ \hline
+MT7 & Ứng dụng iOS song ngữ theo mô hình MVVM, có thẻ thời tiết cho các thành phố lớn. & \Cref{sec:impl-ios}, \cref{sec:test-ui} \\ \hline
+MT8 & Đường ống gợi ý: lọc ứng viên, ghi nhận lượt hiển thị và lượt mở chi tiết, 16 đặc trưng, LightGBM LambdaRank chấm điểm trực tiếp trong NestJS, có cơ chế dự phòng. & \Cref{sec:rec-design}, \cref{sec:impl-rec} \\ \hline
+MT9 & Đánh giá mô hình bằng MRR@10 và NDCG@10 trên dữ liệu trước phát hành, so sánh với đường cơ sở và nêu rõ giới hạn. & \Cref{sec:eval-model} \\ \hline
+MT10 & Triển khai thật với tên miền \code{hotelia.asia}: API trên Render, bảng điều khiển trên Vercel, cơ sở dữ liệu trên MongoDB Atlas. & \Cref{sec:deploy} \\ \hline
+\end{longtable}
+\end{rtable}
+
+\section{Đối tượng và phạm vi nghiên cứu}\label{sec:scope}
+
+\subsection{Đối tượng nghiên cứu}
+
+Đối tượng nghiên cứu gồm: (i) quy trình nghiệp vụ đặt phòng khách sạn từ tìm kiếm tới đánh giá sau lưu trú; (ii) các kỹ thuật bảo đảm tính nhất quán dữ liệu khi có yêu cầu đồng thời và khi mạng không tin cậy; (iii) các cơ chế xác thực và phân quyền dựa trên JWT, OAuth 2.0/OpenID Connect; (iv) cơ chế xác minh webhook thanh toán; (v) phương pháp học xếp hạng LambdaRank trên nền cây quyết định tăng cường theo gradient và các độ đo MRR, NDCG.
+
+\subsection{Phạm vi}
+
+\Cref{tab:scope} phân định rõ những gì thuộc và không thuộc phạm vi của đồ án. Những mục ngoài phạm vi được nhắc lại trong phần hướng phát triển tại \cref{sec:future}.
+
+\begin{table}[H]
+\centering
+\caption{Phạm vi của đồ án}\label{tab:scope}
+\begin{rtable}
+\begin{tabular}{|L{7.6cm}|L{7.2cm}|}
+\hline
+\thead{Trong phạm vi} & \thead{Ngoài phạm vi (hướng phát triển)} \\ \hline
+Ứng dụng iOS cho khách (SwiftUI) chạy trên Simulator và bản build phát triển & Phát hành App Store, ứng dụng Android \\ \hline
+Bảng điều khiển web cho chủ khách sạn và quản trị viên (React) & Website đặt phòng dành cho khách; bản tiếng Anh của bảng điều khiển \\ \hline
+Thanh toán trả tại khách sạn; tích hợp payOS có webhook ký số & Hoàn tiền tự động qua cổng thanh toán; ví điện tử khác \\ \hline
+Tồn kho theo loại phòng và từng đêm; giữ phòng 15 phút & Đồng bộ với PMS hoặc bộ quản lý kênh bên ngoài; giá thay đổi theo ngày \\ \hline
+Gợi ý bằng LightGBM huấn luyện trên dữ liệu trước phát hành; ghi nhận lượt hiển thị và lượt mở chi tiết & Huấn luyện lại bằng hành vi thật có đồng thuận; A/B test trên môi trường vận hành \\ \hline
+Thẻ thời tiết cho 8 thành phố từ Open-Meteo & Gợi ý theo thời tiết \\ \hline
+\end{tabular}
+\end{rtable}
+\end{table}
+
+Về dữ liệu, danh mục gồm 20 khách sạn có tên, địa chỉ, mô tả và ảnh lấy từ nguồn chính thức của khách sạn, và 80 khách sạn được kích hoạt bằng kịch bản sinh dữ liệu vận hành. Giá phòng, số lượng phòng, chủ khách sạn của 80 khách sạn này và điểm đánh giá biên tập là dữ liệu mô phỏng. Báo cáo không coi chúng là dữ liệu kinh doanh thật (\cref{sec:data-sources}).
+
+\section{Phương pháp nghiên cứu}\label{sec:method}
+
+Đề tài sử dụng kết hợp các phương pháp sau.
+
+\begin{itemize}
+\item \textbf{Nghiên cứu tài liệu.} Tổng hợp các tiêu chuẩn và tài liệu chính thức về HTTP, JWT, OAuth 2.0, OpenID Connect, MongoDB, payOS, và các công trình gốc về gradient boosting, LambdaRank, MRR, NDCG \cite{rfc9110,rfc7519,rfc6749,oidc,mongodbtx,payosdocs,friedman2001,burges2010,jarvelin2002,voorhees1999}.
+\item \textbf{Phân tích và thiết kế hướng đối tượng.} Mô hình hóa yêu cầu bằng biểu đồ ca sử dụng, hoạt động, tuần tự, trạng thái, thành phần và triển khai theo UML \cite{fowler2003uml}.
+\item \textbf{Phát triển lặp.} Hệ thống được xây dựng qua nhiều vòng nhỏ, mỗi vòng kết thúc bằng một commit có kiểm thử. Đến ngày 24/10/2026, kho mã có 102 commit: 39 commit trong tháng 5, 2 commit trong tháng 6, 46 commit trong tháng 9 và 15 commit trong tháng 10 năm 2026.
+\item \textbf{Kiểm thử tự động và kiểm thử thủ công.} Các quy tắc nghiệp vụ được viết thành ca kiểm thử Jest (TypeScript) và pytest (Python). Tình huống tranh chấp được kiểm thử trên MongoDB thật chạy dưới dạng replica set. Giao diện được kiểm thử thủ công trên iOS Simulator ở cả hai ngôn ngữ và trên trình duyệt ở ba kích thước màn hình.
+\item \textbf{Thực nghiệm ngoại tuyến (offline).} Mô hình gợi ý được huấn luyện và đánh giá trên tập dữ liệu sinh có kiểm soát, so sánh với đường cơ sở chất lượng, bộ xếp hạng theo nội dung và mức trần (oracle) của chính tập dữ liệu.
+\end{itemize}
+
+\section{Đóng góp của đề tài}\label{sec:contrib}
+
+Về mặt sản phẩm, đề tài đóng góp một nền tảng đặt phòng hoạt động trên môi trường thật, gồm ứng dụng iOS, máy chủ API, bảng điều khiển và mô hình gợi ý. Về mặt kỹ thuật, các đóng góp cụ thể là:
+
+\begin{enumerate}
+\item Một cài đặt kiểm tra phòng trống theo từng đêm với quy ước ngày nửa mở, kết hợp giao dịch MongoDB, khóa theo loại phòng và khóa lũy đẳng. Cài đặt này được kiểm chứng bằng kịch bản hai khách tranh căn phòng cuối cùng.
+\item Một luồng thanh toán payOS mà trạng thái đặt phòng chỉ thay đổi sau khi xác minh chữ ký webhook và đối chiếu số tiền, có xử lý trường hợp tiền về sau khi hết thời gian giữ phòng.
+\item Một cơ chế chấm điểm LightGBM thuần TypeScript đọc trực tiếp tệp mô hình JSON. Cơ chế này có kiểm thử khớp điểm số và khớp từng đặc trưng với Python, nên máy chủ không cần thêm dịch vụ suy luận riêng.
+\item Một đánh giá trung thực về mô hình gợi ý. Quá trình đánh giá chỉ ra rằng chênh lệch lớn giữa LightGBM và đường cơ sở ở các phiên bản đầu đến từ cách đánh giá, không đến từ năng lực của mô hình. Kết quả này dẫn tới việc sửa lệch đặc trưng giữa lúc huấn luyện và lúc phục vụ trong phiên bản v3.
+\end{enumerate}
+
+\section{Cấu trúc báo cáo}\label{sec:structure}
+
+Báo cáo gồm phần mở đầu, năm chương nội dung, phần kết luận và tài liệu tham khảo:
+
+\begin{itemize}
+\item \textbf{\Cref{chap:overview}} -- Tổng quan đề tài: lý do, bối cảnh, mục tiêu, phạm vi, phương pháp và đóng góp.
+\item \textbf{\Cref{chap:theory}} -- Cơ sở lý thuyết và công nghệ: nghiệp vụ đặt phòng; SwiftUI, MVVM, React, NestJS, MongoDB, REST; JWT, refresh token, OAuth, RBAC; payOS và webhook có chữ ký; hệ gợi ý, học xếp hạng, LightGBM LambdaRank, MRR, NDCG.
+\item \textbf{\Cref{chap:design}} -- Phân tích và thiết kế hệ thống: yêu cầu, tác nhân, ca sử dụng, quy tắc nghiệp vụ, kiến trúc, cơ sở dữ liệu, API, đường ống gợi ý và giao diện.
+\item \textbf{\Cref{chap:implementation}} -- Cài đặt hệ thống: môi trường, cấu trúc mã nguồn, cài đặt iOS, máy chủ, web, xác thực, thanh toán, máy trạng thái, gợi ý và triển khai.
+\item \textbf{\Cref{chap:evaluation}} -- Kiểm thử, đánh giá và hướng phát triển.
+\end{itemize}

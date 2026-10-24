@@ -1,0 +1,21 @@
+\begin{seqdiagram}
+  \participant{app}{0}{Ứng dụng iOS}
+  \participant{idp}{3.0}{Google / Apple}
+  \participant{auth}{6.0}{AuthService}
+  \participant{jwks}{9.0}{JWKS của IdP}
+  \participant{db}{12.0}{MongoDB (users)}
+  \self{app}{sinh nonce; Apple: gửi SHA-256(nonce)}
+  \msg{app}{idp}{đăng nhập bằng tài khoản IdP}
+  \ret{idp}{app}{ID token (JWT ký RS256)}
+  \msg{app}{auth}{POST /auth/social}
+  \msg{auth}{jwks}{lấy khóa công khai}
+  \ret{jwks}{auth}{JWK}
+  \self{auth}{kiểm tra chữ ký, iss, aud, exp, nonce}
+  \fragopen{app}{db}{alt}{[token, email hoặc nonce không hợp lệ]}
+  \ret{auth}{app}{401}
+  \fragelse{[hợp lệ]}
+  \msg{auth}{db}{tìm/liên kết/tạo người dùng}
+  \ret{db}{auth}{user}
+  \ret{auth}{app}{200 \{user, accessToken, refreshToken\}}
+  \fragclose
+\end{seqdiagram}

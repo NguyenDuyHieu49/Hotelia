@@ -1,0 +1,26 @@
+\begin{seqdiagram}
+  \participant{app}{0}{Room-\\BookingView}
+  \participant{ctl}{3.0}{Bookings-\\Controller}
+  \participant{svc}{6.1}{Bookings-\\Service}
+  \participant{rt}{9.4}{roomtypes}
+  \participant{bk}{12.5}{bookings}
+  \self{app}{sinh UUID requestKey cho nội dung hiện tại}
+  \msg{app}{ctl}{POST /bookings, Idempotency-Key}
+  \msg{ctl}{svc}{create(userId, dto, requestKey)}
+  \self{svc}{requestHash = SHA-256(nội dung)}
+  \msg{svc}{bk}{findOne(userId, requestKey)}
+  \fragopen{app}{bk}{alt}{[đã có, cùng băm]}
+  \ret{svc}{app}{200 đặt phòng cũ}
+  \fragelse{[đã có, khác băm]}
+  \ret{svc}{app}{409 Conflict}
+  \fragelse{[chưa có]}
+  \msg{svc}{rt}{giao dịch: \$inc inventoryVersion}
+  \ret{rt}{svc}{loại phòng}
+  \msg{svc}{bk}{đặt phòng chồng lấn, chiếm tồn kho}
+  \ret{bk}{svc}{danh sách đặt phòng}
+  \self{svc}{freeRooms theo từng đêm $\ge 1$?}
+  \msg{svc}{bk}{tạo PENDING\_PAYMENT, giữ 15 phút}
+  \ret{svc}{app}{201 Created \{booking\}}
+  \fragclose
+  \seqnotew{app}{58mm}{Lỗi mạng hoặc 5xx: ứng dụng giữ nguyên requestKey và cho phép ``Kiểm tra lại kết quả'' với cùng khóa.}
+\end{seqdiagram}

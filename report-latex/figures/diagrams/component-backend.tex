@@ -1,0 +1,31 @@
+\begin{tikzpicture}[font=\sffamily\footnotesize]
+  \tikzset{c/.style={box, text width=26mm, font=\sffamily\scriptsize, inner sep=3pt, minimum height=10mm},
+           dep/.style={->, dashed}}
+  \node[c, fill=lane] (app) at (6.4,0) {\textbf{AppModule}\\Config, Mongoose, Throttler};
+  \node[c] (auth) at (0,-2.2) {AuthModule\\JwtStrategy};
+  \node[c] (users) at (0,-4.4) {UsersModule};
+  \node[c] (hotels) at (3.2,-2.2) {HotelsModule\\RoomTypes};
+  \node[c] (book) at (6.4,-2.2) {BookingsModule\\BookingState};
+  \node[c] (pay) at (9.6,-2.2) {PaymentsModule\\PayOSClient};
+  \node[c] (rev) at (12.8,-2.2) {ReviewsModule};
+  \node[c] (own) at (3.2,-4.4) {OwnersModule};
+  \node[c] (adm) at (6.4,-4.4) {AdminModule};
+  \node[c] (noti) at (9.6,-4.4) {Notifications\\Module};
+  \node[c] (acc) at (12.8,-4.4) {AccountModule};
+  \node[c] (rec) at (9.6,-6.6) {Recommendations\\Module};
+  \node[c, fill=lane] (lgb) at (12.8,-6.6) {HoteliaLightGbm\\Ranker};
+  \node[c, fill=lane] (common) at (3.2,-6.6) {common\\Guards, Interceptor, Filter};
+  \node[store, minimum width=26mm] (db) at (6.4,-8.6) {MongoDB};
+  \node[box, text width=22mm] (json) at (12.8,-8.6) {hotelia-lgbm\\.active.json};
+  \foreach \m in {auth,hotels,book,pay,rev} \draw[dep] (app.south) -- (\m.north);
+  \draw[dep] (auth) -- (users);
+  \draw[dep] (book) -- (hotels);
+  \draw[dep] (book) -- (pay);
+  \draw[dep] (own) -- (hotels);
+  \draw[dep] (adm.north) -- (hotels.south east);
+  \draw[dep] (rec) -- (lgb);
+  \draw[dep] (lgb) -- node[lbl, right] {nạp khi khởi động} (json);
+  \draw[->] (common.south) |- (db.west);
+  \draw[->] (rec.south) |- (db.east);
+  \node[notebox, anchor=north west, text width=44mm] at (-1.3,-8.0) {Mũi tên đứt: phụ thuộc module (import/tiêm phụ thuộc). Mọi module dịch vụ truy cập MongoDB qua Mongoose.};
+\end{tikzpicture}

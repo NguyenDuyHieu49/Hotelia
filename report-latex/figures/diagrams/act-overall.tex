@@ -1,0 +1,36 @@
+\begin{tikzpicture}[font=\sffamily\footnotesize]
+  \tikzset{a/.style={act, text width=30mm, font=\sffamily\scriptsize, minimum height=7mm, inner sep=3pt},
+           d/.style={decision, font=\sffamily\scriptsize, inner sep=0pt, minimum width=18mm, minimum height=9mm}}
+  \foreach \x/\t in {0/Khách (iOS),3.8/Hệ thống Hotelia,7.6/payOS,11.4/Chủ khách sạn} {
+    \draw (\x,0) rectangle ++(3.8,-13.1);
+    \node[head, minimum width=38mm, minimum height=7mm, anchor=north west, inner sep=0pt] at (\x,0) {\textbf{\t}};
+  }
+  \node[startnode] (s) at (1.9,-1.1) {};
+  \node[a] (k1) at (1.9,-2.0) {Nhập điểm đến, ngày, số khách};
+  \node[a] (h1) at (5.7,-2.0) {Lọc khách sạn còn phòng ở mọi đêm};
+  \node[a] (k2) at (1.9,-3.2) {Chọn khách sạn, loại phòng};
+  \node[a] (k3) at (1.9,-4.4) {Xác nhận đặt phòng (kèm Idempotency-Key)};
+  \node[a] (h2) at (5.7,-4.4) {Kiểm tra tồn kho, tạo đặt phòng, giữ 15 phút};
+  \node[a, text width=22mm] (h3) at (5.7,-5.9) {Quá 15 phút: EXPIRED, giải phóng phòng};
+  \node[endnode] (e1) at (7.3,-5.9) {};
+  \node[d] (dp) at (1.9,-7.0) {Phương thức?};
+  \node[a] (p1) at (9.5,-7.0) {Khách quét VietQR, chuyển khoản};
+  \node[a] (p2) at (9.5,-8.2) {payOS gửi webhook có chữ ký};
+  \node[a] (h4) at (5.7,-8.0) {Trả tại khách sạn: CONFIRMED};
+  \node[a] (h5) at (5.7,-9.3) {Xác minh chữ ký, số tiền: CONFIRMED};
+  \node[a] (o1) at (13.3,-10.2) {Nhận phòng trong khoảng [ngày nhận, ngày trả)};
+  \node[a] (o2) at (13.3,-11.4) {Trả phòng};
+  \node[a] (k4) at (1.9,-11.4) {Gửi đánh giá sau lưu trú};
+  \node[endnode] (e2) at (1.9,-12.4) {};
+  \draw[flow] (s) -- (k1); \draw[flow] (k1) -- (h1); \draw[flow] (h1.south) |- (k2.east);
+  \draw[flow] (k2) -- (k3); \draw[flow] (k3) -- (h2);
+  \draw[flow] (h2.south west) -- (dp.north east);
+  \draw[flow, dashed] (h2) -- (h3);
+  \draw[flow] (h3) -- (e1);
+  \draw[flow] (dp.east) -- node[lbl, pos=0.75, above] {payOS} (p1.west);
+  \draw[flow] (dp.south) |- node[lbl, pos=0.25, left] {trả tại KS} (h4.west);
+  \draw[flow] (p1) -- (p2); \draw[flow] (p2.south) |- (h5.east);
+  \draw[flow] (h5.south) |- (o1.west);
+  \draw (h4.east) -- (7.45,-8.0) -- (7.45,-10.2);
+  \draw[flow] (o1) -- (o2); \draw[flow] (o2) -- (k4); \draw[flow] (k4) -- (e2);
+\end{tikzpicture}

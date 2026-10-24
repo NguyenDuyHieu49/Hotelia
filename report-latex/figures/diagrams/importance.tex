@@ -1,0 +1,14 @@
+\begin{tikzpicture}
+\begin{axis}[
+  xbar, width=11.5cm, height=8.2cm, bar width=7pt,
+  xmin=0, xmax=50, xlabel={Tỷ lệ độ lợi (\%)},
+  symbolic y coords={is\_weekend,has\_history,hour\_cos,hour\_sin,rating,amenity\_count,star\_rating,star\_affinity,history\_count,min\_price\_millions,review\_log,quality\_prior,amenity\_affinity,price\_affinity,price\_relative,city\_affinity},
+  ytick=data, y tick label style={font=\sffamily\scriptsize},
+  x tick label style={font=\sffamily\scriptsize}, label style={font=\sffamily\small},
+  nodes near coords, nodes near coords style={font=\sffamily\scriptsize, /pgf/number format/use comma},
+  every axis plot/.append style={fill=black!35, draw=black},
+  enlarge y limits=0.04, xmajorgrids, grid style={black!12},
+]
+\addplot coordinates {(44.6,city\_affinity) (13.9,price\_relative) (12.8,price\_affinity) (5.7,amenity\_affinity) (5.2,quality\_prior) (4.9,review\_log) (4.2,min\_price\_millions) (2.2,history\_count) (2.0,star\_affinity) (1.6,star\_rating) (1.1,amenity\_count) (0.9,rating) (0.5,hour\_sin) (0.3,hour\_cos) (0,has\_history) (0,is\_weekend)};
+\end{axis}
+\end{tikzpicture}

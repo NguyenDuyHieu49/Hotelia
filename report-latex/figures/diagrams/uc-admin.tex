@@ -1,0 +1,20 @@
+\begin{tikzpicture}[font=\sffamily\small]
+  \tikzset{uc/.style={usecase, minimum width=40mm, text width=33mm, inner sep=0pt, minimum height=10mm, font=\sffamily\footnotesize},
+           rel/.style={dashed, ->, font=\sffamily\scriptsize}}
+  \draw[sysbox] (2.2,1.1) rectangle (12.9,-7.8);
+  \node[font=\sffamily\small\bfseries, anchor=north] at (7.55,1.05) {Quản trị nền tảng};
+  \foreach \n/\t [count=\i from 0] in {owner/UC32 Duyệt chủ khách sạn, hotel/UC33 Duyệt khách sạn,
+      users/UC34 Quản lý người dùng, review/UC35 Kiểm duyệt đánh giá, monitor/{UC36 Thống kê, thanh toán, nhật ký},
+      support/UC37 Trả lời yêu cầu hỗ trợ}
+    \node[uc] (\n) at (4.8,-0.5-1.3*\i) {\t};
+  \node[uc] (reject) at (10.4,-1.8) {Nhập lý do từ chối};
+  \node[uc] (role) at (10.4,-0.3) {Đổi vai trò thành OWNER};
+  \node[uc] (recalc) at (10.4,-4.4) {Tính lại điểm trung bình};
+  \node[uc] (lock) at (10.4,-3.0) {Khóa/mở, thu hồi phiên};
+  \draw[rel] (reject.west) -- node[above, sloped] {«extend»} (hotel.east);
+  \draw[rel] (owner.east) -- node[above, sloped] {«include»} (role.west);
+  \draw[rel] (review.east) -- node[above, sloped] {«include»} (recalc.west);
+  \draw[rel] (users.east) -- node[above, sloped] {«include»} (lock.west);
+  \actor{a}{0.8,-3.3}{Quản trị viên}
+  \foreach \x in {owner,hotel,users,review,monitor,support} \draw (a) -- (\x.west);
+\end{tikzpicture}

@@ -1,0 +1,19 @@
+\begin{tikzpicture}[node distance=8mm and 12mm]
+  \node[head, text width=50mm] (view) {\textbf{View} (SwiftUI)\\\footnotesize ExploreView, RoomBookingView, HistoryView, ProfileView};
+  \node[head, text width=50mm, below=of view] (vm) {\textbf{ViewModel} (ObservableObject)\\\footnotesize ExploreViewModel, AuthViewModel, WeatherViewModel};
+  \node[box, text width=50mm, below=of vm] (svc) {\textbf{Service}\\\footnotesize ExploreService, BookingService, RecommendationService, WeatherService (actor)};
+  \node[box, text width=50mm, below=of svc] (api) {\textbf{APIClient}\\\footnotesize URLSession, Bearer token, làm mới token qua actor};
+  \node[store, text width=22mm, below=9mm of api] (rest) {REST API\\\footnotesize /api/v1};
+  \node[box, text width=36mm, right=14mm of vm] (model) {\textbf{Model} (Codable)\\\footnotesize Hotel, RoomType, Booking, Review};
+  \node[box, text width=36mm, right=14mm of api] (kc) {\textbf{Keychain}\\\footnotesize access token, refresh token};
+  \node[box, text width=36mm, right=14mm of svc] (om) {\textbf{Open-Meteo}\\\footnotesize thời tiết 8 thành phố};
+  \draw[flow] ([xshift=-10mm]view.south) -- node[lbl, left] {hành động} ([xshift=-10mm]vm.north);
+  \draw[ret] ([xshift=10mm]vm.north) -- node[lbl, right] {@Published} ([xshift=10mm]view.south);
+  \draw[flow] (vm) -- node[lbl, right] {async/await} (svc);
+  \draw[flow] (svc) -- (api);
+  \draw[flow] (api) -- node[lbl, right] {HTTPS, JSON} (rest);
+  \draw[flow] (api) -- (kc);
+  \draw[flow] (svc) -- (om);
+  \draw[ret] (model) -- node[lbl, above] {dữ liệu} (vm);
+  \draw[ret] (rest.west) -- ++(-18mm,0) |- node[lbl, pos=0.25, left] {JSON giải mã thành Model} (vm.west);
+\end{tikzpicture}

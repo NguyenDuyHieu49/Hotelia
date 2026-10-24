@@ -1,0 +1,28 @@
+\begin{tikzpicture}[font=\sffamily\scriptsize]
+  \tikzset{s/.style={box, text width=26mm, font=\sffamily\scriptsize, inner sep=2pt, minimum height=6.5mm},
+           t/.style={s, fill=lane, font=\sffamily\scriptsize\bfseries}}
+  \node[t] (welcome) at (0,0) {Chào mừng};
+  \node[s] (login) at (-2.4,-1.2) {Đăng nhập: email, Google, Apple};
+  \node[s] (reg) at (2.4,-1.2) {Đăng ký};
+  \node[s] (forgot) at (-5.6,-1.2) {Quên mật khẩu};
+  \node[t] (tabs) at (0,-2.5) {Thanh tab};
+  \draw[flow] (welcome) -| (login); \draw[flow] (welcome) -| (reg); \draw[flow] (login) -- (forgot);
+  \draw[flow] (login) |- (tabs); \draw[flow] (reg) |- (tabs);
+  \node[t] (exp) at (-4.8,-3.8) {Khám phá};
+  \node[t] (book) at (0,-3.8) {Đặt phòng};
+  \node[t] (acc) at (4.8,-3.8) {Tài khoản};
+  \draw[flow] (tabs) -| (exp); \draw[flow] (tabs) -- (book); \draw[flow] (tabs) -| (acc);
+  \foreach \t [count=\i] in {{Tìm kiếm, bộ lọc},{Thẻ thời tiết},{Đề xuất cho bạn},{Xếp hạng, danh sách}}
+    \node[s, anchor=west] (e\i) at (-6.0,-3.8-\i*0.85) {\t};
+  \draw (-6.2,-4.15) -- (-6.2,-7.2); \foreach \i in {1,...,4} \draw (-6.2,-3.8-\i*0.85) -- (e\i.west);
+  \node[s] (det) at (-4.8,-8.3) {Chi tiết khách sạn, đánh giá};
+  \node[s] (rooms) at (-4.8,-9.3) {Chọn loại phòng, ngày, số khách};
+  \node[s] (bd) at (-4.8,-10.4) {Chi tiết đặt phòng: payOS, trả tại KS, hủy};
+  \draw[flow] (e4) -- (det); \draw[flow] (det) -- (rooms); \draw[flow] (rooms) -- (bd);
+  \foreach \t [count=\i] in {{Lịch sử theo trạng thái},{Chi tiết đặt phòng},{Viết đánh giá}}
+    \node[s] (b\i) at (0,-3.8-\i*1.0) {\t};
+  \draw[flow] (book) -- (b1); \draw[flow] (b1) -- (b2); \draw[flow] (b2) -- (b3);
+  \foreach \t [count=\i] in {{Khách sạn đã lưu},{Trở thành đối tác},{Thông tin cá nhân},{Thông báo},{Bảo mật, đổi mật khẩu},{Ngôn ngữ vi, en},{Trợ giúp, hỗ trợ},{Quản lý (OWNER, ADMIN)}}
+    \node[s, anchor=west] (a\i) at (3.6,-3.8-\i*0.85) {\t};
+  \draw (3.4,-4.15) -- (3.4,-10.6); \foreach \i in {1,...,8} \draw (3.4,-3.8-\i*0.85) -- (a\i.west);
+\end{tikzpicture}

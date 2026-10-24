@@ -1,0 +1,29 @@
+\begin{tikzpicture}[font=\sffamily\scriptsize]
+  \entity[]{BookingsService}{%
+    + create(userId, dto, requestKey)\\+ findAccessible(id, userId, role)\\+ cancel(id, userId, dto)\\+ confirmPayAtHotel(id, userId)\\+ checkIn(id, ownerId)\\+ checkOut(id, ownerId)\\+ resolveCancellation(id, userId, role)\\- transition(booking, status, extra)}{50mm}
+  \entity[right=8mm of BookingsService.north east, anchor=north west]{BookingStateService}{%
+    - transitions: Map<Status, Status[]>\\+ canTransition(from, to)\\+ validateTransition(from, to)\\+ canCancel(status)\\+ calculateRefund(booking)}{44mm}
+  \entity[below=6mm of BookingsService]{booking-rules}{%
+    + stayDates(start, end, now)\\+ occupyingBookings(now)\\+ expiredHold(now)\\+ freeRooms(total, start, end, bookings)}{50mm}
+  \entity[below=6mm of BookingStateService]{PaymentsService}{%
+    + create(userId, dto)\\+ handlePayOSWebhook(payload)\\+ cancelPendingCheckout(bookingId)\\- reuseExisting(payment)\\+ refund(): 503}{52mm}
+  \entity[right=8mm of BookingStateService.north east, anchor=north west]{PayOSClient}{%
+    + isConfigured()\\+ createPaymentLink(input)\\+ getPaymentLink(orderCode)\\+ cancelPaymentLink(orderCode)\\+ verifyWebhook(payload)}{46mm}
+  \entity[below=6mm of booking-rules]{RecommendationsService}{%
+    + recommend(dto, userId?)\\+ recordImpression(dto, userId?)\\+ record(dto, userId?)\\+ clear(sessionId, userId?)\\- actor(sessionId, userId?)}{50mm}
+  \entity[below=6mm of PaymentsService]{HoteliaLightGbmRanker}{%
+    - artifact: Artifact\\+ version, loaded\\+ score(features)\\+ rank(candidates, signals, now)}{44mm}
+  \entity[below=6mm of PayOSClient]{AuthService}{%
+    + register(dto)\\+ login(dto)\\+ social(dto)\\+ refresh(token)\\+ logout(userId)\\- generateTokens(user)}{40mm}
+  \entity[below=6mm of HoteliaLightGbmRanker]{ranking}{%
+    + rank(candidates, signals)\\+ normalize(s), cityKey(city)}{44mm}
+  \entity[below=6mm of AuthService]{JwtStrategy}{%
+    + validate(payload): từ chối typ = refresh,\\ \ \ tokenVersion sai, tài khoản bị khóa}{40mm}
+  \draw[->] (BookingsService.east |- BookingStateService.text) -- (BookingStateService.west |- BookingStateService.text);
+  \draw[->] (BookingsService) -- node[lbl, right] {dùng} (booking-rules);
+  \draw[->] (BookingsService.south east) -- (PaymentsService.west);
+  \draw[->] (PaymentsService.east) -- (PayOSClient.south west);
+  \draw[->] (RecommendationsService.east) -- (HoteliaLightGbmRanker.west);
+  \draw[->, dashed] (RecommendationsService.south east) -- node[lbl, below, sloped] {dự phòng} (ranking.west);
+  \draw[->] (AuthService) -- (JwtStrategy);
+\end{tikzpicture}

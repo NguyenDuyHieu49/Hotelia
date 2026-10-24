@@ -1,0 +1,20 @@
+# Original screenshots (compressed copies live in figures/shots)
+figures/screens/
+# Tectonic draft copies and LaTeX build output
+*-draft.tex
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.lol
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.xdv
+main.pdf

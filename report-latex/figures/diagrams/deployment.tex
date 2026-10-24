@@ -1,0 +1,27 @@
+\begin{tikzpicture}[font=\sffamily\footnotesize]
+  \tikzset{a/.style={box, fill=lane, text width=36mm, font=\sffamily\scriptsize, inner sep=3pt},
+           nd/.style={draw, thick, inner sep=5pt}, nt/.style={font=\sffamily\scriptsize\bfseries, anchor=south west}}
+  % nodes as framed groups
+  \node[a] (app) at (0,0) {«artifact» Hotelia.app\\SwiftUI, Keychain};
+  \node[nd, fit=(app), inner ysep=8pt] (phone) {}; \node[nt] at (phone.north west) {«thiết bị» iPhone / Simulator};
+  \node[a] (spa) at (0,-3.2) {Bảng điều khiển (bản build tĩnh)};
+  \node[nd, fit=(spa), inner ysep=8pt] (browser) {}; \node[nt] at (browser.north west) {«thiết bị» Trình duyệt};
+  \node[a] (cont) at (6.2,0.4) {«container» node:20-alpine\\dist/main.js, public/media};
+  \node[a, below=3mm of cont] (ep) {api.hotelia.asia/api/v1\\GET /health};
+  \node[nd, fit=(cont)(ep), inner ysep=8pt] (render) {}; \node[nt] at (render.north west) {«nút» Render, sau Cloudflare};
+  \node[a] (cdn) at (6.2,-3.2) {admin.hotelia.asia\\rewrite /(.*) $\rightarrow$ /index.html};
+  \node[nd, fit=(cdn), inner ysep=8pt] (vercel) {}; \node[nt] at (vercel.north west) {«nút» Vercel CDN};
+  \node[a, text width=30mm] (db) at (12.0,0.9) {replica set\\cơ sở dữ liệu ``test''};
+  \node[nd, fit=(db), inner ysep=8pt] (atlas) {}; \node[nt] at (atlas.north west) {«nút» MongoDB Atlas};
+  \node[a, text width=30mm] (po) at (12.0,-1.1) {API tạo liên kết, gửi webhook};
+  \node[nd, fit=(po), inner ysep=8pt] (payos) {}; \node[nt] at (payos.north west) {«nút» payOS};
+  \node[a, text width=30mm] (om) at (12.0,-3.2) {API dự báo};
+  \node[nd, fit=(om), inner ysep=8pt] (meteo) {}; \node[nt] at (meteo.north west) {«nút» Open-Meteo};
+  \draw[<->] (phone.east) -- node[lbl, above] {HTTPS} (render.west |- phone.east);
+  \draw[<->] (browser.east) -- node[lbl, above] {HTTPS} (vercel.west);
+  \draw[<->] (browser.north east) -- node[lbl, sloped, below] {gọi API (CORS)} (render.south west);
+  \draw[<->] (render.east |- atlas.west) -- node[lbl, above] {mongodb+srv} (atlas.west);
+  \draw[<->] (render.east |- payos.west) -- node[lbl, above] {HTTPS} (payos.west);
+  \draw[->] (phone.south) -- ++(0,-0.35) -- ++(3.0,0) |- ([yshift=-1.6cm]vercel.south) -| (meteo.south);
+  \node[lbl] at (6.2,-5.0) {thời tiết: ứng dụng gọi trực tiếp Open-Meteo};
+\end{tikzpicture}

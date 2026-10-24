@@ -1,0 +1,19 @@
+\begin{seqdiagram}
+  \participant{own}{0}{Chủ khách sạn (web/iOS)}
+  \participant{guard}{3.2}{JwtAuth + Roles Guard}
+  \participant{bsvc}{6.4}{Bookings-\\Service}
+  \participant{db}{9.6}{MongoDB}
+  \participant{guest}{12.6}{Khách (iOS)}
+  \msg{own}{guard}{POST /bookings/:id/check-in}
+  \msg{guard}{bsvc}{role = OWNER}
+  \msg{bsvc}{db}{có sở hữu khách sạn?}
+  \self{bsvc}{chuyển hợp lệ? hôm nay $\in$ [in, out)?}
+  \msg{bsvc}{db}{cập nhật có điều kiện: CHECKED\_IN}
+  \ret{bsvc}{own}{200 CHECKED\_IN}
+  \msg{own}{guard}{POST /bookings/:id/check-out}
+  \msg{bsvc}{db}{CHECKED\_OUT, checkedOutAt}
+  \ret{bsvc}{own}{200 CHECKED\_OUT}
+  \msg{guest}{db}{POST /reviews (đã trả phòng?)}
+  \msg{guest}{db}{tạo đánh giá, tính lại điểm}
+  \msg{own}{db}{POST /reviews/:id/reply}
+\end{seqdiagram}

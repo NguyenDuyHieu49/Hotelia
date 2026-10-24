@@ -1,0 +1,381 @@
+\chapter{Cơ sở lý thuyết và công nghệ}\label{chap:theory}
+
+Chương này trình bày các kiến thức nền mà hệ thống Hotelia dựa vào. Phần đầu mô tả nghiệp vụ đặt phòng và các vấn đề nhất quán dữ liệu đi kèm. Tiếp theo là các công nghệ phát triển ứng dụng (SwiftUI, MVVM, React, NestJS, MongoDB, REST), các cơ chế xác thực và phân quyền (JWT, refresh token, OAuth 2.0/OpenID Connect, RBAC) và cơ chế thanh toán qua payOS với webhook có chữ ký. Phần cuối trình bày hệ gợi ý, học xếp hạng, thuật toán LightGBM LambdaRank và các độ đo đánh giá, kèm ví dụ cụ thể trên bài toán gợi ý khách sạn.
+
+\section{Nghiệp vụ đặt phòng khách sạn}\label{sec:domain}
+
+\subsection{Các khái niệm cơ bản}
+
+Một \textbf{khách sạn} (hotel) cung cấp nhiều \textbf{loại phòng} (room type), ví dụ phòng Superior, Deluxe King hay Family Suite. Mỗi loại phòng có giá cơ bản cho một đêm, sức chứa tối đa và \textbf{tồn kho} là tổng số phòng vật lý cùng loại. Khách không đặt một phòng vật lý cụ thể mà đặt ``một phòng thuộc loại X trong khoảng ngày Y''. Việc gán số phòng cụ thể diễn ra khi khách nhận phòng. Cách mô hình hóa này phổ biến trong các hệ thống phân phối phòng, vì nó cho phép khách sạn linh hoạt sắp xếp phòng mà không ảnh hưởng tới cam kết đã bán.
+
+Một \textbf{đặt phòng} (booking) gắn với một khách, một loại phòng, ngày nhận phòng, ngày trả phòng, số khách, đơn giá tại thời điểm đặt và tổng tiền. Đặt phòng đi qua nhiều trạng thái: đang giữ chỗ chờ thanh toán, đã xác nhận, đã nhận phòng, đã trả phòng, đã hủy hoặc đã hết hạn. \Cref{sec:state-machine} trình bày máy trạng thái cụ thể của Hotelia.
+
+\textbf{Giữ phòng} (hold) là khoảng thời gian ngắn hệ thống tạm trừ tồn kho cho một đặt phòng chưa thanh toán. Nếu không có giữ phòng, hai khách có thể cùng mở trang thanh toán cho căn phòng cuối cùng và chỉ một người trả tiền thành công. Ngược lại, nếu giữ phòng quá lâu, phòng bị khóa bởi những người không có ý định hoàn tất. Hotelia chọn thời gian giữ là 15 phút.
+
+\subsection{Quy ước ngày lưu trú nửa mở}\label{sec:half-open}
+
+Khách sạn tính tiền theo \emph{đêm}, không theo \emph{ngày}. Hotelia biểu diễn một kỳ lưu trú bằng khoảng nửa mở
+\begin{equation}
+  S = [\,d_{\text{in}},\; d_{\text{out}}\,) = \{\, d \mid d_{\text{in}} \le d < d_{\text{out}} \,\},
+  \label{eq:half-open}
+\end{equation}
+trong đó $d_{\text{in}}$ là ngày nhận phòng và $d_{\text{out}}$ là ngày trả phòng. Ngày nhận phòng được tính là một đêm, ngày trả phòng không được tính. Số đêm lưu trú là
+\begin{equation}
+  n = d_{\text{out}} - d_{\text{in}} \quad (\text{tính theo ngày}).
+  \label{eq:nights}
+\end{equation}
+
+\textbf{Ví dụ.} Khách đặt từ 10/10 đến 12/10. Theo \cref{eq:half-open}, kỳ lưu trú gồm hai đêm 10/10 và 11/10, và theo \cref{eq:nights} thì $n = 2$. Sáng 12/10 khách trả phòng, nên một khách khác có thể nhận chính phòng đó vào chiều 12/10. Nếu dùng khoảng đóng $[10/10, 12/10]$, hệ thống sẽ coi đêm 12/10 cũng bị chiếm và từ chối khách thứ hai một cách sai lầm.
+
+Hai kỳ lưu trú $[a, b)$ và $[c, d)$ \emph{chồng lấn} khi và chỉ khi
+\begin{equation}
+  a < d \;\wedge\; c < b.
+  \label{eq:overlap}
+\end{equation}
+Với ví dụ trên, đặt phòng $[10/10, 12/10)$ và $[12/10, 14/10)$ không chồng lấn vì $12/10 < 12/10$ là sai. \Cref{fig:half-open} minh họa quy ước này.
+
+\begin{figure}[H]
+\centering
+\diagram{half-open}
+\caption{Quy ước ngày nửa mở: hai đặt phòng nối tiếp không chiếm cùng một đêm}\label{fig:half-open}
+\end{figure}
+
+Số phòng còn trống của một loại phòng trong kỳ lưu trú $S$ không phải là ``tổng số phòng trừ số đặt phòng chồng lấn''. Một đặt phòng chỉ chồng lấn đêm đầu và một đặt phòng khác chỉ chồng lấn đêm cuối không chiếm cùng một phòng trong cùng một đêm. Cách tính đúng là xét từng đêm:
+\begin{equation}
+  \text{free}(S) = \min_{d \in S} \Big( T - \big|\{\, b \in B \mid b_{\text{in}} \le d < b_{\text{out}} \,\}\big| \Big),
+  \label{eq:free-rooms}
+\end{equation}
+trong đó $T$ là tổng số phòng của loại phòng và $B$ là tập các đặt phòng đang chiếm tồn kho. Một đặt phòng mới chỉ được chấp nhận khi $\text{free}(S) \ge 1$. Đây là hàm \code{freeRooms} được cài đặt tại \cref{sec:booking-rules}.
+
+\subsection{Bán trùng và điều kiện tranh chấp}
+
+\textbf{Bán trùng} (overbooking ngoài ý muốn) xảy ra khi tổng số đặt phòng được chấp nhận trong một đêm lớn hơn số phòng thật. Nguyên nhân kỹ thuật thường gặp là \emph{điều kiện tranh chấp} kiểu ``kiểm tra rồi hành động'' (check-then-act): hai yêu cầu cùng đọc thấy còn một phòng, cùng kết luận là được phép đặt và cùng ghi đặt phòng mới. Mỗi yêu cầu khi đứng riêng đều đúng, nhưng kết quả kết hợp thì sai. Kleppmann gọi đây là hiện tượng \emph{write skew}: hai giao dịch đọc cùng một tập dữ liệu, rồi mỗi giao dịch ghi vào một bản ghi khác nhau dựa trên điều kiện đã đọc \cite{kleppmann2017}.
+
+Có ba cách tiếp cận phổ biến \cite{kleppmann2017,fowler2002}:
+\begin{itemize}
+\item \textbf{Khóa bi quan} (pessimistic locking): khóa tài nguyên dùng chung trước khi kiểm tra, để yêu cầu thứ hai phải chờ yêu cầu thứ nhất hoàn tất.
+\item \textbf{Khóa lạc quan} (optimistic locking): mỗi bản ghi có một số phiên bản; khi ghi, giao dịch chỉ thành công nếu phiên bản chưa bị người khác thay đổi.
+\item \textbf{Hiện thực hóa xung đột} (materializing conflicts): tạo ra một bản ghi dùng chung mà mọi giao dịch có khả năng xung đột đều phải ghi vào. Cơ sở dữ liệu khi đó phát hiện xung đột ghi -- ghi và buộc một trong hai giao dịch thất bại hoặc chạy lại.
+\end{itemize}
+Hotelia dùng cách thứ ba trong một giao dịch MongoDB. Mọi yêu cầu đặt cùng một loại phòng đều tăng trường \code{inventoryVersion} của loại phòng đó trước khi đếm đặt phòng chồng lấn (\cref{sec:booking-rules}).
+
+\subsection{Lũy đẳng, thử lại và hết thời gian chờ}\label{sec:idempotency-theory}
+
+Theo RFC 9110, một phương thức HTTP là \emph{lũy đẳng} (idempotent) nếu gửi nhiều yêu cầu giống nhau có cùng tác dụng lên máy chủ như gửi một lần \cite{rfc9110}. GET, PUT và DELETE là lũy đẳng; POST thì không. Điều này gây vấn đề cho thao tác đặt phòng, vốn là một POST. Nếu ứng dụng gửi yêu cầu, máy chủ tạo đặt phòng thành công nhưng phản hồi bị mất do hết thời gian chờ (timeout), ứng dụng không biết đặt phòng đã tồn tại hay chưa. Gửi lại có thể tạo đặt phòng thứ hai; không gửi lại thì khách có thể mất chỗ.
+
+Giải pháp được IETF chuẩn hóa ở dạng dự thảo là tiêu đề \code{Idempotency-Key} \cite{idempotencykey}. Máy khách sinh một khóa duy nhất (thường là UUID) cho mỗi \emph{ý định} đặt phòng và gửi lại đúng khóa đó khi thử lại. Máy chủ lưu khóa cùng kết quả xử lý. Lần gửi lại thứ hai nhận về chính đặt phòng đã tạo thay vì tạo mới. Nếu cùng một khóa được dùng cho một nội dung khác, máy chủ trả lỗi xung đột thay vì đoán ý người dùng. Kết hợp lũy đẳng với thử lại có giới hạn và thời gian chờ hợp lý, hệ thống đạt được ngữ nghĩa ``tối đa một lần'' cho việc tạo đặt phòng ngay cả khi mạng chập chờn.
+
+\subsection{Vòng đời đặt phòng và chính sách hủy}
+
+Một đặt phòng thông thường đi qua các bước: tìm kiếm, chọn loại phòng, giữ phòng, thanh toán hoặc cam kết trả tại khách sạn, xác nhận, nhận phòng, trả phòng và đánh giá. Ở bất kỳ bước nào trước khi nhận phòng, khách có thể hủy. Hủy trước khi thanh toán chỉ cần giải phóng tồn kho. Hủy sau khi đã xác nhận thường cần khách sạn xử lý vì liên quan tới chính sách hoàn tiền. Việc biểu diễn vòng đời này bằng một \emph{máy trạng thái hữu hạn} với tập chuyển trạng thái hợp lệ được khai báo tường minh giúp ngăn các thay đổi phi lý, chẳng hạn trả phòng cho một đặt phòng chưa nhận phòng.
+
+\section{Công nghệ phát triển ứng dụng}\label{sec:tech}
+
+\subsection{SwiftUI và lập trình bất đồng bộ trên iOS}
+
+SwiftUI là framework giao diện khai báo (declarative) của Apple \cite{swiftui}. Thay vì thao tác trực tiếp lên các đối tượng giao diện, lập trình viên mô tả giao diện như một hàm của trạng thái. Khi trạng thái thay đổi, SwiftUI tính lại phần giao diện bị ảnh hưởng. Các thuộc tính bao (property wrapper) như \code{@State}, \code{@StateObject}, \code{@Published} và \code{@AppStorage} xác định nơi trạng thái được lưu và ai được quyền thay đổi nó.
+
+Từ Swift 5.5, ngôn ngữ hỗ trợ \code{async}/\code{await} và \code{actor} \cite{swiftconcurrency}. Một \code{actor} bảo đảm chỉ một tác vụ truy cập trạng thái bên trong tại một thời điểm, nhờ đó loại bỏ điều kiện tranh chấp trong bộ nhớ mà không cần khóa thủ công. Hotelia dùng \code{actor} cho hai việc: làm mới access token (để nhiều yêu cầu cùng gặp lỗi 401 chỉ gây ra một lần làm mới) và bộ nhớ đệm thời tiết.
+
+Chuỗi hiển thị được bản địa hóa bằng String Catalog (\code{Localizable.xcstrings}). Đây là định dạng thay thế các tệp \code{.strings} truyền thống, lưu mọi ngôn ngữ của một khóa trong cùng một tệp JSON và cho phép Xcode theo dõi khóa chưa dịch \cite{stringcatalog}. Thông tin nhạy cảm như token được lưu trong Keychain thay vì \code{UserDefaults} \cite{keychain}.
+
+\subsection{Mẫu kiến trúc MVVM}
+
+Model -- View -- ViewModel (MVVM) tách giao diện khỏi logic trình bày \cite{gossman2005}. \textbf{Model} là dữ liệu miền (khách sạn, loại phòng, đặt phòng). \textbf{View} chỉ hiển thị và chuyển hành động của người dùng đi. \textbf{ViewModel} giữ trạng thái màn hình, gọi tầng dịch vụ và chuyển dữ liệu thô thành dạng View hiển thị được. Trong SwiftUI, ViewModel thường là một lớp \code{ObservableObject} với các thuộc tính \code{@Published}; View quan sát ViewModel và tự cập nhật khi các thuộc tính này thay đổi. \Cref{fig:mvvm} minh họa cách Hotelia tổ chức ba tầng này cùng tầng dịch vụ mạng.
+
+\begin{figure}[H]
+\centering
+\diagram{mvvm}
+\caption{Mô hình MVVM trong ứng dụng iOS Hotelia}\label{fig:mvvm}
+\end{figure}
+
+Lợi ích chính của MVVM trong dự án này là View không biết gì về HTTP hay JSON. Khi máy chủ đổi định dạng phản hồi, chỉ tầng dịch vụ và Model cần sửa. ViewModel cũng có thể được kiểm thử độc lập với giao diện.
+
+\subsection{ReactJS, TypeScript và Vite}
+
+React là thư viện xây dựng giao diện web dựa trên thành phần (component), trong đó mỗi thành phần là một hàm nhận \code{props}, giữ trạng thái bằng hook (\code{useState}, \code{useEffect}) và trả về cây giao diện \cite{react}. TypeScript bổ sung kiểu tĩnh cho JavaScript, giúp phát hiện lỗi sai kiểu dữ liệu giữa giao diện và API ngay khi biên dịch. Vite là công cụ phát triển và đóng gói, cung cấp máy chủ phát triển nạp lại nhanh và bản build tĩnh tối ưu \cite{vite}. Bảng điều khiển Hotelia dùng React 18, TypeScript 5.9, Vite 5, React Router cho định tuyến theo vai trò, Axios cho gọi API và Recharts cho biểu đồ.
+
+\subsection{NestJS}
+
+NestJS là framework Node.js viết bằng TypeScript, tổ chức ứng dụng theo \emph{module}, mỗi module gồm \emph{controller} (nhận yêu cầu HTTP) và \emph{provider} (dịch vụ chứa logic nghiệp vụ) \cite{nestjs}. Các provider được cung cấp cho nhau bằng cơ chế tiêm phụ thuộc (dependency injection). Mỗi yêu cầu HTTP đi qua một chuỗi thành phần có thứ tự xác định (\cref{fig:nest-pipeline}):
+
+\begin{itemize}
+\item \textbf{Guard} quyết định yêu cầu có được phép đi tiếp hay không. Hotelia dùng guard cho giới hạn tần suất, xác thực JWT và kiểm tra vai trò.
+\item \textbf{Interceptor} bao quanh việc xử lý, có thể thêm logic trước và sau. Hotelia dùng interceptor để ghi nhật ký thao tác (audit log).
+\item \textbf{Pipe} biến đổi và kiểm tra dữ liệu đầu vào. \code{ValidationPipe} kết hợp với \code{class-validator} từ chối mọi trường không được khai báo trong DTO.
+\item \textbf{Exception filter} chuyển ngoại lệ thành phản hồi JSON có cấu trúc thống nhất.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\diagram{nest-pipeline}
+\caption{Đường đi của một yêu cầu HTTP trong NestJS}\label{fig:nest-pipeline}
+\end{figure}
+
+\subsection{MongoDB và Mongoose}
+
+MongoDB là cơ sở dữ liệu hướng tài liệu. Dữ liệu được lưu thành các tài liệu BSON trong \emph{collection}, không bắt buộc lược đồ cố định. Mongoose là thư viện ODM, cho phép khai báo lược đồ, kiểu dữ liệu, giá trị mặc định và chỉ mục ở tầng ứng dụng \cite{mongoose}. Ba tính năng của MongoDB đóng vai trò then chốt trong Hotelia:
+
+\begin{itemize}
+\item \textbf{Giao dịch nhiều tài liệu} (multi-document transaction): từ phiên bản 4.0, MongoDB hỗ trợ giao dịch ACID trên replica set, với mức cô lập snapshot \cite{mongodbtx}. Khi hai giao dịch cùng sửa một tài liệu, giao dịch đến sau gặp xung đột ghi (\code{WriteConflict}) và được trình điều khiển thử lại tự động trong \code{withTransaction}. Giao dịch không chạy được trên một máy chủ MongoDB đơn lẻ, nên môi trường kiểm thử phải là replica set.
+\item \textbf{Chỉ mục duy nhất một phần} (partial unique index): chỉ áp dụng ràng buộc duy nhất cho những tài liệu thỏa một điều kiện \cite{mongodbindex}. Hotelia dùng nó cho cặp \code{(userId, requestKey)} của đặt phòng và cho \code{googleSub}, \code{appleSub} của người dùng; tài liệu không có các trường này không bị ràng buộc.
+\item \textbf{Chỉ mục TTL}: MongoDB tự xóa tài liệu khi trường thời gian vượt quá ngưỡng. Hotelia dùng chỉ mục TTL để xóa dữ liệu lượt xem và lượt hiển thị gợi ý sau 90 ngày.
+\end{itemize}
+
+\subsection{REST API}
+
+REST là phong cách kiến trúc do Fielding đề xuất, trong đó hệ thống được mô hình hóa thành tài nguyên định danh bằng URI, thao tác qua các phương thức HTTP chuẩn, không lưu trạng thái phiên phía máy chủ giữa các yêu cầu \cite{fielding2000}. API của Hotelia có tiền tố \code{/api/v1}. Tiền tố phiên bản cho phép thay đổi không tương thích trong tương lai mà không làm hỏng ứng dụng iOS đã phát hành. Mã trạng thái HTTP được dùng đúng ngữ nghĩa \cite{rfc9110}: 400 cho dữ liệu không hợp lệ, 401 cho thiếu hoặc sai danh tính, 403 cho đúng danh tính nhưng không đủ quyền, 404 cho tài nguyên không tồn tại, 409 cho xung đột khóa lũy đẳng, 503 cho dịch vụ phụ thuộc chưa được cấu hình.
+
+\section{Xác thực và phân quyền}\label{sec:auth-theory}
+
+\subsection{JSON Web Token}
+
+JSON Web Token (JWT) là chuỗi gồm ba phần mã hóa Base64URL ngăn cách bởi dấu chấm: phần đầu (header) mô tả thuật toán ký, phần thân (payload) chứa các \emph{claim}, và chữ ký \cite{rfc7519,rfc7515}. Với thuật toán HS256, chữ ký là
+\begin{equation}
+  \text{sig} = \text{HMAC-SHA256}\big(K,\; \text{base64url}(\text{header}) \,\|\, \text{``.''} \,\|\, \text{base64url}(\text{payload})\big),
+\end{equation}
+trong đó $K$ là khóa bí mật chỉ máy chủ biết \cite{rfc2104}. Máy chủ xác minh token bằng cách tính lại chữ ký, rồi kiểm tra thời điểm hết hạn \code{exp}. Không cần tra cơ sở dữ liệu ở bước này. Claim \code{sub} chứa mã người dùng; Hotelia bổ sung \code{role}, \code{tokenVersion} và \code{typ}.
+
+RFC 8725 tổng hợp các thực hành tốt nhất cho JWT \cite{rfc8725}. Hai khuyến nghị liên quan trực tiếp tới Hotelia là: (i) phải xác định trước thuật toán chấp nhận, không tin vào trường \code{alg} trong token; và (ii) khi một hệ thống phát hành nhiều loại token bằng cùng một khóa, mỗi loại phải được phân biệt tường minh (explicit typing) để token loại này không thể dùng thay token loại khác. Khuyến nghị thứ hai là cơ sở cho bản sửa lỗi được trình bày tại \cref{sec:impl-auth}.
+
+\subsection{Access token và refresh token}
+
+Access token có thời hạn ngắn (Hotelia dùng 15 phút) để giảm thiệt hại nếu bị lộ. Refresh token có thời hạn dài hơn (7 ngày) và chỉ được dùng để xin cặp token mới tại một điểm cuối duy nhất. Khi làm mới, máy chủ \emph{xoay vòng} refresh token: phát hành refresh token mới và vô hiệu hóa token cũ \cite{rfc9700}. Hotelia lưu bản băm bcrypt của refresh token hiện hành trong tài liệu người dùng. Một refresh token cũ hoặc bị đánh cắp vì vậy không còn khớp sau lần xoay vòng tiếp theo. Ngoài ra, trường \code{tokenVersion} tăng mỗi khi người dùng đổi hoặc đặt lại mật khẩu, làm mọi access token phát hành trước đó mất hiệu lực ngay lập tức.
+
+\subsection{OAuth 2.0, OpenID Connect và đăng nhập bằng Google, Apple}
+
+OAuth 2.0 là framework ủy quyền cho phép ứng dụng nhận quyền truy cập giới hạn thay mặt người dùng \cite{rfc6749}. OpenID Connect (OIDC) xây dựng trên OAuth 2.0 một lớp \emph{xác thực}: nhà cung cấp danh tính (IdP) phát hành một \emph{ID token}, là một JWT ký bằng khóa bất đối xứng, khẳng định người dùng là ai \cite{oidc}. Với ứng dụng di động, RFC 8252 khuyến nghị dùng trình duyệt hệ thống hoặc API xác thực gốc của nền tảng thay cho WebView nhúng \cite{rfc8252}.
+
+Khi ứng dụng gửi ID token cho máy chủ, máy chủ \emph{không được} tin nội dung token chỉ vì nó đến từ ứng dụng của mình. Máy chủ phải kiểm tra \cite{oidc,googleidtoken,applesignin}:
+\begin{enumerate}
+\item chữ ký RS256 bằng khóa công khai lấy từ tập khóa JWKS của nhà cung cấp;
+\item \code{iss} đúng là nhà cung cấp (\code{accounts.google.com} hoặc \code{appleid.apple.com});
+\item \code{aud} đúng là mã ứng dụng của Hotelia, để token phát cho ứng dụng khác không dùng được;
+\item \code{exp} chưa hết hạn;
+\item email đã được nhà cung cấp xác minh;
+\item với Apple, giá trị \code{nonce} trong token bằng giá trị băm SHA-256 của chuỗi ngẫu nhiên do chính ứng dụng sinh ra cho lần đăng nhập này, nhằm chống phát lại.
+\end{enumerate}
+Sign in with Apple yêu cầu ứng dụng được ký bằng tài khoản thuộc Apple Developer Program (có phí) và bật năng lực \emph{Sign in with Apple} cho mã định danh ứng dụng \cite{appleprogram,applesignin}. Với tài khoản nhà phát triển miễn phí (Personal Team), năng lực này không khả dụng. Đây là lý do mã nguồn iOS của Hotelia có cờ biên dịch \code{PERSONAL\_TEAM\_DEMO} để ẩn nút đăng nhập Apple khi build bằng tài khoản miễn phí (\cref{sec:impl-ios}).
+
+\subsection{Kiểm soát truy cập dựa trên vai trò}
+
+Trong RBAC, quyền được gán cho vai trò, và người dùng nhận quyền thông qua vai trò của mình \cite{sandhu1996}. Hotelia có ba vai trò: \textbf{USER} (khách), \textbf{OWNER} (chủ khách sạn đã được duyệt) và \textbf{ADMIN} (quản trị viên). RBAC thuần túy chưa đủ cho một nền tảng nhiều chủ khách sạn. Hai chủ khách sạn cùng có vai trò OWNER nhưng không được xem đặt phòng của nhau. Vì vậy Hotelia kết hợp RBAC ở tầng guard với kiểm tra \emph{quyền sở hữu} ở tầng dịch vụ (so sánh \code{hotel.ownerId} với người gọi). Thiếu lớp kiểm tra thứ hai là lỗi BOLA (Broken Object Level Authorization), lỗ hổng đứng đầu danh sách OWASP API Security Top 10 năm 2023 \cite{owaspapi}.
+
+\subsection{Bảo vệ mật khẩu và chống dò mật khẩu}
+
+Mật khẩu được lưu dưới dạng băm bcrypt, một hàm băm có tham số chi phí điều chỉnh được để làm chậm tấn công vét cạn \cite{provos1999}. NIST SP 800-63B yêu cầu bên xác minh giới hạn số lần thử sai liên tiếp \cite{nist80063b}. Hotelia khóa tài khoản 15 phút sau 5 lần sai liên tiếp và áp giới hạn chung 100 yêu cầu mỗi phút cho mỗi địa chỉ. Các nguyên tắc này tương ứng với nhóm rủi ro \emph{Identification and Authentication Failures} trong OWASP Top 10:2021 \cite{owasptop10}.
+
+\section{Thanh toán qua payOS và webhook có chữ ký}\label{sec:payos-theory}
+
+payOS là cổng thanh toán tạo liên kết thanh toán bằng mã VietQR, cho phép khách chuyển khoản từ ứng dụng ngân hàng bất kỳ \cite{payosdocs}. Luồng tích hợp gồm hai nửa (\cref{fig:payos-theory}).
+
+\textbf{Tạo liên kết thanh toán.} Máy chủ của người bán gọi API payOS với mã đơn hàng (\code{orderCode}, số nguyên duy nhất), số tiền, mô tả, địa chỉ quay về khi thành công/hủy và thời điểm hết hạn. Yêu cầu được xác thực bằng \code{x-client-id}, \code{x-api-key} và được ký bằng \code{checksumKey}. payOS trả về \code{checkoutUrl} để mở trang thanh toán.
+
+\textbf{Webhook xác nhận.} Khi giao dịch hoàn tất, payOS gửi một yêu cầu HTTP POST tới địa chỉ webhook của người bán. Nội dung gồm đối tượng \code{data} (mã đơn hàng, số tiền, mã tham chiếu, thời điểm giao dịch, mã kết quả) và trường \code{signature}. Chữ ký là HMAC-SHA256 với khóa \code{checksumKey} trên chuỗi tạo từ các trường của \code{data}, sắp xếp theo thứ tự bảng chữ cái dưới dạng \code{key=value} nối bằng ký tự \code{\&} \cite{payosdocs,payosnode}. Người bán phải tính lại chữ ký và chỉ chấp nhận webhook khi hai chữ ký khớp nhau.
+
+\begin{figure}[H]
+\centering
+\diagram{payos-theory}
+\caption{Hai nửa của tích hợp payOS: tạo liên kết và xác nhận bằng webhook ký số}\label{fig:payos-theory}
+\end{figure}
+
+Ba nguyên tắc thiết kế rút ra từ luồng này là:
+\begin{enumerate}
+\item \textbf{Không tin vào địa chỉ quay về.} Việc trình duyệt được chuyển về \code{returnUrl} chỉ cho biết khách đã rời trang thanh toán, không chứng minh tiền đã về. Chỉ webhook có chữ ký hợp lệ mới được làm thay đổi trạng thái đơn.
+\item \textbf{Đối chiếu số tiền.} Ngay cả khi chữ ký hợp lệ, số tiền trong webhook phải bằng số tiền của đơn trong cơ sở dữ liệu của người bán.
+\item \textbf{Xử lý webhook lũy đẳng.} Cổng thanh toán có thể gửi lại cùng một webhook nhiều lần. Lần xử lý thứ hai phải nhận ra giao dịch đã hoàn tất và không cộng tiền hay đổi trạng thái lần nữa.
+\end{enumerate}
+
+\section{Hệ gợi ý và học xếp hạng}\label{sec:recsys-theory}
+
+\subsection{Hệ gợi ý}
+
+Hệ gợi ý ước lượng mức độ phù hợp của một mục (ở đây là khách sạn) với một người dùng trong một ngữ cảnh, rồi trình bày các mục phù hợp nhất \cite{ricci2022}. Có ba hướng chính:
+\begin{itemize}
+\item \textbf{Lọc cộng tác} (collaborative filtering): dựa trên hành vi của những người dùng tương tự. Hướng này cần nhiều tương tác, nên hoạt động kém khi hệ thống mới ra mắt.
+\item \textbf{Dựa trên nội dung} (content-based): so sánh thuộc tính của mục với hồ sơ sở thích của người dùng, ví dụ thành phố, mức giá, hạng sao, tiện nghi của các khách sạn đã xem \cite{lops2011}. Hướng này dùng được ngay cả khi mới có ít người dùng.
+\item \textbf{Lai} (hybrid): kết hợp hai hướng trên, hoặc dùng mô hình học máy nhận cả đặc trưng nội dung lẫn đặc trưng hành vi.
+\end{itemize}
+
+Vấn đề \textbf{khởi động lạnh} (cold start) xuất hiện với người dùng mới chưa có lịch sử và với hệ thống mới chưa có dữ liệu \cite{schein2002}. Một giải pháp thông dụng là \emph{gợi ý khám phá}: khi chưa có lịch sử, hệ thống ưu tiên các mục có chất lượng tốt và đa dạng hóa kết quả (nhiều thành phố khác nhau), rồi chuyển dần sang cá nhân hóa khi có tín hiệu.
+
+\subsection{Kiến trúc hai giai đoạn: lọc ứng viên và xếp hạng}
+
+Các hệ gợi ý thực tế thường chia làm hai giai đoạn. \textbf{Lọc ứng viên} (candidate generation) dùng điều kiện cứng hoặc mô hình rẻ để thu hẹp tập mục. \textbf{Xếp hạng} (ranking) dùng mô hình tốn kém hơn để sắp thứ tự tập đã thu hẹp. Với Hotelia, giai đoạn lọc loại bỏ khách sạn không còn phòng trong ngày khách chọn, không đủ sức chứa, ngoài khoảng giá hoặc không thuộc điểm đến. Không có mô hình nào nên gợi ý một khách sạn mà khách không thể đặt.
+
+\subsection{Học xếp hạng}
+
+Học xếp hạng (Learning to Rank -- LTR) là nhóm phương pháp học có giám sát, trong đó mô hình học một hàm điểm $f(\mathbf{x})$ sao cho việc sắp các ứng viên theo điểm giảm dần cho ra thứ tự tốt nhất \cite{liu2009}. Dữ liệu được tổ chức theo \emph{truy vấn} (query): mỗi truy vấn là một lần hệ thống hiển thị danh sách cho người dùng, gồm nhiều ứng viên, mỗi ứng viên có véc-tơ đặc trưng $\mathbf{x}$ và nhãn mức độ liên quan $\text{rel}$. Liu phân loại các phương pháp LTR thành ba nhóm \cite{liu2009}:
+\begin{itemize}
+\item \textbf{Pointwise}: dự đoán điểm liên quan của từng ứng viên độc lập, như hồi quy hoặc phân loại.
+\item \textbf{Pairwise}: học từ các cặp ứng viên, phạt khi mục kém liên quan được xếp trên mục liên quan hơn (RankNet).
+\item \textbf{Listwise}: tối ưu trực tiếp một độ đo trên cả danh sách, như NDCG (LambdaRank, LambdaMART).
+\end{itemize}
+
+\subsection{Cây quyết định tăng cường theo gradient}
+
+Gradient boosting xây dựng mô hình dưới dạng tổng có trọng số của nhiều cây quyết định nhỏ \cite{friedman2001}:
+\begin{equation}
+  F(\mathbf{x}) = \sum_{m=1}^{M} \eta\, f_m(\mathbf{x}),
+  \label{eq:gbdt}
+\end{equation}
+trong đó:
+\begin{itemize}
+\item $\mathbf{x}$ là véc-tơ đặc trưng của một khách sạn trong một truy vấn. Với Hotelia, $\mathbf{x}$ có 16 thành phần như giá tính theo triệu đồng, hạng sao, độ phù hợp thành phố, độ phù hợp giá (\cref{tab:features});
+\item $f_m$ là cây quyết định thứ $m$. Mỗi cây chia không gian đặc trưng bằng các điều kiện dạng ``đặc trưng $j \le$ ngưỡng'' và trả về một giá trị lá;
+\item $M$ là số cây. Với LightGBM, $M$ là số vòng lặp tốt nhất do cơ chế dừng sớm chọn (best iteration);
+\item $\eta$ là tốc độ học (learning rate), thường nhỏ hơn 1, làm mỗi cây chỉ sửa một phần sai số của các cây trước;
+\item $F(\mathbf{x})$ là điểm xếp hạng cuối cùng. Điểm này chỉ có ý nghĩa \emph{tương đối} giữa các ứng viên trong cùng một truy vấn, không phải xác suất đặt phòng.
+\end{itemize}
+
+\textbf{Ví dụ.} Giả sử mô hình có $M = 3$ cây và $\eta = 0{,}05$. Một khách đã xem nhiều khách sạn ở Đà Nẵng. Với khách sạn A ở Đà Nẵng, cây thứ nhất xét \code{city\_affinity > 0,5} và trả về $0{,}8$; cây thứ hai xét \code{price\_relative $\le$ 1,1} và trả về $0{,}4$; cây thứ ba xét \code{quality\_prior > 0,8} và trả về $0{,}2$. Điểm của A là $0{,}05 \times (0{,}8 + 0{,}4 + 0{,}2) = 0{,}07$. Một khách sạn B ở Hà Nội nhận các giá trị lá $-0{,}6$, $0{,}4$, $0{,}2$, nên có điểm $0{,}05 \times 0 = 0$. A được xếp trên B. Trong tệp mô hình JSON của Hotelia, giá trị lá đã bao gồm hệ số $\eta$, nên máy chủ chỉ cần cộng các giá trị lá.
+
+Huấn luyện diễn ra tuần tự: cây thứ $m$ được khớp với \emph{gradient âm} của hàm mất mát theo điểm hiện tại $F_{m-1}(\mathbf{x})$. Mỗi cây mới vì vậy sửa lỗi của tổng các cây trước.
+
+\subsection{LightGBM}
+
+LightGBM là một cài đặt gradient boosting tối ưu cho tốc độ và bộ nhớ \cite{ke2017}. Bốn kỹ thuật chính của LightGBM là:
+\begin{itemize}
+\item \textbf{Biểu đồ tần suất}: giá trị liên tục được rời rạc hóa thành các ngăn trước khi tìm điểm chia, giảm chi phí từ $O(\#\text{dữ liệu})$ xuống $O(\#\text{ngăn})$;
+\item \textbf{Phát triển cây theo lá} (leaf-wise): mỗi bước tách chiếc lá làm giảm mất mát nhiều nhất thay vì tách đều theo tầng. Kích thước cây được giới hạn bằng \code{num\_leaves};
+\item \textbf{GOSS} (Gradient-based One-Side Sampling): giữ lại các mẫu có gradient lớn và lấy mẫu ngẫu nhiên các mẫu có gradient nhỏ;
+\item \textbf{EFB} (Exclusive Feature Bundling): gộp các đặc trưng thưa hiếm khi đồng thời khác 0.
+\end{itemize}
+LightGBM hỗ trợ mục tiêu \code{lambdarank} và xuất mô hình ra JSON. Tệp JSON mô tả đầy đủ cấu trúc từng cây (đặc trưng chia, ngưỡng, hướng mặc định khi thiếu giá trị, giá trị lá) \cite{lightgbmdocs}. Đây là điều kiện để Hotelia chấm điểm mô hình bằng TypeScript mà không cần cài LightGBM trên máy chủ.
+
+\subsection{LambdaRank}\label{sec:lambdarank}
+
+NDCG là độ đo phụ thuộc vào thứ tự, nên không khả vi theo điểm số và không thể tối ưu trực tiếp bằng gradient. RankNet giải quyết bài toán theo cặp: với hai ứng viên $i$ (liên quan hơn) và $j$ trong cùng truy vấn, xác suất mô hình xếp $i$ trên $j$ là $P_{ij} = 1/(1 + e^{-\sigma(s_i - s_j)})$, và mất mát là entropy chéo. Burges và cộng sự nhận thấy có thể bỏ qua hàm mất mát và định nghĩa trực tiếp ``gradient'' (gọi là lambda) cho mỗi cặp \cite{burges2006,burges2010}:
+\begin{equation}
+  \lambda_{ij} = \frac{-\sigma}{1 + e^{\sigma (s_i - s_j)}} \,\big|\Delta \text{NDCG}_{ij}\big|,
+  \label{eq:lambda}
+\end{equation}
+trong đó $s_i, s_j$ là điểm hiện tại, $\sigma$ là tham số hình dạng, và $|\Delta \text{NDCG}_{ij}|$ là mức thay đổi NDCG nếu đổi chỗ $i$ và $j$ trong danh sách hiện tại. Thành phần thứ nhất lớn khi mô hình đang xếp sai cặp. Thành phần thứ hai làm các cặp ở đầu danh sách có trọng số lớn hơn: đổi chỗ vị trí 1 và 2 ảnh hưởng tới người dùng nhiều hơn đổi chỗ vị trí 7 và 8. LambdaMART là sự kết hợp của lambda này với cây tăng cường theo gradient; mục tiêu \code{lambdarank} của LightGBM là một cài đặt của ý tưởng này.
+
+\subsection{Độ đo đánh giá xếp hạng}\label{sec:metrics}
+
+Gọi $Q$ là tập truy vấn đánh giá. Với mỗi truy vấn $q$, mô hình sắp các ứng viên theo điểm giảm dần. Trong dữ liệu của Hotelia, mỗi truy vấn có đúng một khách sạn được chọn (nhãn $\text{rel} = 1$), các ứng viên khác có $\text{rel} = 0$. Gọi $\text{rank}_q$ là vị trí của khách sạn được chọn trong danh sách đã sắp.
+
+\textbf{Mean Reciprocal Rank.}
+\begin{equation}
+  \text{MRR@}K = \frac{1}{|Q|} \sum_{q \in Q} \frac{1}{\text{rank}_q},
+  \qquad \text{với quy ước } \frac{1}{\text{rank}_q} = 0 \text{ nếu } \text{rank}_q > K.
+  \label{eq:mrr}
+\end{equation}
+MRR do Voorhees sử dụng trong đánh giá hỏi đáp TREC \cite{voorhees1999}. Ký hiệu: $|Q|$ là số truy vấn; $\text{rank}_q$ là vị trí của kết quả đúng đầu tiên; $K$ là độ sâu danh sách được xét (Hotelia dùng $K = 10$). MRR trả lời câu hỏi: ``trung bình, khách sạn mà người dùng chọn đứng ở vị trí nào?''
+
+\textbf{Discounted Cumulative Gain.}
+\begin{equation}
+  \text{DCG@}K = \sum_{i=1}^{K} \frac{2^{\text{rel}_i} - 1}{\log_2 (i + 1)},
+  \label{eq:dcg}
+\end{equation}
+trong đó $\text{rel}_i$ là mức độ liên quan của ứng viên ở vị trí $i$. Tử số $2^{\text{rel}_i} - 1$ là độ lợi, tăng nhanh theo mức liên quan. Mẫu số $\log_2(i+1)$ là hệ số chiết khấu: vị trí càng xa đầu danh sách thì đóng góp càng nhỏ \cite{jarvelin2002}.
+
+\textbf{Normalized DCG.}
+\begin{equation}
+  \text{NDCG@}K = \frac{\text{DCG@}K}{\text{IDCG@}K},
+  \label{eq:ndcg}
+\end{equation}
+trong đó IDCG@K là DCG@K của thứ tự lý tưởng (các ứng viên sắp theo mức liên quan giảm dần). NDCG nằm trong khoảng $[0, 1]$ và bằng 1 khi thứ tự của mô hình là lý tưởng. Giá trị trung bình trên tất cả truy vấn được báo cáo.
+
+\textbf{Ví dụ tính toán.} Xét ba truy vấn, mỗi truy vấn có 8 khách sạn ứng viên và một khách sạn được chọn:
+\begin{itemize}
+\item Truy vấn 1: khách sạn được chọn đứng thứ 1 $\Rightarrow$ $1/\text{rank} = 1$; $\text{DCG} = (2^1 - 1)/\log_2 2 = 1$; $\text{IDCG} = 1$; $\text{NDCG} = 1$.
+\item Truy vấn 2: đứng thứ 3 $\Rightarrow$ $1/\text{rank} = 0{,}333$; $\text{DCG} = 1/\log_2 4 = 0{,}5$; $\text{NDCG} = 0{,}5$.
+\item Truy vấn 3: đứng thứ 8 $\Rightarrow$ $1/\text{rank} = 0{,}125$; $\text{DCG} = 1/\log_2 9 = 0{,}315$; $\text{NDCG} = 0{,}315$.
+\end{itemize}
+Do đó $\text{MRR@10} = (1 + 0{,}333 + 0{,}125)/3 = 0{,}486$ và $\text{NDCG@10} = (1 + 0{,}5 + 0{,}315)/3 = 0{,}605$. Với một nhãn dương duy nhất, NDCG@K rút gọn thành $1/\log_2(\text{rank}+1)$. NDCG phạt việc đẩy khách sạn đúng từ vị trí 1 xuống vị trí 3 nhẹ hơn MRR (0,5 so với 0,333).
+
+\textbf{Hit@K và giới hạn của nó.} $\text{Hit@}K$ là tỷ lệ truy vấn có kết quả đúng nằm trong $K$ vị trí đầu. Khi mỗi truy vấn chỉ có 8 ứng viên và $K = 10$, mọi thứ tự đều cho $\text{Hit@10} = 1$, kể cả thứ tự ngẫu nhiên. Vì vậy Hit@10 không phân biệt được mô hình tốt với mô hình kém trong thiết lập đó, và báo cáo không dùng chỉ số này để kết luận (\cref{sec:eval-model}).
+
+\subsection{Trọng số theo thời gian của tín hiệu}\label{sec:decay}
+
+Sở thích của người dùng thay đổi: một khách sạn xem hôm qua nói nhiều về ý định hiện tại hơn một khách sạn xem hai tháng trước. Hotelia gán cho mỗi lượt xem một trọng số giảm theo hàm mũ:
+\begin{equation}
+  w(t) = 2^{-d/14},
+  \label{eq:decay}
+\end{equation}
+trong đó $d$ là số ngày kể từ lượt xem tới thời điểm gợi ý, và 14 là \emph{chu kỳ bán rã}: sau mỗi 14 ngày, trọng số giảm còn một nửa. Như vậy $w = 1$ khi $d = 0$, $w = 0{,}5$ khi $d = 14$, $w = 0{,}25$ khi $d = 28$ và $w \approx 0{,}012$ khi $d = 90$, là ngưỡng lịch sử tối đa mà hệ thống đọc. Một đặt phòng đã xác nhận được gán trọng số cố định bằng 3, vì việc trả tiền hoặc cam kết lưu trú là tín hiệu mạnh hơn nhiều so với một lượt xem. \Cref{fig:decay} biểu diễn hàm \cref{eq:decay}.
+
+\begin{figure}[H]
+\centering
+\diagram{decay}
+\caption{Trọng số của một lượt xem theo số ngày đã trôi qua (chu kỳ bán rã 14 ngày)}\label{fig:decay}
+\end{figure}
+
+\textbf{Ví dụ.} Một khách xem khách sạn A ở Đà Nẵng cách đây 2 ngày ($w = 2^{-2/14} \approx 0{,}906$), xem khách sạn B ở Hà Nội cách đây 30 ngày ($w \approx 0{,}226$) và đã đặt khách sạn C ở Đà Nẵng ($w = 3$). Tổng trọng số là $4{,}132$. Độ phù hợp thành phố của một khách sạn D ở Đà Nẵng là $(0{,}906 + 3)/4{,}132 \approx 0{,}945$. Của một khách sạn E ở Hà Nội là $0{,}226/4{,}132 \approx 0{,}055$. Đặc trưng \code{city\_affinity} trong \cref{tab:features} được tính theo đúng cách này.
+
+\subsection{Đánh giá ngoại tuyến và trực tuyến}
+
+Đánh giá ngoại tuyến (offline) dùng dữ liệu đã có để tính MRR, NDCG mà không cần đưa mô hình tới người dùng. Cách này rẻ và lặp lại được, nhưng có ba giới hạn đã được ghi nhận rộng rãi:
+\begin{itemize}
+\item \textbf{Thiên lệch vị trí}: người dùng có xu hướng bấm vào mục ở trên cùng bất kể mức liên quan. Nhãn thu từ nhật ký bấm vì vậy phản ánh cả thứ tự hiển thị cũ \cite{joachims2017}.
+\item \textbf{Lệch giữa huấn luyện và phục vụ} (training--serving skew): nếu đặc trưng lúc huấn luyện được tính khác lúc phục vụ, mô hình tốt trên giấy có thể hoạt động kém trong thực tế \cite{sculley2015}.
+\item \textbf{Khác biệt mục tiêu}: MRR cao trên lượt bấm chưa chắc dẫn tới nhiều đặt phòng hơn.
+\end{itemize}
+Thử nghiệm có kiểm soát (A/B test) chia ngẫu nhiên người dùng thành nhóm dùng bộ xếp hạng cũ và nhóm dùng bộ xếp hạng mới, rồi so sánh chỉ số kinh doanh. Đây là cách đáng tin cậy để kết luận một mô hình gợi ý tốt hơn \cite{kohavi2009}. Hotelia chưa có đủ người dùng để thực hiện A/B test; \cref{sec:future} trình bày kế hoạch cho bước này.
+
+\section{Dịch vụ thời tiết Open-Meteo}
+
+Open-Meteo là API dự báo thời tiết mở, trả về nhiệt độ hiện tại, nhiệt độ cảm nhận, mã thời tiết theo chuẩn WMO, tốc độ gió và dự báo theo ngày cho một tọa độ \cite{openmeteo}. API không yêu cầu khóa cho mục đích phi thương mại. Hotelia gọi Open-Meteo trực tiếp từ ứng dụng iOS cho 8 thành phố, có thời gian chờ 12 giây và bộ nhớ đệm cục bộ. Thông tin thời tiết vì vậy không đi qua máy chủ của Hotelia.
+
+\section{Các công trình liên quan}\label{sec:related}
+
+\Cref{tab:related} tóm tắt một số công trình về xếp hạng khách sạn và chỗ ở, cùng điểm khác biệt với Hotelia.
+
+\begin{rtable}
+\begin{longtable}{|L{3.5cm}|L{5.4cm}|L{5.9cm}|}
+\caption{Một số công trình liên quan về xếp hạng khách sạn và chỗ ở}\label{tab:related}\\
+\hline
+\thead{Công trình} & \thead{Nội dung chính} & \thead{Liên hệ với Hotelia} \\ \hline
+\endfirsthead
+\hline
+\thead{Công trình} & \thead{Nội dung chính} & \thead{Liên hệ với Hotelia} \\ \hline
+\endhead
+Liu và cộng sự, Expedia (ICDM 2013) \cite{liu2013expedia} & Kết hợp nhiều mô hình xếp hạng, trong đó có LambdaMART, trên dữ liệu tìm kiếm khách sạn của Expedia. & Cùng dạng bài toán xếp hạng danh sách khách sạn theo truy vấn; Hotelia chưa có nhật ký tìm kiếm thật quy mô lớn. \\ \hline
+Haldar và cộng sự, Airbnb (KDD 2019) \cite{haldar2019} & Mô tả quá trình chuyển xếp hạng tìm kiếm chỗ ở từ GBDT sang mạng nơ-ron; nhấn mạnh tầm quan trọng của thử nghiệm trực tuyến. & Hotelia dừng ở GBDT (LightGBM) vì dữ liệu nhỏ; bài học về đánh giá trực tuyến được áp dụng khi nêu giới hạn. \\ \hline
+Adamczak và cộng sự, Trivago RecSys Challenge 2019 \cite{adamczak2019} & Bộ dữ liệu phiên duyệt khách sạn và lượt bấm (clickout); bài toán xếp hạng danh sách hiển thị. & Đồ án có thí nghiệm phụ trên bộ dữ liệu này (\cref{sec:trivago}), nhưng mã khách sạn Trivago không ánh xạ được sang Hotelia. \\ \hline
+Burges, LambdaRank/\allowbreak LambdaMART \cite{burges2010} & Gradient theo cặp có trọng số $|\Delta\text{NDCG}|$. & Mục tiêu huấn luyện của mô hình Hotelia. \\ \hline
+Ke và cộng sự, LightGBM \cite{ke2017} & GBDT hiệu năng cao với histogram, leaf-wise, GOSS, EFB. & Thư viện huấn luyện; cấu trúc cây được xuất ra JSON. \\ \hline
+\end{longtable}
+\end{rtable}
+
+\section{Công nghệ, ngôn ngữ và công cụ sử dụng}\label{sec:stack}
+
+\Cref{tab:stack} liệt kê công nghệ và phiên bản được dùng trong mã nguồn ở thời điểm viết báo cáo. Phiên bản được đọc từ \code{package.json}, \code{Package.resolved}, cấu hình Xcode và môi trường Python của dự án.
+
+\begin{rtable}
+\begin{longtable}{|L{3.0cm}|L{4.4cm}|L{7.4cm}|}
+\caption{Công nghệ và phiên bản sử dụng}\label{tab:stack}\\
+\hline
+\thead{Thành phần} & \thead{Công nghệ, phiên bản} & \thead{Vai trò} \\ \hline
+\endfirsthead
+\hline
+\thead{Thành phần} & \thead{Công nghệ, phiên bản} & \thead{Vai trò} \\ \hline
+\endhead
+\multirow{4}{*}{Ứng dụng iOS} & Swift 5, SwiftUI, Xcode 26.5 & Giao diện khai báo, MVVM, \code{async}/\code{await} \\ \cline{2-3}
+ & iOS 26.2 (deployment target) & Phiên bản hệ điều hành tối thiểu \\ \cline{2-3}
+ & GoogleSignIn-iOS 9.1.0, AuthenticationServices & Đăng nhập Google và Apple \\ \cline{2-3}
+ & String Catalog, Keychain & Song ngữ Việt -- Anh; lưu token an toàn \\ \hline
+\multirow{6}{*}{Máy chủ} & Node.js 20, TypeScript 5.9 & Môi trường chạy và ngôn ngữ \\ \cline{2-3}
+ & NestJS 11.2, Mongoose 8.24 & Framework và ODM \\ \cline{2-3}
+ & @nestjs/jwt 11, passport-jwt 4, jose 5.10, bcrypt 6 & JWT, xác minh ID token, băm mật khẩu \\ \cline{2-3}
+ & @nestjs/throttler 6.7, class-validator 0.14 & Giới hạn tần suất, kiểm tra đầu vào \\ \cline{2-3}
+ & @payos/node 2.0.5 & Tạo liên kết, xác minh webhook payOS \\ \cline{2-3}
+ & Jest 30 & Kiểm thử đơn vị và tích hợp \\ \hline
+\multirow{3}{*}{Bảng điều khiển} & React 18.3, TypeScript 5.9, Vite 5.4 & Ứng dụng web một trang \\ \cline{2-3}
+ & React Router 6.30, Axios 1.20 & Định tuyến theo vai trò, gọi API \\ \cline{2-3}
+ & Tailwind CSS 3.4, Recharts 2.15 & Giao diện, biểu đồ doanh thu \\ \hline
+\multirow{2}{*}{Nghiên cứu ML} & Python 3.11, LightGBM 4.7, NumPy 2.4 & Huấn luyện LambdaRank, xuất JSON \\ \cline{2-3}
+ & Polars 1.44, pytest 9.1 & Xử lý dữ liệu Trivago, kiểm thử \\ \hline
+Cơ sở dữ liệu & MongoDB Atlas (vận hành), MongoDB 7.0 replica set (kiểm thử) & Lưu trữ tài liệu, giao dịch \\ \hline
+\multirow{3}{*}{Hạ tầng} & Render (Docker, gói free) & Chạy API tại \code{api.hotelia.asia} \\ \cline{2-3}
+ & Vercel & Phục vụ bảng điều khiển tại \code{admin.hotelia.asia} \\ \cline{2-3}
+ & Open-Meteo, payOS & Thời tiết, thanh toán \\ \hline
+Công cụ & Git, GitHub, Docker, Xcode Simulator & Quản lý mã nguồn, môi trường kiểm thử \\ \hline
+\end{longtable}
+\end{rtable}
+
+\section{Kết luận chương}
+
+Chương này đã trình bày các khái niệm nghiệp vụ (đêm lưu trú theo quy ước nửa mở, giữ phòng, bán trùng, lũy đẳng), các công nghệ nền tảng của ba thành phần ứng dụng, các cơ chế bảo mật và thanh toán, và nền tảng lý thuyết của phần gợi ý gồm gradient boosting, LambdaRank, MRR, NDCG cùng hàm suy giảm trọng số theo thời gian. \Cref{chap:design} vận dụng các khái niệm này để phân tích yêu cầu và thiết kế hệ thống Hotelia.

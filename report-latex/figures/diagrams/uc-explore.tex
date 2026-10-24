@@ -1,0 +1,25 @@
+\begin{tikzpicture}[font=\sffamily\small]
+  \tikzset{uc/.style={usecase, minimum width=36mm, text width=29mm, inner sep=0pt, minimum height=11mm, font=\sffamily\footnotesize},
+           rel/.style={dashed, ->, font=\sffamily\scriptsize}}
+  \draw[sysbox] (2.2,1.1) rectangle (12.9,-7.2);
+  \node[font=\sffamily\small\bfseries, anchor=north] at (7.55,1.05) {Khám phá, gợi ý và thời tiết};
+  \node[uc] (search) at (4.6,-0.6) {UC09 Tìm kiếm, lọc khách sạn};
+  \node[uc] (detail) at (4.6,-2.0) {UC10 Xem chi tiết khách sạn};
+  \node[uc] (rec) at (4.6,-3.4) {UC11 Xem gợi ý cá nhân hóa};
+  \node[uc] (clear) at (4.6,-4.8) {UC12 Xóa lịch sử gợi ý};
+  \node[uc] (fav) at (4.6,-6.2) {UC14 Lưu khách sạn yêu thích};
+  \node[uc] (avail) at (10.3,-0.6) {Lọc theo phòng trống từng đêm};
+  \node[uc] (view) at (10.3,-2.0) {Ghi nhận lượt mở chi tiết};
+  \node[uc] (imp) at (10.3,-3.4) {Ghi nhận lượt hiển thị};
+  \node[uc] (fallback) at (10.3,-4.8) {Xếp hạng dự phòng theo nội dung};
+  \node[uc] (weather) at (10.3,-6.2) {UC13 Xem thời tiết};
+  \draw[rel] (search) -- node[above] {«include»} (avail);
+  \draw[rel] (detail) -- node[above] {«include»} (view);
+  \draw[rel] (rec) -- node[above] {«include»} (imp);
+  \draw[rel] (fallback) -- node[above, sloped] {«extend»} (rec.south east);
+  \actor{u}{0.8,-3.4}{Khách}
+  \actor{om}{14.0,-6.2}{Open-Meteo}
+  \foreach \x in {search,detail,rec,clear,fav} \draw (u) -- (\x.west);
+  \draw (u) .. controls (2.8,-7.0) and (6.5,-7.0) .. (weather.south west);
+  \draw (weather.east) -- (om);
+\end{tikzpicture}

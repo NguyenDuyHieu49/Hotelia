@@ -1,0 +1,25 @@
+\begin{tikzpicture}[font=\sffamily\small]
+  \tikzset{uc/.style={usecase, minimum width=36mm, text width=29mm, inner sep=0pt, minimum height=11mm, font=\sffamily\footnotesize},
+           rel/.style={dashed, ->, font=\sffamily\scriptsize}}
+  \draw[sysbox] (2.2,1.1) rectangle (12.9,-8.6);
+  \node[font=\sffamily\small\bfseries, anchor=north] at (7.55,1.05) {Xác thực và tài khoản};
+  \node[uc] (reg) at (4.6,-0.5) {UC01 Đăng ký};
+  \node[uc] (login) at (4.6,-1.9) {UC02 Đăng nhập bằng email};
+  \node[uc] (social) at (4.6,-3.3) {UC03 Đăng nhập Google/Apple};
+  \node[uc] (refresh) at (4.6,-4.7) {UC04 Làm mới phiên, đăng xuất};
+  \node[uc] (forgot) at (4.6,-6.1) {UC05 Quên, đặt lại mật khẩu};
+  \node[uc] (pwd) at (4.6,-7.5) {UC06 Đổi mật khẩu};
+  \node[uc] (verify) at (10.3,-3.3) {Xác minh ID token (JWKS, aud, nonce)};
+  \node[uc] (lock) at (10.3,-1.9) {Khóa tạm sau 5 lần sai};
+  \node[uc] (revoke) at (10.3,-6.8) {Tăng tokenVersion, thu hồi phiên cũ};
+  \node[uc] (profile) at (10.3,-0.5) {UC07 Hồ sơ, UC08 Ngôn ngữ};
+  \draw[rel] (social) -- node[above] {«include»} (verify);
+  \draw[rel] (lock) -- node[above] {«extend»} (login);
+  \draw[rel] (forgot.east) -- node[above, sloped] {«include»} (revoke);
+  \draw[rel] (pwd.east) -- node[below, sloped] {«include»} (revoke);
+  \actor{u}{0.8,-3.6}{Người dùng}
+  \actor{idp}{14.0,-3.3}{Google/Apple}
+  \foreach \x in {reg,login,social,refresh,forgot,pwd} \draw (u) -- (\x.west);
+  \draw (u) -- (profile.west);
+  \draw (verify.east) -- (idp);
+\end{tikzpicture}

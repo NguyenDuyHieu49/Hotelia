@@ -1,0 +1,15 @@
+\begin{seqdiagram}
+  \participant{app}{0}{Ứng dụng khách}
+  \participant{srv}{4.4}{Máy chủ người bán}
+  \participant{pay}{8.8}{payOS}
+  \participant{bank}{13.0}{Ứng dụng ngân hàng}
+  \msg{app}{srv}{yêu cầu thanh toán đơn}
+  \msg{srv}{pay}{tạo liên kết (orderCode, amount, expiredAt), ký}
+  \ret{pay}{srv}{checkoutUrl, paymentLinkId}
+  \ret{srv}{app}{checkoutUrl}
+  \msg{app}{bank}{mở trang VietQR, khách chuyển khoản}
+  \msg{bank}{pay}{ghi có tài khoản người bán}
+  \msg{pay}{srv}{webhook POST \{data, signature\}}
+  \self{srv}{HMAC-SHA256(checksumKey, data) = signature?\\đối chiếu amount; cập nhật lũy đẳng}
+  \ret{srv}{pay}{\{code: "00"\}}
+\end{seqdiagram}

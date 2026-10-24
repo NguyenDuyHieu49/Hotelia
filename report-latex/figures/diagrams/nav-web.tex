@@ -1,0 +1,15 @@
+\begin{tikzpicture}[font=\sffamily\scriptsize]
+  \tikzset{s/.style={box, text width=30mm, font=\sffamily\scriptsize, inner sep=2pt, minimum height=6.5mm},
+           t/.style={s, fill=lane, font=\sffamily\scriptsize\bfseries}}
+  \node[t] (login) at (4.0,0) {/login};
+  \node[t] (owner) at (0,-1.4) {/owner/* (OWNER, ADMIN)};
+  \node[t] (admin) at (8.0,-1.4) {/admin/* (ADMIN)};
+  \draw[flow] (login) -- node[lbl, above, sloped] {role = OWNER} (owner);
+  \draw[flow] (login) -- node[lbl, above, sloped] {role = ADMIN} (admin);
+  \foreach \t [count=\i] in {{dashboard: tổng quan, doanh thu},{hotels: khách sạn, sửa, gửi duyệt},{room-types: loại phòng},{bookings: nhận/trả phòng, hủy},{reviews: phản hồi đánh giá},{analytics: thống kê},{settings: cài đặt}}
+    \node[s] at (0,-1.4-\i*0.85) {\t};
+  \foreach \t [count=\i] in {{dashboard: thống kê hệ thống},{users: tìm, khóa, mở khóa},{owners: duyệt chủ khách sạn},{hotels: duyệt khách sạn},{bookings: mọi đặt phòng},{payments: giao dịch payOS},{reviews: ẩn đánh giá},{audit-logs: nhật ký thao tác},{support, complaints: hỗ trợ},{settings: cài đặt}}
+    \node[s] at (8.0,-1.4-\i*0.85) {\t};
+  \draw ([xshift=-17mm]owner.south) -- ++(0,-6.2);
+  \draw ([xshift=-17mm]admin.south) -- ++(0,-8.7);
+\end{tikzpicture}

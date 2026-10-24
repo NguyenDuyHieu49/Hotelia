@@ -1,0 +1,31 @@
+\begin{tikzpicture}[font=\sffamily\footnotesize]
+  \tikzset{s/.style={box, text width=28mm, font=\sffamily\scriptsize, inner sep=3pt, minimum height=9mm},
+           frame/.style={draw, thick}, ftitle/.style={anchor=north west, font=\sffamily\scriptsize\bfseries}}
+  % offline
+  \draw[frame] (-0.3,1.0) rectangle (16.0,-1.6); \node[ftitle] at (-0.3,1.0) {NGOẠI TUYẾN -- Python (research/)};
+  \node[s] (snap) at (1.4,-0.4) {export\_hotelia\_catalog.py\\ảnh chụp 100 khách sạn};
+  \node[s] (gen) at (4.9,-0.4) {Sinh truy vấn: lịch sử, nhóm ứng viên, nhãn};
+  \node[s] (feat) at (8.3,-0.4) {candidate\_features\\16 đặc trưng};
+  \node[s] (train) at (11.7,-0.4) {LGBMRanker lambdarank\\70/15/15, dừng sớm};
+  \node[s, text width=17mm] (eval) at (14.9,-0.4) {MRR, NDCG trên tập kiểm tra};
+  \foreach \a/\b in {snap/gen,gen/feat,feat/train,train/eval} \draw[flow] (\a) -- (\b);
+  % artifact
+  \node[box, fill=note, text width=56mm, font=\sffamily\scriptsize] (art) at (11.7,-2.6) {hotelia-lgbm.active.json: version, feature\_names, tree\_info, report, parity\_cases, feature\_parity\_cases};
+  \draw[flow] (train) -- (art);
+  % online
+  \draw[frame] (-0.3,-3.5) rectangle (16.0,-7.3); \node[ftitle] at (-0.3,-3.5) {TRỰC TUYẾN -- NestJS (backend/src/recommendations)};
+  \node[s] (req) at (1.4,-4.6) {GET /recommendations\\actor, bộ lọc};
+  \node[s] (cand) at (4.9,-4.6) {Lọc ứng viên: PUBLISHED, còn phòng, điểm đến};
+  \node[s] (sig) at (4.9,-6.3) {Tín hiệu 90 ngày: lượt xem $2^{-d/14}$, đặt phòng 3};
+  \node[s] (f2) at (8.3,-4.6) {candidateFeatures\\16 đặc trưng (UTC+7)};
+  \node[s] (lgb) at (11.7,-4.6) {HoteliaLightGbm-\\Ranker: cộng giá trị lá};
+  \node[s] (fb) at (11.7,-6.3) {ranking.ts\\nội dung + đa dạng};
+  \node[s, text width=17mm] (out) at (14.9,-5.45) {Danh sách, mode, version};
+  \draw[flow] (req) -- (cand); \draw[flow] (sig) -- (f2.south west); \draw[flow] (cand) -- (f2); \draw[flow] (f2) -- (lgb);
+  \draw[flow] (lgb) -- (out.north west); \draw[flow, dashed] (lgb) -- node[lbl, left] {lỗi / chưa nạp} (fb); \draw[flow] (fb) -- (out.south west);
+  \draw[flow] (art) -- node[lbl, right] {nạp khi khởi động} (lgb);
+  % logging
+  \node[s, text width=36mm] (log) at (1.9,-6.3) {POST impressions / views\\$\rightarrow$ MongoDB (TTL 90 ngày)};
+  \draw[flow, dashed] (log) -- (sig);
+  \node[notebox, anchor=north west, text width=60mm] at (-0.2,-7.5) {Lượt hiển thị và lượt mở chi tiết ghi từ ứng dụng sẽ thay thế dữ liệu sinh khi đủ lớn (hướng phát triển).};
+\end{tikzpicture}

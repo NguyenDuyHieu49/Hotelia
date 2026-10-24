@@ -1,0 +1,21 @@
+\begin{tikzpicture}[node distance=4mm and 4mm]
+  \tikzset{p/.style={head, text width=16mm, font=\sffamily\footnotesize},
+           q/.style={box, text width=16mm, font=\sffamily\footnotesize}}
+  \node[q] (req) {Yêu cầu HTTP};
+  \node[p, right=of req] (thr) {Throttler Guard};
+  \node[p, right=of thr] (jwt) {JwtAuth-\\Guard};
+  \node[p, right=of jwt] (role) {Roles Guard};
+  \node[p, right=of role] (audit) {Audit-\\Interceptor};
+  \node[p, right=of audit] (pipe) {Validation-\\Pipe};
+  \node[q, below=12mm of pipe] (ctl) {Controller};
+  \node[q, below=12mm of audit] (svc) {Service};
+  \node[store, minimum width=20mm, font=\sffamily\footnotesize, below=10mm of role] (db) {MongoDB};
+  \node[q, text width=20mm, below=12mm of thr, xshift=6mm] (filter) {Exception Filter};
+  \node[q, below=12mm of req] (res) {Phản hồi JSON};
+  \draw[flow] (req) -- (thr); \draw[flow] (thr) -- (jwt); \draw[flow] (jwt) -- (role);
+  \draw[flow] (role) -- (audit); \draw[flow] (audit) -- (pipe);
+  \draw[flow] (pipe) -- (ctl); \draw[flow] (ctl) -- (svc); \draw[flow] (svc) -- (db);
+  \draw[ret] (jwt.south) -- node[lbl, right, pos=0.45] {từ chối} (filter.north);
+  \draw[ret] (filter) -- (res);
+  \draw[ret] (ctl.south) -- ++(0,-7mm) -| node[lbl, pos=0.25, below] {kết quả thành công; Audit Interceptor ghi audit\_logs với POST/PUT/DELETE} (res.south);
+\end{tikzpicture}

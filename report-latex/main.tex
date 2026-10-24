@@ -1,0 +1,40 @@
+% Hotelia – Nền tảng đặt phòng khách sạn tích hợp hệ thống gợi ý cá nhân hóa
+% Build: latexmk -lualatex main.tex
+\documentclass[fontsize=13pt,paper=a4,oneside,listof=totoc,
+  bibliography=totoc,numbers=noenddot,parskip=false]{scrreprt}
+\input{preamble}
+
+\hypersetup{
+  pdftitle={Hotelia – Nền tảng đặt phòng khách sạn tích hợp hệ thống gợi ý cá nhân hóa},
+  pdfauthor={Nguyễn Duy Hiệu},
+  pdfsubject={Đồ án liên ngành – Trường Công nghệ Thông tin Phenikaa},
+  pdfkeywords={SwiftUI, NestJS, MongoDB, payOS, LightGBM, LambdaRank, Learning to Rank}}
+
+\begin{document}
+
+% ------------------------------------------------------------ front matter --
+\pagenumbering{gobble}
+\input{frontmatter/cover}
+\pagenumbering{roman}
+\input{frontmatter/declaration}
+\input{frontmatter/acknowledgement}
+\input{frontmatter/review}
+\tableofcontents
+\listoffigures
+\listoftables
+\input{frontmatter/abbreviations}
+
+% ------------------------------------------------------------------- body --
+\cleardoublepage
+\pagenumbering{arabic}
+\input{chapters/introduction}
+\input{chapters/ch1-overview}
+\input{chapters/ch2-theory}
+\input{chapters/ch3-analysis-design}
+\input{chapters/ch4-implementation}
+\input{chapters/ch5-evaluation}
+\input{chapters/conclusion}
+
+\printbibliography[heading=bibintoc,title={Tài liệu tham khảo}]
+
+\end{document}

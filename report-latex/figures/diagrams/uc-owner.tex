@@ -1,0 +1,17 @@
+\begin{tikzpicture}[font=\sffamily\small]
+  \tikzset{uc/.style={usecase, minimum width=40mm, text width=33mm, inner sep=0pt, minimum height=10mm, font=\sffamily\footnotesize},
+           rel/.style={dashed, ->, font=\sffamily\scriptsize}}
+  \draw[sysbox] (2.2,1.1) rectangle (12.9,-10.4);
+  \node[font=\sffamily\small\bfseries, anchor=north] at (7.55,1.05) {Chủ khách sạn};
+  \foreach \n/\t [count=\i from 0] in {apply/UC24 Đăng ký làm chủ khách sạn, dash/UC25 Bảng điều khiển và doanh thu,
+      hotel/UC26 Quản lý khách sạn, rooms/UC27 Quản lý loại phòng và tồn kho, bookings/UC28 Xem đặt phòng,
+      stay/UC29 Nhận phòng và trả phòng, cancel/UC30 Xử lý yêu cầu hủy, reply/UC31 Phản hồi đánh giá}
+    \node[uc] (\n) at (4.8,-0.5-1.3*\i) {\t};
+  \node[uc] (own) at (10.4,-5.4) {Kiểm tra quyền sở hữu khách sạn};
+  \node[uc] (rule) at (10.4,-2.4) {Không giảm dưới số phòng đã bán};
+  \foreach \x in {hotel,rooms,bookings,stay,cancel,reply} \draw[rel] (\x.east) -- (own.west);
+  \node[font=\sffamily\scriptsize, fill=white] at (8.1,-5.4) {«include»};
+  \draw[rel] (rooms.east) -- node[above, sloped] {«include»} (rule.west);
+  \actor{o}{0.8,-5.0}{Chủ khách sạn}
+  \foreach \x in {apply,dash,hotel,rooms,bookings,stay,cancel,reply} \draw (o) -- (\x.west);
+\end{tikzpicture}

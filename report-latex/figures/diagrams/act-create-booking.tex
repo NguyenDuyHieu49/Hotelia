@@ -1,0 +1,31 @@
+\begin{tikzpicture}[font=\sffamily\footnotesize, node distance=5mm]
+  \tikzset{a/.style={act, text width=50mm, font=\sffamily\scriptsize, minimum height=7mm, inner sep=3pt},
+           d/.style={decision, font=\sffamily\scriptsize, inner sep=0pt, text width=26mm, aspect=2.6},
+           e/.style={box, fill=note, text width=34mm, font=\sffamily\scriptsize, inner sep=3pt}}
+  \node[startnode] (s) {};
+  \node[a, below=of s] (a1) {Nhận POST /bookings, đọc Idempotency-Key};
+  \node[d, below=of a1] (d1) {Khóa là UUID?};
+  \node[a, below=of d1] (a2) {Tính SHA-256 của nội dung yêu cầu};
+  \node[d, below=of a2] (d2) {Đã có đặt phòng cùng (userId, khóa)?};
+  \node[a, below=of d2] (a3) {Kiểm tra ngày: hợp lệ, không ở quá khứ, 1--90 đêm};
+  \node[a, below=of a3] (a4) {Mở giao dịch; khách sạn PUBLISHED, không phải danh mục chỉ xem};
+  \node[a, below=of a4] (a5) {\$inc inventoryVersion của loại phòng (tuần tự hóa)};
+  \node[a, below=of a5] (a6) {Đếm phòng trống từng đêm trong số đặt phòng chiếm tồn kho};
+  \node[d, below=of a6] (d3) {Còn $\ge 1$ phòng ở mọi đêm?};
+  \node[a, below=of d3] (a7) {Tạo PENDING\_PAYMENT, holdExpiresAt = now + 15 phút; ghi thông báo};
+  \node[a, below=of a7] (a8) {Xác nhận giao dịch, trả 201};
+  \node[endnode, below=of a8] (end) {};
+  \node[e, right=12mm of d1] (x1) {400: khóa không hợp lệ};
+  \node[e, right=12mm of d2] (x2) {Cùng băm: trả đặt phòng cũ\\Khác băm: 409 Conflict};
+  \node[e, right=12mm of d3] (x3) {400: hết phòng; hủy giao dịch};
+  \node[e, left=12mm of a5] (x4) {Xung đột ghi: MongoDB hủy và chạy lại giao dịch};
+  \foreach \u/\v in {s/a1,a1/d1,a2/d2,a3/a4,a4/a5,a5/a6,a6/d3,a7/a8,a8/end} \draw[flow] (\u) -- (\v);
+  \draw[flow] (d1) -- node[lbl, right] {có} (a2);
+  \draw[flow] (d2) -- node[lbl, right] {không} (a3);
+  \draw[flow] (d3) -- node[lbl, right] {có} (a7);
+  \draw[flow] (d1) -- node[lbl, above] {không} (x1);
+  \draw[flow] (d2) -- node[lbl, above] {có} (x2);
+  \draw[flow] (d3) -- node[lbl, above] {không} (x3);
+  \draw[flow, dashed] (a5.west) -- (x4.east);
+  \draw[flow, dashed] (x4.north) |- (a4.west);
+\end{tikzpicture}

@@ -1,0 +1,29 @@
+\begin{seqdiagram}
+  \participant{app}{0}{Ứng dụng iOS}
+  \participant{svc}{3.3}{Payments-\\Service}
+  \participant{db}{6.6}{MongoDB}
+  \participant{cli}{9.8}{PayOSClient}
+  \participant{pay}{13.0}{payOS}
+  \msg{app}{svc}{POST /payments \{bookingId\}}
+  \msg{svc}{db}{đặt phòng còn hạn giữ?}
+  \msg{svc}{db}{đã có thanh toán?}
+  \fragopen{app}{pay}{alt}{[đã có liên kết PENDING]}
+  \ret{svc}{app}{trả liên kết cũ}
+  \fragelse{[chưa có]}
+  \msg{svc}{db}{PROCESSING, orderCode, amount}
+  \msg{svc}{cli}{createPaymentLink(expiredAt)}
+  \msg{cli}{pay}{tạo liên kết (10 s, thử lại 2)}
+  \ret{pay}{cli}{checkoutUrl, paymentLinkId}
+  \msg{svc}{db}{còn giữ? PENDING + paymentUrl}
+  \ret{svc}{app}{201 \{paymentUrl\}}
+  \fragclose
+  \msg{app}{pay}{mở trang VietQR (openURL)}
+  \msg{pay}{svc}{webhook \{data, signature\}}
+  \msg{svc}{cli}{verifyWebhook (HMAC)}
+  \fragopen{app}{pay}{alt}{[chữ ký sai]}
+  \ret{svc}{pay}{400}
+  \fragelse{[hợp lệ, code 00]}
+  \msg{svc}{db}{giao dịch: khớp số tiền, COMPLETED, CONFIRMED}
+  \ret{svc}{pay}{\{code: "00"\}}
+  \fragclose
+\end{seqdiagram}

@@ -1,0 +1,23 @@
+\begin{seqdiagram}
+  \participant{view}{0}{ViewModel}
+  \participant{api}{3.2}{APIClient}
+  \participant{ref}{6.4}{AccessToken Refresher (actor)}
+  \participant{srv}{9.6}{API NestJS}
+  \participant{kc}{12.8}{Keychain}
+  \msg{view}{api}{request(endpoint)}
+  \msg{api}{srv}{yêu cầu + Bearer token}
+  \ret{srv}{api}{401 (access token hết hạn)}
+  \msg{api}{ref}{refresh(refreshToken)}
+  \fragopen{api}{kc}{alt}{[đã có lần làm mới đang chạy]}
+  \ret{ref}{api}{chờ và dùng chung kết quả}
+  \fragelse{[chưa có]}
+  \msg{ref}{srv}{POST /auth/refresh \{refreshToken\}}
+  \self{srv}{kiểm tra typ, bcrypt; xoay vòng}
+  \ret{srv}{ref}{200 cặp token mới}
+  \msg{ref}{kc}{lưu cặp token mới}
+  \ret{ref}{api}{accessToken mới}
+  \fragclose
+  \msg{api}{srv}{gửi lại yêu cầu một lần}
+  \ret{srv}{api}{200}
+  \ret{api}{view}{dữ liệu}
+\end{seqdiagram}

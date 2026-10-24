@@ -1,0 +1,360 @@
+\section{Khảo sát nghiệp vụ và nguồn dữ liệu}\label{sec:survey}
+
+\subsection{Quy trình nghiệp vụ đặt phòng}
+
+Quy trình đặt phòng của Hotelia có ba nhóm người tham gia, mỗi nhóm có mục tiêu khác nhau. Khách muốn tìm nhanh một nơi ở phù hợp và chắc chắn có phòng khi đến. Chủ khách sạn muốn bán được phòng, nắm được ai sẽ đến vào ngày nào và ghi nhận khách nhận/trả phòng. Quản trị viên muốn bảo đảm chỉ những khách sạn và chủ khách sạn hợp lệ xuất hiện trên nền tảng, và có công cụ xử lý khi phát sinh vấn đề.
+
+\Cref{fig:act-overall} mô tả quy trình tổng thể bằng biểu đồ hoạt động có làn (swimlane). Quy trình bắt đầu khi khách tìm kiếm, đi qua việc chọn loại phòng và giữ phòng, phân nhánh theo phương thức thanh toán, rồi kết thúc bằng việc chủ khách sạn ghi nhận nhận phòng, trả phòng và khách gửi đánh giá. Hai điểm đáng chú ý trong biểu đồ là: (i) giữ phòng có thời hạn, nên mọi nhánh chờ đều có lối ra ``hết hạn''; và (ii) với payOS, trạng thái đặt phòng chỉ đổi khi máy chủ nhận được webhook đã xác minh, không phải khi khách quay lại ứng dụng.
+
+\begin{figure}[H]
+\centering
+\diagram{act-overall}
+\caption{Biểu đồ hoạt động tổng thể của quy trình đặt phòng}\label{fig:act-overall}
+\end{figure}
+
+\subsection{Nguồn dữ liệu của hệ thống}\label{sec:data-sources}
+
+Việc phân biệt rõ dữ liệu thật và dữ liệu mô phỏng là điều kiện để đánh giá trung thực, đặc biệt với phần gợi ý. \Cref{tab:data-sources} liệt kê nguồn gốc của từng nhóm dữ liệu trong cơ sở dữ liệu vận hành và trong đường ống huấn luyện.
+
+\begin{rtable}
+\begin{longtable}{|L{3.4cm}|L{6.3cm}|L{5.0cm}|}
+\caption{Nguồn gốc dữ liệu của Hotelia}\label{tab:data-sources}\\
+\hline
+\thead{Nhóm dữ liệu} & \thead{Nguồn và cách tạo} & \thead{Tính chất} \\ \hline
+\endfirsthead
+\hline
+\thead{Nhóm dữ liệu} & \thead{Nguồn và cách tạo} & \thead{Tính chất} \\ \hline
+\endhead
+20 khách sạn ban đầu & Tệp \code{real-hotels.v1.json}: tên, địa chỉ, mô tả, hạng sao và tiện nghi được đối chiếu với website chính thức của khách sạn ngày 25/09/2026; 80 ảnh (20 ảnh khách sạn, 60 ảnh phòng) có mã băm SHA-256 trong \code{verified-media.v1.json}. & Thông tin mô tả đã kiểm chứng một phần; giá, sức chứa, số phòng và chủ khách sạn là dữ liệu ứng dụng, không phải giá bán thật. \\ \hline
+80 khách sạn mở rộng & Tệp \code{explore-hotels.v2.json}: 30 tên có nguồn từ nhà vận hành; 50 tên và tọa độ lấy từ bộ dữ liệu TripAdvisor Vietnam Hotel Reviews (CC BY 4.0) \cite{tripadvisorvn}. Kịch bản \code{activate-operational-catalog.cjs} sinh 80 chủ khách sạn với email \code{@owners.hotelia.invalid} (không đăng nhập được) và 320 loại phòng có giá, tồn kho tất định. & Danh mục vận hành mô phỏng. Không chứng minh khách sạn hiện đang hoạt động hay hợp tác với Hotelia. \\ \hline
+Điểm đánh giá biên tập & Trường \code{demoRating}, \code{demoReviewCount}, \code{demoReviews}; ứng dụng hiển thị là ``Điểm Hotelia'' kèm ghi chú ``không phải đánh giá của khách đã lưu trú''. & Dữ liệu minh họa, tách khỏi đánh giá đã xác minh (\code{averageRating}, \code{reviewCount}). \\ \hline
+Đánh giá đã xác minh & Do khách tạo sau khi đặt phòng chuyển sang trạng thái đã trả phòng. & Dữ liệu thật của hệ thống; trên môi trường vận hành ngày 24/10/2026 số lượng bằng 0. \\ \hline
+Thời tiết & Open-Meteo, gọi trực tiếp từ ứng dụng iOS \cite{openmeteo}. & Dữ liệu thật, không lưu trên máy chủ. \\ \hline
+Tương tác gợi ý & Bộ sưu tập \code{recommendation\_impressions} và \code{recommendation\_views}, ghi khi ứng dụng hiển thị hàng gợi ý và khi khách mở chi tiết. & Dữ liệu thật nhưng chưa đủ lớn để huấn luyện; tự xóa sau 90 ngày. \\ \hline
+Dữ liệu huấn luyện LightGBM & Thuộc tính khách sạn lấy từ ảnh chụp danh mục của API (\code{hotelia-catalog-snapshot.json}); lịch sử người dùng và lựa chọn được \emph{sinh} bằng mô phỏng (\cref{sec:rec-design}). & Dữ liệu trước phát hành; chỉ dùng để kiểm chứng đường ống, không ghi vào MongoDB. \\ \hline
+Trivago RecSys 2019 & Bộ dữ liệu công khai của cuộc thi \cite{adamczak2019}. & Chỉ dùng cho thí nghiệm phụ; không ánh xạ được sang khách sạn Hotelia. \\ \hline
+\end{longtable}
+\end{rtable}
+
+\section{Phân tích yêu cầu}\label{sec:requirements}
+
+\subsection{Yêu cầu chức năng}
+
+\Cref{tab:fr} liệt kê các yêu cầu chức năng, mức ưu tiên (C: cao, T: trung bình, Th: thấp) và trạng thái triển khai được đối chiếu với mã nguồn. Ba trạng thái được dùng là ``Đã có'' (có mã nguồn và đã kiểm thử hoặc kiểm tra thủ công), ``Một phần'' (có mã nguồn nhưng phụ thuộc cấu hình bên ngoài hoặc thiếu một nhánh) và ``Chưa'' (chưa triển khai).
+
+\begin{rtable}
+\begin{longtable}{|C{1.25cm}|L{7.3cm}|C{1.0cm}|C{1.5cm}|L{3.6cm}|}
+\caption{Yêu cầu chức năng và trạng thái triển khai}\label{tab:fr}\\
+\hline
+\thead{Mã} & \thead{Yêu cầu} & \thead{Ưu tiên} & \thead{Trạng thái} & \thead{Ghi chú} \\ \hline
+\endfirsthead
+\hline
+\thead{Mã} & \thead{Yêu cầu} & \thead{Ưu tiên} & \thead{Trạng thái} & \thead{Ghi chú} \\ \hline
+\endhead
+\multicolumn{5}{|l|}{\textbf{Tài khoản và xác thực}} \\ \hline
+FR-01 & Đăng ký bằng email, mật khẩu, họ tên, số điện thoại & C & Đã có & \\ \hline
+FR-02 & Đăng nhập email -- mật khẩu, khóa 15 phút sau 5 lần sai & C & Đã có & \\ \hline
+FR-03 & Đăng nhập Google bằng ID token đã xác minh & C & Đã có & Cần mã ứng dụng Google \\ \hline
+FR-04 & Đăng nhập Apple với nonce & T & Một phần & Cần Apple Developer Program \\ \hline
+FR-05 & Làm mới phiên bằng refresh token xoay vòng; đăng xuất & C & Đã có & \\ \hline
+FR-06 & Quên mật khẩu, đặt lại bằng mã có hạn 15 phút & T & Một phần & Cần cấu hình dịch vụ gửi email \\ \hline
+FR-07 & Đổi mật khẩu, vô hiệu hóa các phiên cũ & T & Đã có & \\ \hline
+FR-08 & Xem và cập nhật hồ sơ & T & Đã có & \\ \hline
+\multicolumn{5}{|l|}{\textbf{Khám phá và gợi ý}} \\ \hline
+FR-09 & Tìm kiếm theo điểm đến, ngày, số khách, khoảng giá, điểm tối thiểu, tiện nghi; sắp xếp theo giá hoặc điểm & C & Đã có & \\ \hline
+FR-10 & Xem chi tiết khách sạn, ảnh, tiện nghi, chính sách giờ nhận/trả phòng, đánh giá & C & Đã có & \\ \hline
+FR-11 & Hàng ``Đề xuất cho bạn'' cá nhân hóa theo lịch sử xem và đặt phòng & C & Đã có & LightGBM v3 \\ \hline
+FR-12 & Gợi ý khám phá khi chưa có lịch sử, đa dạng thành phố & T & Đã có & \\ \hline
+FR-13 & Xóa lịch sử xem và dữ liệu gợi ý của chính mình & T & Đã có & \\ \hline
+FR-14 & Thẻ thời tiết cho các thành phố lớn & Th & Đã có & 8 thành phố \\ \hline
+FR-15 & Lưu khách sạn yêu thích & Th & Đã có & \\ \hline
+\multicolumn{5}{|l|}{\textbf{Đặt phòng và thanh toán}} \\ \hline
+FR-16 & Hiển thị số phòng còn trống của từng loại phòng cho khoảng ngày đã chọn & C & Đã có & Theo từng đêm \\ \hline
+FR-17 & Tạo đặt phòng, giữ phòng 15 phút, không bán trùng & C & Đã có & \\ \hline
+FR-18 & Gửi lại yêu cầu đặt phòng không tạo bản sao (Idempotency-Key) & C & Đã có & \\ \hline
+FR-19 & Xác nhận trả tại khách sạn & C & Đã có & \\ \hline
+FR-20 & Thanh toán qua payOS, xác nhận bằng webhook ký số & C & Đã có & Cần khóa payOS \\ \hline
+FR-21 & Hủy đặt phòng chưa thanh toán; gửi yêu cầu hủy với đặt phòng đã xác nhận & C & Đã có & \\ \hline
+FR-22 & Hoàn tiền tự động qua cổng thanh toán & T & Chưa & Đối soát thủ công \\ \hline
+FR-23 & Lịch sử đặt phòng theo nhóm (sắp tới, đã xong, đã hủy) & C & Đã có & \\ \hline
+FR-24 & Đánh giá một lần cho mỗi khách sạn sau khi trả phòng & T & Đã có & \\ \hline
+FR-25 & Thông báo trong ứng dụng khi giữ phòng, thanh toán & Th & Đã có & Chưa có thông báo đẩy \\ \hline
+\multicolumn{5}{|l|}{\textbf{Chủ khách sạn}} \\ \hline
+FR-26 & Đăng ký làm chủ khách sạn, chờ quản trị viên duyệt & C & Đã có & \\ \hline
+FR-27 & Tạo, sửa, gửi duyệt, ngừng khách sạn & C & Đã có & \\ \hline
+FR-28 & Quản lý loại phòng; không cho giảm số phòng dưới số đã bán trong tương lai & C & Đã có & \\ \hline
+FR-29 & Xem đặt phòng; nhận phòng, trả phòng; xác nhận hủy & C & Đã có & \\ \hline
+FR-30 & Bảng điều khiển doanh thu theo tháng, tỷ lệ phòng đang có khách & T & Đã có & \\ \hline
+FR-31 & Phản hồi đánh giá của khách & T & Đã có & \\ \hline
+FR-32 & Chuyển đặt phòng đã trả phòng sang ``hoàn thành'' & Th & Chưa & Trạng thái đã khai báo \\ \hline
+\multicolumn{5}{|l|}{\textbf{Quản trị viên}} \\ \hline
+FR-33 & Duyệt hoặc từ chối chủ khách sạn và khách sạn & C & Đã có & \\ \hline
+FR-34 & Tìm kiếm, khóa, mở khóa người dùng & C & Đã có & \\ \hline
+FR-35 & Ẩn đánh giá vi phạm, tính lại điểm trung bình & T & Đã có & \\ \hline
+FR-36 & Xem thống kê, đặt phòng, giao dịch thanh toán, nhật ký thao tác & T & Đã có & 200 bản ghi gần nhất \\ \hline
+FR-37 & Tiếp nhận và trả lời yêu cầu hỗ trợ & Th & Đã có & \\ \hline
+\end{longtable}
+\end{rtable}
+
+\subsection{Yêu cầu phi chức năng}
+
+Yêu cầu phi chức năng được phân nhóm theo mô hình chất lượng sản phẩm ISO/IEC 25010 \cite{iso25010}. \Cref{tab:nfr} nêu từng yêu cầu cùng cách hệ thống đáp ứng. Đồ án chưa thực hiện kiểm thử tải nên không đặt chỉ tiêu định lượng về thông lượng hay độ trễ. Thay vào đó, các yêu cầu hiệu năng được diễn đạt dưới dạng giới hạn thiết kế có thể kiểm chứng trong mã nguồn.
+
+\begin{rtable}
+\begin{longtable}{|C{1.4cm}|L{2.6cm}|L{5.6cm}|L{5.0cm}|}
+\caption{Yêu cầu phi chức năng}\label{tab:nfr}\\
+\hline
+\thead{Mã} & \thead{Đặc tính} & \thead{Yêu cầu} & \thead{Cách đáp ứng} \\ \hline
+\endfirsthead
+\hline
+\thead{Mã} & \thead{Đặc tính} & \thead{Yêu cầu} & \thead{Cách đáp ứng} \\ \hline
+\endhead
+NFR-01 & Tính đúng & Không bán quá số phòng của một loại phòng trong bất kỳ đêm nào & Giao dịch MongoDB, khóa theo loại phòng, đếm theo đêm (\cref{sec:booking-rules}) \\ \hline
+NFR-02 & Tính đúng & Gửi lại cùng yêu cầu đặt phòng không tạo bản ghi mới & Idempotency-Key, chỉ mục duy nhất một phần \\ \hline
+NFR-03 & Bảo mật & Mật khẩu không lưu dạng rõ; refresh token chỉ lưu bản băm & bcrypt (chi phí 10--12) \\ \hline
+NFR-04 & Bảo mật & Access token hết hạn sau 15 phút; refresh token không dùng được thay access token & Claim \code{typ}, kiểm tra trong JwtStrategy \\ \hline
+NFR-05 & Bảo mật & Mọi đầu vào được kiểm tra kiểu và độ dài; trường lạ bị từ chối & ValidationPipe với \code{whitelist}, \code{forbidNonWhitelisted} \\ \hline
+NFR-06 & Bảo mật & Giới hạn tần suất 100 yêu cầu/phút; CORS chỉ cho nguồn được khai báo ở môi trường vận hành & ThrottlerGuard; kiểm tra cấu hình khi khởi động \\ \hline
+NFR-07 & Bảo mật & Không tin trạng thái thanh toán do máy khách gửi & Chỉ webhook có chữ ký hợp lệ và đúng số tiền \\ \hline
+NFR-08 & Khả năng truy vết & Ghi lại người thực hiện các thao tác thay đổi dữ liệu & AuditInterceptor, bộ sưu tập \code{audit\_logs} \\ \hline
+NFR-09 & Tin cậy & Gợi ý vẫn hoạt động khi mô hình lỗi hoặc thiếu & Bộ xếp hạng theo nội dung làm dự phòng \\ \hline
+NFR-10 & Tin cậy & Gọi dịch vụ ngoài có thời gian chờ & payOS 10 giây (2 lần thử lại), Open-Meteo 12 giây, email 10 giây \\ \hline
+NFR-11 & Hiệu năng & Danh sách có phân trang, tối đa 100 phần tử mỗi trang; truy vấn chính có chỉ mục & \code{limit} $\le 100$; chỉ mục trên \code{status}, \code{city}, \code{roomTypeId}, \code{checkIn}, \code{checkOut} \\ \hline
+NFR-12 & Khả dụng & Có điểm kiểm tra sức khỏe cho nền tảng triển khai & \code{GET /health} \\ \hline
+NFR-13 & Bản địa hóa & Ứng dụng iOS hỗ trợ tiếng Việt và tiếng Anh, đổi ngôn ngữ không cần cài lại & String Catalog, \code{AppLanguage} \\ \hline
+NFR-14 & Quyền riêng tư & Dữ liệu tương tác gợi ý có thời hạn và người dùng tự xóa được & Chỉ mục TTL 90 ngày; \code{DELETE /recommendations/views} \\ \hline
+NFR-15 & Bảo trì & Quy tắc nghiệp vụ quan trọng có kiểm thử tự động & 50 ca Jest, 80 ca pytest, kịch bản MongoDB thật \\ \hline
+NFR-16 & Khả chuyển & API chạy trong container; cấu hình qua biến môi trường & Dockerfile hai giai đoạn, \code{render.yaml} \\ \hline
+\end{longtable}
+\end{rtable}
+
+\section{Tác nhân của hệ thống}\label{sec:actors}
+
+Hệ thống có ba tác nhân chính là con người và ba tác nhân phụ là hệ thống bên ngoài (\cref{tab:actors}). Trong đó, nhà cung cấp danh tính (Google, Apple) được bổ sung so với danh sách ban đầu, vì nó tham gia trực tiếp vào ca sử dụng đăng nhập.
+
+\begin{table}[H]
+\centering
+\caption{Tác nhân của hệ thống}\label{tab:actors}
+\begin{rtable}
+\begin{tabular}{|L{3.2cm}|C{1.6cm}|L{9.9cm}|}
+\hline
+\thead{Tác nhân} & \thead{Loại} & \thead{Mô tả} \\ \hline
+Khách (Guest/User) & Chính & Người dùng ứng dụng iOS. Khi chưa đăng nhập (Guest) có thể xem khách sạn và gợi ý khám phá; khi đã đăng nhập (vai trò USER) có thể đặt phòng, thanh toán, hủy, đánh giá. \\ \hline
+Chủ khách sạn (Owner) & Chính & Người dùng có vai trò OWNER sau khi được duyệt. Quản lý khách sạn, loại phòng, đặt phòng, nhận/trả phòng, phản hồi đánh giá, xem doanh thu qua bảng điều khiển web hoặc màn hình quản lý trên iOS. \\ \hline
+Quản trị viên (Admin) & Chính & Người dùng có vai trò ADMIN. Duyệt chủ khách sạn và khách sạn, quản lý người dùng, kiểm duyệt đánh giá, xem thanh toán và nhật ký thao tác. \\ \hline
+Cổng thanh toán (payOS) & Phụ & Tạo liên kết thanh toán VietQR và gửi webhook ký số khi giao dịch hoàn tất. \\ \hline
+Dịch vụ thời tiết (Open-Meteo) & Phụ & Cung cấp thời tiết hiện tại và dự báo theo tọa độ cho ứng dụng iOS. \\ \hline
+Nhà cung cấp danh tính (Google, Apple) & Phụ & Xác thực người dùng và phát hành ID token cho đăng nhập liên kết. \\ \hline
+\end{tabular}
+\end{rtable}
+\end{table}
+
+\section{Mô hình ca sử dụng}\label{sec:usecases}
+
+\subsection{Danh sách ca sử dụng}
+
+\Cref{tab:uc-list} liệt kê 37 ca sử dụng, chia theo tác nhân. Mã ca sử dụng được dùng lại trong các biểu đồ và bảng đặc tả phía sau.
+
+\begin{rtable}
+\begin{longtable}{|C{1.2cm}|L{5.4cm}|L{2.5cm}|L{5.6cm}|}
+\caption{Danh sách ca sử dụng}\label{tab:uc-list}\\
+\hline
+\thead{Mã} & \thead{Tên ca sử dụng} & \thead{Tác nhân} & \thead{Mô tả ngắn} \\ \hline
+\endfirsthead
+\hline
+\thead{Mã} & \thead{Tên ca sử dụng} & \thead{Tác nhân} & \thead{Mô tả ngắn} \\ \hline
+\endhead
+UC01 & Đăng ký tài khoản & Khách & Tạo tài khoản USER bằng email và mật khẩu \\ \hline
+UC02 & Đăng nhập email -- mật khẩu & Khách, Owner, Admin & Nhận cặp access/refresh token \\ \hline
+UC03 & Đăng nhập Google/Apple & Khách, IdP & Đổi ID token đã xác minh lấy phiên Hotelia \\ \hline
+UC04 & Làm mới phiên, đăng xuất & Mọi người dùng & Xoay vòng refresh token; thu hồi khi đăng xuất \\ \hline
+UC05 & Quên và đặt lại mật khẩu & Khách & Nhận mã qua email, đặt mật khẩu mới \\ \hline
+UC06 & Đổi mật khẩu & Mọi người dùng & Vô hiệu hóa token cũ \\ \hline
+UC07 & Xem, cập nhật hồ sơ & Mọi người dùng & Họ tên, số điện thoại, ảnh đại diện \\ \hline
+UC08 & Chọn ngôn ngữ & Khách & Theo hệ thống, tiếng Việt hoặc tiếng Anh \\ \hline
+UC09 & Tìm kiếm, lọc khách sạn & Khách & Theo điểm đến, ngày, số khách, giá, điểm \\ \hline
+UC10 & Xem chi tiết khách sạn & Khách & Ảnh, tiện nghi, chính sách, đánh giá \\ \hline
+UC11 & Xem gợi ý cá nhân hóa & Khách & Hàng ``Đề xuất cho bạn'' trên màn Khám phá \\ \hline
+UC12 & Xóa lịch sử gợi ý & Khách & Xóa lượt xem và lượt hiển thị của chính mình \\ \hline
+UC13 & Xem thời tiết & Khách, Open-Meteo & Thẻ thời tiết 8 thành phố \\ \hline
+UC14 & Lưu khách sạn yêu thích & Khách & Thêm/bỏ khỏi danh sách yêu thích \\ \hline
+UC15 & Chọn loại phòng, kiểm tra phòng trống & Khách & Số phòng còn trống cho khoảng ngày \\ \hline
+UC16 & Đặt phòng (giữ phòng) & Khách & Tạo đặt phòng chờ thanh toán trong 15 phút \\ \hline
+UC17 & Xác nhận trả tại khách sạn & Khách & Chuyển đặt phòng sang đã xác nhận \\ \hline
+UC18 & Thanh toán qua payOS & Khách, payOS & Mở trang VietQR; xác nhận bằng webhook \\ \hline
+UC19 & Hủy đặt phòng & Khách & Hủy ngay hoặc gửi yêu cầu hủy \\ \hline
+UC20 & Xem lịch sử, chi tiết đặt phòng & Khách & Lọc theo trạng thái \\ \hline
+UC21 & Đánh giá sau lưu trú & Khách & Một đánh giá cho mỗi khách sạn \\ \hline
+UC22 & Xem thông báo & Khách & Đánh dấu đã đọc \\ \hline
+UC23 & Gửi yêu cầu hỗ trợ & Khách & Tạo phiếu hỗ trợ \\ \hline
+UC24 & Đăng ký làm chủ khách sạn & Khách & Gửi tên doanh nghiệp, mã giấy phép \\ \hline
+UC25 & Xem bảng điều khiển, doanh thu & Owner & Thống kê theo khách sạn và theo tháng \\ \hline
+UC26 & Quản lý khách sạn & Owner & Tạo, sửa, gửi duyệt, ngừng \\ \hline
+UC27 & Quản lý loại phòng, tồn kho & Owner & Giá, sức chứa, số phòng \\ \hline
+UC28 & Xem đặt phòng của khách sạn & Owner & Danh sách, tìm kiếm, chi tiết \\ \hline
+UC29 & Nhận phòng, trả phòng & Owner & Ghi nhận thời điểm khách đến và đi \\ \hline
+UC30 & Xử lý yêu cầu hủy & Owner, Admin & Xác nhận hủy khi chưa có thanh toán trực tuyến \\ \hline
+UC31 & Phản hồi đánh giá & Owner & Trả lời đánh giá của khách \\ \hline
+UC32 & Duyệt chủ khách sạn & Admin & Chấp nhận hoặc từ chối hồ sơ \\ \hline
+UC33 & Duyệt khách sạn & Admin & Đăng hoặc từ chối kèm lý do \\ \hline
+UC34 & Quản lý người dùng & Admin & Tìm kiếm, khóa, mở khóa \\ \hline
+UC35 & Kiểm duyệt đánh giá & Admin & Ẩn đánh giá, tính lại điểm \\ \hline
+UC36 & Giám sát hệ thống & Admin & Thống kê, đặt phòng, thanh toán, nhật ký \\ \hline
+UC37 & Trả lời yêu cầu hỗ trợ & Admin & Đóng phiếu hỗ trợ \\ \hline
+\end{longtable}
+\end{rtable}
+
+\subsection{Biểu đồ ca sử dụng tổng quát}
+
+\Cref{fig:uc-overall} trình bày biểu đồ ca sử dụng tổng quát. Để biểu đồ dễ đọc, các ca sử dụng được gom thành chín nhóm chức năng; mỗi nhóm được tách thành biểu đồ chi tiết ở các mục tiếp theo. Tác nhân chính đứng bên trái, tác nhân phụ là hệ thống bên ngoài đứng bên phải ranh giới hệ thống.
+
+\begin{figure}[H]
+\centering
+\diagram{uc-overall}
+\caption{Biểu đồ ca sử dụng tổng quát của Hotelia}\label{fig:uc-overall}
+\end{figure}
+
+\subsection{Biểu đồ ca sử dụng chi tiết}
+
+\paragraph{Nhóm xác thực và tài khoản.} \Cref{fig:uc-auth} chi tiết nhóm xác thực. Đăng nhập Google/Apple \emph{bao gồm} (include) việc xác minh ID token với nhà cung cấp. Đổi mật khẩu và đặt lại mật khẩu \emph{bao gồm} việc tăng \code{tokenVersion} để thu hồi các phiên cũ. Mọi thao tác cần đăng nhập đều mở rộng từ ca làm mới phiên khi access token hết hạn.
+
+\begin{figure}[H]
+\centering
+\diagram{uc-auth}
+\caption{Biểu đồ ca sử dụng nhóm xác thực và tài khoản}\label{fig:uc-auth}
+\end{figure}
+
+\paragraph{Nhóm khám phá và gợi ý.} \Cref{fig:uc-explore} cho thấy khách chưa đăng nhập vẫn dùng được tìm kiếm, xem chi tiết và gợi ý khám phá. Gợi ý cá nhân hóa \emph{bao gồm} việc ghi nhận lượt hiển thị và lượt mở chi tiết. Đây là dữ liệu đầu vào cho các lần gợi ý sau.
+
+\begin{figure}[H]
+\centering
+\diagram{uc-explore}
+\caption{Biểu đồ ca sử dụng nhóm khám phá, gợi ý và thời tiết}\label{fig:uc-explore}
+\end{figure}
+
+\paragraph{Nhóm đặt phòng và thanh toán.} \Cref{fig:uc-booking} thể hiện đặt phòng \emph{bao gồm} kiểm tra phòng trống. Hai ca thanh toán là \emph{mở rộng} (extend) của đặt phòng, vì khách chọn một trong hai. Thanh toán payOS có cổng thanh toán tham gia với vai trò tác nhân phụ.
+
+\begin{figure}[H]
+\centering
+\diagram{uc-booking}
+\caption{Biểu đồ ca sử dụng nhóm đặt phòng và thanh toán}\label{fig:uc-booking}
+\end{figure}
+
+\paragraph{Nhóm chủ khách sạn.} \Cref{fig:uc-owner} gồm quản lý khách sạn, loại phòng, đặt phòng và đánh giá. Mọi ca sử dụng của nhóm này đều \emph{bao gồm} việc kiểm tra quyền sở hữu khách sạn. Kiểm tra này nằm ở tầng dịch vụ, bổ sung cho kiểm tra vai trò.
+
+\begin{figure}[H]
+\centering
+\diagram{uc-owner}
+\caption{Biểu đồ ca sử dụng nhóm chủ khách sạn}\label{fig:uc-owner}
+\end{figure}
+
+\paragraph{Nhóm quản trị viên.} \Cref{fig:uc-admin} gồm duyệt, quản lý người dùng, kiểm duyệt và giám sát. Ẩn đánh giá \emph{bao gồm} việc tính lại điểm trung bình của khách sạn.
+
+\begin{figure}[H]
+\centering
+\diagram{uc-admin}
+\caption{Biểu đồ ca sử dụng nhóm quản trị viên}\label{fig:uc-admin}
+\end{figure}
+
+\subsection{Đặc tả một số ca sử dụng chính}\label{sec:uc-spec}
+
+Các bảng dưới đây đặc tả những ca sử dụng có quy tắc nghiệp vụ phức tạp nhất. Các bảng dùng cùng một khuôn dạng gồm tác nhân, tiền điều kiện, luồng chính, luồng thay thế và hậu điều kiện. Biểu đồ tuần tự tương ứng được trình bày ở \cref{sec:sequences}.
+
+\newcommand{\ucspec}[8]{%
+\begin{rtable}
+\begin{longtable}{|L{3.0cm}|L{11.8cm}|}
+\caption{#2}\label{#1}\\
+\hline
+\thead{Thuộc tính} & \thead{Nội dung} \\ \hline
+\endfirsthead
+\hline
+\thead{Thuộc tính} & \thead{Nội dung} \\ \hline
+\endhead
+Tác nhân & #3 \\ \hline
+Tiền điều kiện & #4 \\ \hline
+Luồng chính & #5 \\ \hline
+Luồng thay thế & #6 \\ \hline
+Hậu điều kiện & #7 \\ \hline
+Quy tắc liên quan & #8 \\ \hline
+\end{longtable}
+\end{rtable}}
+
+\ucspec{tab:uc02}{Đặc tả UC02 -- Đăng nhập email -- mật khẩu}
+{Khách, chủ khách sạn, quản trị viên}
+{Tài khoản tồn tại và đang hoạt động.}
+{1. Người dùng nhập email, mật khẩu. 2. Ứng dụng gửi \code{POST /auth/login}. 3. Máy chủ tìm người dùng theo email đã chuẩn hóa chữ thường. 4. So khớp bcrypt. 5. Đặt lại bộ đếm sai, ghi \code{lastLoginAt}. 6. Phát hành access token (15 phút) và refresh token (7 ngày), lưu bản băm refresh token. 7. Ứng dụng lưu hai token vào Keychain và chuyển sang màn Khám phá.}
+{3a. Không tìm thấy email: trả 401 ``Invalid credentials'' (không tiết lộ email có tồn tại hay không). 4a. Sai mật khẩu: tăng bộ đếm; lần thứ 5 khóa tài khoản 15 phút. 4b. Tài khoản đang bị khóa tạm thời: trả 400 ``Account is temporarily locked''. 4c. Tài khoản bị quản trị viên vô hiệu hóa: trả 401 ``Account deactivated''.}
+{Người dùng có phiên hợp lệ.}
+{NFR-03, NFR-04; \cref{sec:impl-auth}.}
+
+\ucspec{tab:uc03}{Đặc tả UC03 -- Đăng nhập Google/Apple}
+{Khách; Google hoặc Apple (IdP)}
+{Máy chủ đã cấu hình \code{GOOGLE\_IOS\_CLIENT\_ID} hoặc \code{APPLE\_BUNDLE\_ID}. Với Apple, ứng dụng được ký bằng tài khoản Apple Developer Program.}
+{1. Ứng dụng mở luồng đăng nhập của IdP (với Apple, gửi kèm giá trị băm SHA-256 của một nonce ngẫu nhiên). 2. IdP trả ID token. 3. Ứng dụng gửi \code{POST /auth/social} với \code{provider}, \code{idToken} (và \code{nonce} với Apple). 4. Máy chủ xác minh chữ ký RS256 bằng JWKS, \code{iss}, \code{aud}, \code{exp}, email đã xác minh, nonce. 5. Tìm người dùng theo \code{googleSub}/\code{appleSub}; nếu chưa có thì liên kết theo email (chỉ khi email do IdP có thẩm quyền xác nhận) hoặc tạo mới. 6. Phát hành token như UC02.}
+{4a. Token sai chữ ký, sai \code{aud} hoặc hết hạn: 401. 4b. Email chưa xác minh: 401. 4c. Nonce Apple không khớp: 401. 1a. Máy chủ chưa cấu hình IdP: 503.}
+{Người dùng có phiên hợp lệ; tài khoản được gắn \code{googleSub}/\code{appleSub}.}
+{FR-03, FR-04; \cite{oidc,googleidtoken,applesignin}.}
+
+\ucspec{tab:uc09}{Đặc tả UC09 -- Tìm kiếm, lọc khách sạn}
+{Khách (không bắt buộc đăng nhập)}
+{Không có.}
+{1. Khách nhập điểm đến và/hoặc chọn ngày, số khách, bộ lọc. 2. Ứng dụng gửi \code{GET /hotels} với tham số tương ứng. 3. Máy chủ chỉ xét khách sạn \code{PUBLISHED}. 4. Nếu có bộ lọc phòng, máy chủ tìm loại phòng đang bán thỏa sức chứa và khoảng giá, rồi với khoảng ngày đã chọn, chỉ giữ loại phòng còn ít nhất một phòng trống ở \emph{mọi} đêm. 5. Lọc theo điểm đến (thành phố, quận, tên), điểm tối thiểu và tiện nghi. 6. Sắp xếp, phân trang (tối đa 100), trả kết quả.}
+{1a. Chỉ có ngày nhận hoặc chỉ có ngày trả: 400. 1b. Giá tối thiểu lớn hơn giá tối đa: 400. 1c. Ngày nhận ở quá khứ hoặc kỳ lưu trú ngoài 1--90 đêm: 400.}
+{Danh sách khách sạn mà khách thực sự đặt được với điều kiện đã chọn.}
+{BR-01, BR-02, BR-03; \cref{sec:search-design}.}
+
+\ucspec{tab:uc16}{Đặc tả UC16 -- Đặt phòng (giữ phòng)}
+{Khách đã đăng nhập}
+{Khách sạn \code{PUBLISHED}, không thuộc danh mục chỉ xem; loại phòng đang bán.}
+{1. Khách chọn loại phòng, ngày, số khách, nhập thông tin liên hệ. 2. Ứng dụng sinh UUID làm \code{Idempotency-Key} cho nội dung này và gửi \code{POST /bookings}. 3. Máy chủ tính băm SHA-256 của nội dung. 4. Nếu đã có đặt phòng với cùng khóa và cùng băm: trả lại đặt phòng đó. 5. Mở giao dịch; tăng \code{inventoryVersion} của loại phòng. 6. Kiểm tra sức chứa, giá. 7. Đếm phòng trống theo từng đêm trong số đặt phòng đang chiếm tồn kho. 8. Tạo đặt phòng \code{PENDING\_PAYMENT} với \code{holdExpiresAt} = hiện tại + 15 phút; ghi thông báo. 9. Xác nhận giao dịch, trả 201.}
+{2a. Thiếu khóa hoặc khóa không phải UUID: 400. 4a. Cùng khóa nhưng nội dung khác: 409. 6a. Vượt sức chứa: 400. 7a. Hết phòng: 400 ``Loại phòng đã hết trong thời gian đã chọn''. 5a. Xung đột ghi do yêu cầu đồng thời: trình điều khiển chạy lại giao dịch; lần chạy lại thấy tồn kho mới. E. Mất kết nối trước khi nhận phản hồi: ứng dụng giữ nguyên khóa; khách bấm ``Kiểm tra lại'' để gửi lại cùng khóa.}
+{Một đặt phòng duy nhất giữ tồn kho trong 15 phút.}
+{BR-04 đến BR-10; \cref{sec:booking-rules}.}
+
+\ucspec{tab:uc18}{Đặc tả UC18 -- Thanh toán qua payOS}
+{Khách; payOS}
+{Đặt phòng \code{PENDING\_PAYMENT} của chính khách, chưa hết hạn giữ; máy chủ đã cấu hình khóa payOS.}
+{1. Khách chọn ``Thanh toán qua payOS''. 2. Ứng dụng gửi \code{POST /payments} với \code{bookingId}. 3. Máy chủ tạo bản ghi thanh toán \code{PROCESSING} với \code{orderCode} duy nhất, số tiền lấy từ đặt phòng (không lấy từ máy khách), hạn bằng hạn giữ phòng. 4. Gọi payOS tạo liên kết; kiểm tra đặt phòng vẫn đang giữ; chuyển thanh toán sang \code{PENDING}, trả \code{checkoutUrl}. 5. Ứng dụng mở trang thanh toán. 6. payOS gửi webhook; máy chủ xác minh chữ ký, đối chiếu số tiền, trong một giao dịch chuyển thanh toán sang \code{COMPLETED} và đặt phòng sang \code{CONFIRMED}, ghi thông báo.}
+{2a. Đã có liên kết đang chờ: trả lại liên kết cũ (không tạo đơn thứ hai). 3a. payOS chưa cấu hình: 503. 4a. payOS không phản hồi trong 10 giây: thanh toán \code{FAILED}, trả 502, khách thử lại được. 4b. Giữ phòng đã hết khi liên kết vừa tạo: hủy liên kết, 400. 6a. Chữ ký sai: 400, không đổi dữ liệu. 6b. Số tiền không khớp: hủy giao dịch cơ sở dữ liệu, không đổi trạng thái. 6c. Tiền về sau khi hết giữ phòng: đặt phòng chuyển \code{CANCEL\_REQUESTED} với lý do \code{PAYMENT\_AFTER\_HOLD\_EXPIRED} để xử lý hoàn tiền thủ công. 6d. Webhook gửi lại: bỏ qua vì đã \code{COMPLETED}.}
+{Đặt phòng được xác nhận chỉ khi tiền đã về và khớp số tiền.}
+{BR-11 đến BR-14; \cref{sec:payment-design}.}
+
+\ucspec{tab:uc19}{Đặc tả UC19 -- Hủy đặt phòng và UC30 -- Xử lý yêu cầu hủy}
+{Khách; chủ khách sạn hoặc quản trị viên}
+{Đặt phòng thuộc khách (UC19) hoặc thuộc khách sạn của chủ khách sạn (UC30).}
+{UC19: 1. Khách chọn hủy, nhập lý do. 2. Nếu đặt phòng đang \code{PENDING\_PAYMENT}: chuyển \code{CANCELLED}, giải phóng tồn kho, hủy liên kết payOS đang chờ (nếu có). 3. Nếu đặt phòng \code{CONFIRMED}: chuyển \code{CANCEL\_REQUESTED}; tồn kho \emph{vẫn bị giữ}. UC30: 4. Chủ khách sạn hoặc quản trị viên xác nhận hủy; nếu không có thanh toán trực tuyến đã hoàn tất, đặt phòng chuyển \code{CANCELLED}.}
+{2a. Đặt phòng đã ở trạng thái đích: trả lại nguyên trạng (lũy đẳng). 2b. Đặt phòng đã nhận phòng hoặc kết thúc: 400. 4a. Có thanh toán payOS đã hoàn tất: 400 ``Cần xử lý hoàn tiền với nhà cung cấp trước'', vì hoàn tiền tự động chưa được triển khai.}
+{Tồn kho chỉ được giải phóng khi đặt phòng thật sự bị hủy.}
+{BR-15, BR-16.}
+
+\ucspec{tab:uc29}{Đặc tả UC29 -- Nhận phòng, trả phòng}
+{Chủ khách sạn}
+{Đặt phòng thuộc khách sạn của chủ khách sạn.}
+{1. Chủ khách sạn mở danh sách đặt phòng, chọn ``Nhận phòng''. 2. Máy chủ kiểm tra quyền sở hữu, kiểm tra chuyển trạng thái \code{CONFIRMED} $\rightarrow$ \code{CHECKED\_IN} hợp lệ, kiểm tra ngày hiện tại (giờ Việt Nam) nằm trong $[d_{\text{in}}, d_{\text{out}})$. 3. Cập nhật có điều kiện theo trạng thái cũ, ghi \code{checkedInAt}. 4. Khi khách đi, chọn ``Trả phòng'': \code{CHECKED\_IN} $\rightarrow$ \code{CHECKED\_OUT}, ghi \code{checkedOutAt}.}
+{2a. Không phải chủ khách sạn: 403. 2b. Chưa đến ngày nhận phòng hoặc đã qua ngày trả phòng: 400. 2c. Trạng thái không cho phép: 400. 3a. Bấm lại khi đã nhận phòng: trả lại nguyên trạng.}
+{Khách được phép đánh giá sau khi đặt phòng ở trạng thái \code{CHECKED\_OUT}.}
+{BR-17, BR-18.}
+
+\ucspec{tab:uc21}{Đặc tả UC21 -- Đánh giá sau lưu trú}
+{Khách}
+{Khách có ít nhất một đặt phòng \code{CHECKED\_OUT} hoặc \code{COMPLETED} tại khách sạn; chưa đánh giá khách sạn này.}
+{1. Khách chọn số sao (1--5), tiêu đề, nội dung. 2. Trong một giao dịch: kiểm tra điều kiện, tạo đánh giá, tính lại \code{averageRating} và \code{reviewCount} của khách sạn từ các đánh giá đang hiển thị. 3. Chủ khách sạn có thể phản hồi (UC31); phản hồi hiển thị dưới đánh giá trên ứng dụng.}
+{1a. Chưa lưu trú: 403 ``Chỉ có thể đánh giá sau khi hoàn tất lưu trú''. 1b. Đã đánh giá: 403.}
+{Điểm đánh giá đã xác minh của khách sạn được cập nhật.}
+{BR-19, BR-20.}
+
+\ucspec{tab:uc11}{Đặc tả UC11 -- Xem gợi ý cá nhân hóa}
+{Khách (đăng nhập hoặc chưa)}
+{Ứng dụng có \code{sessionId} UUID cho thiết bị.}
+{1. Màn Khám phá gửi \code{GET /recommendations} với \code{sessionId}, điểm đến và bộ lọc hiện tại; gửi kèm access token nếu có. 2. Máy chủ xác định tác nhân: \code{user:<id>} nếu đăng nhập, ngược lại \code{session:<uuid>}. 3. Đọc lượt xem 90 ngày của tác nhân và đặt phòng đã xác nhận của người dùng. 4. Lọc ứng viên theo điểm đến và bộ lọc phòng. 5. Tính 16 đặc trưng, chấm điểm bằng LightGBM. 6. Trả danh sách, kèm \code{ranking.mode}, \code{version}, \code{modelUsed}. 7. Ứng dụng gửi \code{POST /recommendations/impressions} với thứ tự hiển thị; khi khách mở chi tiết, gửi \code{POST /recommendations/views}.}
+{5a. Mô hình không nạp được hoặc lỗi khi chấm điểm: dùng bộ xếp hạng theo nội dung, \code{modelUsed = false}. 3a. Chưa có lịch sử: chế độ khám phá. 7a. Gửi lại lượt hiển thị cùng \code{impressionId}: không ghi đè.}
+{Khách thấy danh sách khách sạn đặt được, xếp theo mức phù hợp ước lượng.}
+{BR-21 đến BR-24; \cref{sec:rec-design}.}
+
+\ucspec{tab:uc33}{Đặc tả UC32, UC33 -- Duyệt chủ khách sạn và khách sạn}
+{Quản trị viên}
+{Có hồ sơ chủ khách sạn \code{PENDING} hoặc khách sạn \code{PENDING\_APPROVAL}.}
+{UC32: 1. Quản trị viên mở danh sách chủ khách sạn chờ duyệt. 2. Chọn ``Duyệt'': người dùng chuyển vai trò sang OWNER, \code{ownerStatus = APPROVED}. UC33: 3. Mở danh sách khách sạn chờ duyệt. 4. Chọn ``Duyệt'': khách sạn chuyển \code{PUBLISHED}, xuất hiện trong tìm kiếm.}
+{2a. Từ chối: \code{ownerStatus = REJECTED}. 4a. Từ chối khách sạn: bắt buộc nhập lý do; khách sạn chuyển \code{REJECTED}, chủ khách sạn sửa và gửi duyệt lại. 4b. Khách sạn không ở trạng thái chờ duyệt: 400.}
+{Chỉ khách sạn đã duyệt mới được tìm thấy và đặt.}
+{BR-25.}

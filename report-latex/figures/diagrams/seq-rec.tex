@@ -1,0 +1,24 @@
+\begin{seqdiagram}
+  \participant{app}{0}{Explore-\\ViewModel}
+  \participant[33mm]{svc}{3.3}{Recommendations\\Service}
+  \participant{db}{6.6}{MongoDB}
+  \participant[29mm]{lgb}{9.9}{HoteliaLightGbm-\\Ranker}
+  \participant{rank}{13.1}{ranking.ts (dự phòng)}
+  \msg{app}{svc}{GET /recommendations}
+  \self{svc}{actor = user:id hoặc session:uuid}
+  \msg{svc}{db}{khách sạn, giá, lượt xem, đặt phòng}
+  \self{svc}{tín hiệu $w=2^{-d/14}$ hoặc 3; lọc ứng viên}
+  \msg{svc}{lgb}{rank(candidates, signals, now)}
+  \fragopen{app}{rank}{alt}{[mô hình đã nạp, chấm điểm thành công]}
+  \ret{lgb}{svc}{xếp hạng, modelUsed = true}
+  \fragelse{[lỗi hoặc chưa nạp]}
+  \ret{lgb}{svc}{undefined}
+  \msg{svc}{rank}{rank(candidates, signals)}
+  \ret{rank}{svc}{xếp hạng, modelUsed = false}
+  \fragclose
+  \ret{svc}{app}{hotels, ranking}
+  \msg{app}{svc}{POST /impressions}
+  \msg{svc}{db}{\$setOnInsert (không ghi đè)}
+  \msg{app}{svc}{POST /views (mở chi tiết)}
+  \msg{svc}{db}{upsert lượt xem, gắn impression}
+\end{seqdiagram}

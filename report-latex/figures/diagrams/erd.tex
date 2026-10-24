@@ -1,0 +1,26 @@
+\begin{tikzpicture}[font=\sffamily\scriptsize]
+  \tikzset{rel/.style={-}, card/.style={font=\sffamily\scriptsize, fill=white, inner sep=1pt}}
+  \entity[anchor=north]{users}{\underline{\_id}\\email (duy nhất)\\passwordHash\\googleSub, appleSub\\role, ownerStatus\\isActive, tokenVersion\\refreshToken (băm)}{34mm}
+  \begin{scope}
+  \entity[anchor=north, at={(5.4,0)}]{hotels}{\underline{\_id}\\ownerId $\rightarrow$ users\\name, city, address\\status, starRating\\averageRating, reviewCount\\demoRating (biên tập)\\isDemoCatalog}{36mm}
+  \entity[anchor=north, at={(10.8,0)}]{roomtypes}{\underline{\_id}\\hotelId $\rightarrow$ hotels\\basePrice, maxGuests\\totalRooms\\inventoryVersion\\isActive}{34mm}
+  \entity[anchor=north, at={(5.4,-4.4)}]{bookings}{\underline{\_id}\\userId, hotelId, roomTypeId\\checkIn, checkOut, nights\\totalPrice, status\\holdExpiresAt\\requestKey, requestHash\\paymentMethod}{36mm}
+  \entity[anchor=north, at={(10.8,-4.4)}]{payments}{\underline{\_id}\\bookingId $\rightarrow$ bookings\\bookingKey (duy nhất)\\orderCode (duy nhất)\\amount, status\\paymentUrl, paidAt}{34mm}
+  \entity[anchor=north, at={(0,-4.4)}]{reviews}{\underline{\_id}\\hotelId, userId, bookingId\\rating, title, content\\ownerReply, isVisible}{34mm}
+  \entity[anchor=north, at={(-0.6,-8.6)}]{notifications}{userId, title, message\\type, relatedId, isRead}{30mm}
+  \entity[anchor=north, at={(3.0,-8.6)}]{favorites}{\_id = userId:hotelId}{26mm}
+  \entityT[anchor=north, at={(6.2,-8.6)}]{support}{support\_tickets}{userId, subject\\message, status, reply}{28mm}
+  \entityT[anchor=north, at={(9.6,-8.6)}]{pwreset}{password\_resets}{userId, tokenHash\\expiresAt (15 phút)}{30mm}
+  \entityT[anchor=north, at={(13.0,-8.6)}]{audit}{audit\_logs}{actorId, role\\method, path}{26mm}
+  \entityT[anchor=north, at={(2.6,-10.7)}]{recviews}{recommendation\_views}{\_id = actor:hotelId\\viewedAt (TTL 90 ngày)}{40mm}
+  \entityT[anchor=north, at={(8.6,-10.7)}]{recimp}{recommendation\_impressions}{\_id = actor:impressionId\\candidateIds ($\le$ 8)\\detailOpenedHotelIds\\expiresAt (TTL)}{44mm}
+  \end{scope}
+  \draw[rel] (users.east) -- node[card, pos=0.12, above] {1} node[card, pos=0.88, above] {N} node[card, midway, below] {sở hữu} (hotels.west);
+  \draw[rel] (hotels.east) -- node[card, pos=0.12, above] {1} node[card, pos=0.88, above] {N} (roomtypes.west);
+  \draw[rel] (hotels.south) -- node[card, pos=0.15, right] {1} node[card, pos=0.85, right] {N} (bookings.north);
+  \draw[rel] (roomtypes.south) -- node[card, pos=0.15, right] {1} node[card, pos=0.8, left] {N} (bookings.north east);
+  \draw[rel] (users.south east) -- node[card, pos=0.12, right] {1} node[card, pos=0.85, above] {N} (bookings.north west);
+  \draw[rel] (bookings.east) -- node[card, pos=0.12, above] {1} node[card, pos=0.88, above] {0..1} (payments.west);
+  \draw[rel] (users.south) -- node[card, pos=0.15, right] {1} node[card, pos=0.85, right] {N} (reviews.north);
+  \draw[rel] (bookings.west) -- node[card, pos=0.12, above] {1} node[card, pos=0.88, above] {0..1} (reviews.east);
+\end{tikzpicture}

@@ -1,0 +1,18 @@
+\begin{tikzpicture}
+\begin{axis}[
+  width=12cm, height=5.6cm,
+  xlabel={Số ngày kể từ lượt xem ($d$)}, ylabel={Trọng số $w$},
+  xmin=0, xmax=90, ymin=0, ymax=1.05,
+  xtick={0,14,28,42,56,70,90}, ytick={0,0.25,0.5,0.75,1},
+  grid=major, grid style={black!12},
+  tick label style={font=\sffamily\footnotesize},
+  label style={font=\sffamily\small},
+  yticklabel style={/pgf/number format/fixed, /pgf/number format/use comma},
+]
+  \addplot[black, line width=1pt, domain=0:90, samples=120] {2^(-x/14)};
+  \addplot[only marks, mark=*, mark size=2pt] coordinates {(0,1) (14,0.5) (28,0.25) (42,0.125)};
+  \node[font=\sffamily\footnotesize, anchor=south west] at (axis cs:14,0.5) {$w(14)=0{,}5$};
+  \node[font=\sffamily\footnotesize, anchor=south west] at (axis cs:28,0.25) {$w(28)=0{,}25$};
+  \node[font=\sffamily\footnotesize, anchor=south east] at (axis cs:90,0.06) {$w(90)\approx 0{,}012$};
+\end{axis}
+\end{tikzpicture}

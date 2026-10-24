@@ -1,0 +1,203 @@
+\section{Quy tắc nghiệp vụ của luồng đặt phòng}\label{sec:booking-rules}
+
+\subsection{Danh sách quy tắc}
+
+\Cref{tab:rules} tổng hợp các quy tắc nghiệp vụ. Mỗi quy tắc được đối chiếu với vị trí cài đặt trong mã nguồn và với ca kiểm thử tự động kiểm chứng nó (nếu có). Các ca kiểm thử được trình bày ở \cref{chap:evaluation}.
+
+\begin{rtable}
+\begin{longtable}{|C{1.2cm}|L{7.0cm}|L{3.7cm}|L{2.9cm}|}
+\caption{Quy tắc nghiệp vụ và vị trí cài đặt}\label{tab:rules}\\
+\hline
+\thead{Mã} & \thead{Quy tắc} & \thead{Cài đặt} & \thead{Kiểm thử} \\ \hline
+\endfirsthead
+\hline
+\thead{Mã} & \thead{Quy tắc} & \thead{Cài đặt} & \thead{Kiểm thử} \\ \hline
+\endhead
+BR-01 & Ngày có dạng \code{YYYY-MM-DD} hợp lệ; kỳ lưu trú là khoảng nửa mở $[d_{\text{in}}, d_{\text{out}})$, dài 1 đến 90 đêm & \code{stayDates} & TC-B01, TC-B02 \\ \hline
+BR-02 & Ngày nhận phòng không ở quá khứ, tính theo giờ Việt Nam (UTC+7) & \code{stayDates} & TC-B01 \\ \hline
+BR-03 & Phòng trống được tính theo từng đêm (\cref{eq:free-rooms}); ngày trả phòng không chiếm tồn kho & \code{freeRooms} & TC-B03 \\ \hline
+BR-04 & Đặt phòng chiếm tồn kho khi ở các trạng thái PAID, CONFIRMED, CHECKED\_IN, CHECKED\_OUT, COMPLETED, CANCEL\_REQUESTED, hoặc PENDING\_PAYMENT còn hạn giữ & \code{occupyingBookings} & TC-B04 \\ \hline
+BR-05 & Giữ phòng 15 phút; quá hạn thì chuyển EXPIRED khi được đọc lại & \code{expiredHold}, \code{findById} & TC-B05, TC-D03 \\ \hline
+BR-06 & Mỗi yêu cầu tạo đặt phòng phải có \code{Idempotency-Key} dạng UUID & \code{BookingsService.create} & TC-B06 \\ \hline
+BR-07 & Cùng khóa, cùng nội dung: trả lại đặt phòng cũ; cùng khóa, khác nội dung: 409 & SHA-256 nội dung, chỉ mục duy nhất một phần & TC-B06, TC-D02 \\ \hline
+BR-08 & Các yêu cầu đặt cùng loại phòng được tuần tự hóa bằng việc tăng \code{inventoryVersion} trong giao dịch & \code{BookingsService.create} & TC-B07, TC-D01 \\ \hline
+BR-09 & Số khách không vượt \code{maxGuests}; giá phòng phải dương & \code{BookingsService.create} & -- \\ \hline
+BR-10 & Không đặt được khách sạn chưa duyệt hoặc thuộc danh mục chỉ xem & \code{BookingsService.create} & TC-B08 \\ \hline
+BR-11 & Số tiền thanh toán lấy từ đặt phòng phía máy chủ, không nhận từ máy khách & \code{PaymentsService.create} & TC-P03 \\ \hline
+BR-12 & Một đặt phòng có tối đa một thanh toán; liên kết đang chờ được dùng lại & chỉ mục duy nhất \code{bookingKey} & TC-P02 \\ \hline
+BR-13 & Chỉ webhook có chữ ký hợp lệ và đúng số tiền mới chuyển thanh toán sang COMPLETED & \code{PayOSClient.verifyWebhook} & TC-P05, TC-P06 \\ \hline
+BR-14 & Tiền về sau khi hết giữ phòng: chuyển CANCEL\_REQUESTED để hoàn tiền thủ công & \code{handlePayOSWebhook} & -- \\ \hline
+BR-15 & Hủy PENDING\_PAYMENT: CANCELLED ngay; hủy CONFIRMED: CANCEL\_REQUESTED, vẫn giữ tồn kho & \code{BookingsService.cancel} & TC-B09, TC-D04 \\ \hline
+BR-16 & Không xác nhận hủy khi đã có thanh toán trực tuyến hoàn tất & \code{resolve\allowbreak Cancellation} & -- \\ \hline
+BR-17 & Chỉ chủ khách sạn sở hữu khách sạn mới nhận/trả phòng & \code{checkIn}, \code{checkOut} & TC-D05 \\ \hline
+BR-18 & Nhận phòng chỉ trong khoảng $[d_{\text{in}}, d_{\text{out}})$ theo giờ Việt Nam & \code{checkIn} & TC-B10 \\ \hline
+BR-19 & Chỉ đánh giá khi có đặt phòng CHECKED\_OUT hoặc COMPLETED; mỗi khách sạn một lần & \code{ReviewsService.create} & -- \\ \hline
+BR-20 & Điểm trung bình tính lại trong cùng giao dịch, chỉ từ đánh giá đang hiển thị & \code{ReviewsService.create}, \code{hide} & -- \\ \hline
+BR-21 & Gợi ý chỉ chứa khách sạn PUBLISHED thỏa bộ lọc; điểm đến không bị cá nhân hóa ghi đè & \code{Recommendations\allowbreak Service} & TC-R03, TC-R04 \\ \hline
+BR-22 & Người dùng đăng nhập chỉ dùng lịch sử của chính tài khoản, không dùng lịch sử của phiên ẩn danh & \code{actor()} & TC-R01, TC-R02 \\ \hline
+BR-23 & Lượt hiển thị có tối đa 8 ứng viên, không trùng, gửi lại không ghi đè & \code{recordImpression} & TC-R07, TC-R08 \\ \hline
+BR-24 & Mô hình lỗi hoặc thiếu thì dùng bộ xếp hạng theo nội dung & \code{HoteliaLightGbm\allowbreak Ranker.rank} & TC-R12 \\ \hline
+BR-25 & Không giảm số phòng của loại phòng xuống dưới số phòng đã bán trong tương lai & \code{RoomTypesService.update} & -- \\ \hline
+\end{longtable}
+\end{rtable}
+
+\subsection{Kiểm tra phòng trống và chống bán trùng}
+
+Quy trình tạo đặt phòng ở \cref{fig:act-create} kết hợp ba lớp bảo vệ. Lớp thứ nhất là \textbf{khóa lũy đẳng}. Trước khi làm bất cứ việc gì, máy chủ tìm đặt phòng có cùng \code{(userId, requestKey)}. Nếu tìm thấy và nội dung băm giống nhau, máy chủ trả lại kết quả cũ.
+
+Lớp thứ hai là \textbf{tuần tự hóa theo loại phòng}. Trong giao dịch, máy chủ thực hiện \code{findOneAndUpdate} tăng trường \code{inventoryVersion} của loại phòng. Hai giao dịch đặt cùng một loại phòng vì vậy cùng ghi vào một tài liệu. MongoDB phát hiện xung đột ghi và buộc giao dịch đến sau chạy lại từ đầu. Lần chạy lại thấy đặt phòng của giao dịch trước, nên đếm đúng số phòng còn lại. Đây là kỹ thuật ``hiện thực hóa xung đột'' đã nêu ở \cref{chap:theory}. Hai loại phòng khác nhau không chặn nhau, nên mức độ tranh chấp chỉ giới hạn trong từng loại phòng.
+
+Lớp thứ ba là \textbf{đếm theo đêm}. Truy vấn lấy mọi đặt phòng của loại phòng thỏa \cref{eq:overlap} và đang chiếm tồn kho (BR-04), rồi áp dụng \cref{eq:free-rooms}.
+
+\begin{figure}[H]
+\centering
+\diagram{act-create-booking}
+\caption{Biểu đồ hoạt động tạo đặt phòng với khóa lũy đẳng và giao dịch}\label{fig:act-create}
+\end{figure}
+
+\subsection{Thử lại và hết thời gian chờ}\label{sec:retry-design}
+
+Hệ thống phân biệt hai loại lỗi khi tạo đặt phòng. \textbf{Lỗi xác định} là các mã 4xx có thông điệp nghiệp vụ, như hết phòng hay vượt sức chứa. Với lỗi này, ứng dụng hiển thị thông điệp và tải lại danh sách loại phòng. \textbf{Lỗi không xác định} gồm lỗi mạng (\code{URLError}, kể cả hết thời gian chờ), mã 5xx và phản hồi không giải mã được. Với lỗi này, ứng dụng không biết đặt phòng đã được tạo hay chưa. Ứng dụng vì vậy \emph{giữ nguyên} khóa lũy đẳng, khóa các trường nhập liệu và hiển thị nút ``Kiểm tra lại kết quả''. Khi khách bấm nút, cùng khóa được gửi lại: nếu đặt phòng đã tồn tại, máy chủ trả lại nó; nếu chưa, máy chủ tạo mới. Khóa chỉ được sinh mới khi khách thay đổi nội dung đặt phòng.
+
+Các lời gọi từ máy chủ ra dịch vụ ngoài đều có thời gian chờ. payOS có thời gian chờ 10 giây và tối đa 2 lần thử lại do thư viện @payos/node thực hiện. Dịch vụ gửi email đặt lại mật khẩu có thời gian chờ 10 giây. Ở phía ứng dụng, Open-Meteo có thời gian chờ 12 giây. Khi access token hết hạn, ứng dụng làm mới token đúng một lần rồi gửi lại yêu cầu; nhiều yêu cầu cùng gặp 401 dùng chung một lần làm mới nhờ \code{actor AccessTokenRefresher}. Hệ thống không tự động thử lại việc tạo đặt phòng. Việc tự động gửi lại một thao tác có tác động tài chính nên do người dùng chủ động thực hiện, có khóa lũy đẳng bảo vệ.
+
+\subsection{Hủy, nhận phòng và trả phòng}
+
+\Cref{fig:act-cancel} mô tả luồng hủy. Điểm thiết kế quan trọng là hủy một đặt phòng đã xác nhận \emph{không} giải phóng tồn kho ngay, mà chuyển sang CANCEL\_REQUESTED. Lý do là nếu giải phóng ngay, phòng có thể bị bán cho khách khác trong khi khách sạn chưa đồng ý hủy, và khách cũ vẫn có thể đến. Tồn kho chỉ được giải phóng khi chủ khách sạn hoặc quản trị viên xác nhận. Hệ thống chặn việc xác nhận nếu đã có thanh toán payOS hoàn tất, vì hoàn tiền tự động chưa được cài đặt (FR-22). Hàm \code{calculateRefund} trong mã nguồn mô tả chính sách hoàn 100\% khi hủy trước ít nhất 7 ngày, 50\% khi trước 3--6 ngày và 0\% khi dưới 3 ngày, nhưng chưa được gọi trong luồng hủy. Báo cáo coi đây là phần chưa hoàn thiện (\cref{sec:limitations}).
+
+\begin{figure}[H]
+\centering
+\diagram{act-cancel}
+\caption{Biểu đồ hoạt động hủy đặt phòng và xử lý yêu cầu hủy}\label{fig:act-cancel}
+\end{figure}
+
+\section{Máy trạng thái}\label{sec:state-machine}
+
+\subsection{Trạng thái đặt phòng}
+
+\Cref{fig:state-booking} là biểu đồ trạng thái của đặt phòng. Các chuyển trạng thái hợp lệ được khai báo tường minh trong \code{BookingStateService}. Mọi cập nhật trạng thái đều là cập nhật có điều kiện theo trạng thái cũ (\code{findOneAndUpdate(\{\_id, status: cũ\})}). Hai thao tác đồng thời trên cùng một đặt phòng vì vậy không thể cùng thành công; thao tác đến sau đọc lại và trả về trạng thái hiện tại nếu đó chính là đích của nó, giúp các thao tác nhận phòng, trả phòng, hủy, xác nhận trả tại khách sạn đều lũy đẳng.
+
+\begin{figure}[H]
+\centering
+\diagram{state-booking}
+\caption{Biểu đồ trạng thái của đặt phòng}\label{fig:state-booking}
+\end{figure}
+
+\begin{rtable}
+\begin{longtable}{|L{3.4cm}|L{3.4cm}|L{4.3cm}|L{3.6cm}|}
+\caption{Bảng chuyển trạng thái của đặt phòng}\label{tab:booking-states}\\
+\hline
+\thead{Từ} & \thead{Sang} & \thead{Sự kiện} & \thead{Người thực hiện} \\ \hline
+\endfirsthead
+\hline
+\thead{Từ} & \thead{Sang} & \thead{Sự kiện} & \thead{Người thực hiện} \\ \hline
+\endhead
+(mới) & PENDING\_PAYMENT & Tạo đặt phòng, giữ 15 phút & Khách \\ \hline
+PENDING\_PAYMENT & CONFIRMED & Xác nhận trả tại khách sạn; hoặc webhook payOS hợp lệ khi còn hạn giữ & Khách; payOS \\ \hline
+PENDING\_PAYMENT & CANCELLED & Khách hủy & Khách \\ \hline
+PENDING\_PAYMENT & EXPIRED & Quá \code{holdExpiresAt}, phát hiện khi đọc & Hệ thống \\ \hline
+PENDING\_PAYMENT & CANCEL\_REQUESTED & Webhook payOS đến sau khi hết hạn giữ & payOS \\ \hline
+PAID & CONFIRMED, REFUNDED & Khai báo, hiện không có luồng nào dùng & -- \\ \hline
+CONFIRMED & CHECKED\_IN & Nhận phòng trong khoảng ngày lưu trú & Chủ khách sạn \\ \hline
+CONFIRMED & CANCEL\_REQUESTED & Khách yêu cầu hủy & Khách \\ \hline
+CANCEL\_REQUESTED & CANCELLED & Xác nhận hủy khi chưa có thanh toán trực tuyến & Chủ khách sạn, quản trị viên \\ \hline
+CANCEL\_REQUESTED & REFUNDED & Khai báo cho hoàn tiền; chưa có luồng & -- \\ \hline
+CHECKED\_IN & CHECKED\_OUT & Trả phòng & Chủ khách sạn \\ \hline
+CHECKED\_OUT & COMPLETED & Khai báo; chưa có điểm cuối API & -- \\ \hline
+CANCELLED, EXPIRED, REFUNDED, COMPLETED & -- & Trạng thái kết thúc & -- \\ \hline
+\end{longtable}
+\end{rtable}
+
+Bảng trên cho thấy ba điểm chưa hoàn thiện. Thứ nhất, trạng thái PAID được khai báo nhưng luồng payOS chuyển thẳng sang CONFIRMED, nên PAID không xuất hiện trong thực tế. Thứ hai, chuyển sang REFUNDED chưa có luồng vì hoàn tiền tự động chưa được cài đặt. Thứ ba, chưa có điểm cuối chuyển CHECKED\_OUT sang COMPLETED; về mặt nghiệp vụ, CHECKED\_OUT đã đủ để khách đánh giá và để tính doanh thu.
+
+\subsection{Trạng thái khách sạn và thanh toán}
+
+Khách sạn đi qua các trạng thái DRAFT (mới tạo), PENDING\_APPROVAL (đã gửi duyệt), PUBLISHED (đã duyệt, hiển thị), REJECTED (bị từ chối, có lý do) và SUSPENDED (ngừng hoạt động). Thanh toán đi qua PROCESSING (đang tạo liên kết), PENDING (đã có liên kết, chờ tiền), COMPLETED, FAILED (lỗi khi tạo liên kết; được dùng lại để thử lần sau) và CANCELLED. \Cref{fig:state-hotel-payment} biểu diễn hai máy trạng thái này.
+
+\begin{figure}[H]
+\centering
+\diagram{state-hotel-payment}
+\caption{Biểu đồ trạng thái của khách sạn (trái) và thanh toán (phải)}\label{fig:state-hotel-payment}
+\end{figure}
+
+\section{Biểu đồ tuần tự}\label{sec:sequences}
+
+Mục này trình bày các biểu đồ tuần tự của những luồng có nhiều thành phần tham gia. Các biểu đồ dùng chung một quy ước: hộp xám là thành phần tham gia, nét chấm là đường sống, mũi tên liền có đánh số là lời gọi, mũi tên nét đứt là phản hồi, khung có nhãn \textbf{alt} là các nhánh điều kiện.
+
+\subsection{Xác thực}\label{sec:auth-design}
+
+\paragraph{Đăng nhập email -- mật khẩu.} \Cref{fig:seq-login} thể hiện luồng UC02. Hai token được ký bằng cùng khóa bí mật nhưng mang claim \code{typ} khác nhau. Refresh token được lưu dưới dạng băm bcrypt trong tài liệu người dùng, nên mỗi tài khoản chỉ có một refresh token hợp lệ tại một thời điểm.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-login}
+\caption{Biểu đồ tuần tự đăng nhập email -- mật khẩu}\label{fig:seq-login}
+\end{figure}
+
+\paragraph{Đăng nhập Google/Apple.} \Cref{fig:seq-social} thể hiện việc máy chủ tự xác minh ID token bằng tập khóa công khai của nhà cung cấp thay vì tin vào ứng dụng. Với Apple, ứng dụng gửi giá trị băm SHA-256 của nonce cho Apple và gửi nonce gốc cho máy chủ; máy chủ băm lại và so sánh với claim \code{nonce} trong token.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-social}
+\caption{Biểu đồ tuần tự đăng nhập bằng Google hoặc Apple}\label{fig:seq-social}
+\end{figure}
+
+\paragraph{Làm mới phiên.} \Cref{fig:seq-refresh} cho thấy cách ứng dụng xử lý lỗi 401: một \code{actor} gộp các yêu cầu làm mới đồng thời thành một, lưu cặp token mới vào Keychain rồi gửi lại yêu cầu ban đầu. Nếu làm mới thất bại, phiên kết thúc và người dùng phải đăng nhập lại.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-refresh}
+\caption{Biểu đồ tuần tự làm mới access token}\label{fig:seq-refresh}
+\end{figure}
+
+\subsection{Đặt phòng}
+
+\Cref{fig:seq-booking} là biểu đồ tuần tự của UC16, ứng với quy trình ở \cref{fig:act-create}. Khối \textbf{alt} đầu tiên xử lý yêu cầu gửi lại. Khối thứ hai thể hiện giao dịch cùng việc tăng \code{inventoryVersion}.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-booking}
+\caption{Biểu đồ tuần tự tạo đặt phòng}\label{fig:seq-booking}
+\end{figure}
+
+\subsection{Thanh toán}\label{sec:payment-design}
+
+\paragraph{Trả tại khách sạn.} Đây là luồng đơn giản nhất: một cập nhật có điều kiện chuyển PENDING\_PAYMENT sang CONFIRMED, kèm điều kiện giữ phòng còn hạn (BR-04). Đặt phòng dạng này không tạo bản ghi thanh toán, vì chưa có tiền nào được thu. Trang thanh toán của bảng điều khiển ghi rõ điều này cho quản trị viên.
+
+\paragraph{payOS.} \Cref{fig:seq-payos} chi tiết luồng UC18 và tương ứng với sơ đồ tổng quát ở \cref{fig:payos-theory}. Điểm khác với sơ đồ lý thuyết là việc kiểm tra lại hạn giữ phòng \emph{sau} khi payOS trả liên kết. Bước này đóng khe hở thời gian trong đó giữ phòng có thể hết hạn khi đang gọi payOS. Webhook được xử lý trong một giao dịch MongoDB gồm cập nhật thanh toán, cập nhật đặt phòng và ghi thông báo.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-payos}
+\caption{Biểu đồ tuần tự thanh toán qua payOS và xử lý webhook}\label{fig:seq-payos}
+\end{figure}
+
+\subsection{Hủy, nhận phòng, trả phòng và đánh giá}
+
+\Cref{fig:seq-stay} gộp ba luồng của chủ khách sạn và khách sau khi đặt phòng được xác nhận: nhận phòng, trả phòng và đánh giá. Mỗi lời gọi của chủ khách sạn đều được kiểm tra hai lớp: vai trò OWNER ở guard và quyền sở hữu khách sạn ở dịch vụ.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-stay}
+\caption{Biểu đồ tuần tự nhận phòng, trả phòng và đánh giá}\label{fig:seq-stay}
+\end{figure}
+
+\subsection{Duyệt chủ khách sạn và khách sạn}
+
+\Cref{fig:seq-approve} thể hiện vòng đời từ khi một khách đăng ký làm chủ khách sạn tới khi khách sạn của họ xuất hiện trong kết quả tìm kiếm. Hai bước duyệt độc lập nhau: duyệt chủ khách sạn đổi vai trò người dùng, duyệt khách sạn đổi trạng thái khách sạn.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-approve}
+\caption{Biểu đồ tuần tự đăng ký chủ khách sạn, gửi và duyệt khách sạn}\label{fig:seq-approve}
+\end{figure}
+
+\subsection{Gợi ý khách sạn}
+
+\Cref{fig:seq-rec} mô tả UC11 cùng việc ghi nhận lượt hiển thị và lượt mở chi tiết. Chi tiết về đặc trưng và mô hình được trình bày tại \cref{sec:rec-design}.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-rec}
+\caption{Biểu đồ tuần tự gợi ý khách sạn và ghi nhận tương tác}\label{fig:seq-rec}
+\end{figure}

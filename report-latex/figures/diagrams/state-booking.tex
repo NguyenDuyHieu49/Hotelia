@@ -1,0 +1,31 @@
+\begin{tikzpicture}[font=\sffamily\scriptsize]
+  \tikzset{s/.style={bstate, minimum width=27mm, minimum height=8mm, font=\sffamily\footnotesize},
+           unused/.style={s, dashed, text=black!60},
+           t/.style={->}, tl/.style={font=\sffamily\scriptsize, fill=white, inner sep=1pt, align=center}}
+  \node[startnode] (st) at (0,1.3) {};
+  \node[s] (pend) at (0,0) {PENDING\_PAYMENT};
+  \node[s] (exp) at (-5.1,0) {EXPIRED};
+  \node[unused] (paid) at (-5.1,-2.6) {PAID};
+  \node[s] (conf) at (0,-2.6) {CONFIRMED};
+  \node[s] (creq) at (5.1,-2.6) {CANCEL\_REQUESTED};
+  \node[s] (canc) at (5.1,-5.2) {CANCELLED};
+  \node[unused] (ref) at (5.1,-7.8) {REFUNDED};
+  \node[s] (in) at (0,-5.2) {CHECKED\_IN};
+  \node[s] (out) at (0,-7.8) {CHECKED\_OUT};
+  \node[unused] (done) at (0,-10.2) {COMPLETED};
+  \draw[t] (st) -- node[tl, right] {tạo đặt phòng, giữ 15 phút} (pend);
+  \draw[t] (pend) -- node[tl, above=1pt] {quá hạn giữ} (exp);
+  \draw[t] (pend) -- node[tl] {trả tại KS\\hoặc webhook hợp lệ} (conf);
+  \draw[t] (pend.south east) -- node[tl, pos=0.22] {khách hủy} (canc.north west);
+  \draw[t] (pend.east) -| node[tl, pos=0.3, above=1pt] {webhook sau hạn giữ} (creq.north);
+  \draw[t, dashed] (pend.south west) -- (paid.north east);
+  \draw[t, dashed] (paid) -- (conf);
+  \draw[t] (conf) -- node[tl, below=1pt] {yêu cầu hủy} (creq);
+  \draw[t] (conf) -- node[tl] {chủ KS nhận phòng\\trong [ngày nhận, ngày trả)} (in);
+  \draw[t] (creq) -- node[tl] {chủ KS/quản trị xác nhận\\(chưa có thanh toán payOS)} (canc);
+  \draw[t, dashed] (creq.east) -- ++(0.6,0) |- node[tl, pos=0.25, right] {hoàn tiền\\(chưa cài đặt)} (ref.east);
+  \draw[t] (in) -- node[tl] {chủ KS trả phòng} (out);
+  \draw[t, dashed] (out) -- node[tl] {chưa có API} (done);
+  \node[notebox, anchor=north west, text width=40mm] at (-6.5,-6.6)
+    {Nét liền: chuyển trạng thái có trong luồng nghiệp vụ.\\Nét đứt: được khai báo trong \texttt{BookingStateService} nhưng chưa được luồng nào sử dụng.\\Đánh giá được phép từ CHECKED\_OUT.};
+\end{tikzpicture}

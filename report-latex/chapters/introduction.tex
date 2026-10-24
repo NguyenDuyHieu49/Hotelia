@@ -1,0 +1,28 @@
+\fronttitle{Mở đầu}
+
+\section*{Đặt vấn đề}
+
+Đặt phòng khách sạn là một giao dịch có nhiều ràng buộc đồng thời. Khách cần biết khách sạn nào còn phòng trong đúng những đêm mình lưu trú, giá cuối cùng là bao nhiêu, có được hủy hay không và thanh toán bằng cách nào. Phía khách sạn cần bảo đảm một phòng không bị bán cho hai người trong cùng một đêm, cần ghi nhận khách đến và đi, và cần thấy doanh thu theo thời gian. Phía quản trị nền tảng cần kiểm soát ai được phép đăng khách sạn, xử lý đánh giá không phù hợp và theo dõi các giao dịch thanh toán. Khi danh mục khách sạn tăng lên, người dùng còn gặp một vấn đề khác: danh sách dài không giúp họ chọn nhanh nếu thứ tự hiển thị không phản ánh điều họ quan tâm.
+
+Đồ án này xây dựng Hotelia, một nền tảng đặt phòng gồm ứng dụng iOS cho khách, bảng điều khiển web cho chủ khách sạn và quản trị viên, máy chủ API dùng chung và một thành phần gợi ý khách sạn. Trọng tâm kỹ thuật của đồ án nằm ở ba điểm: tính đúng của luồng đặt phòng khi có nhiều yêu cầu đồng thời hoặc khi mạng không ổn định; tính an toàn của xác thực, phân quyền và thanh toán trực tuyến; và cách đưa một mô hình học xếp hạng (Learning to Rank) vào hệ thống thật mà vẫn đánh giá trung thực những gì mô hình đã và chưa chứng minh được.
+
+\section*{Câu hỏi nghiên cứu}
+
+Đồ án đặt ra bốn câu hỏi cụ thể:
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=1.4cm]
+\item Làm thế nào để kiểm tra phòng trống và giữ phòng sao cho hai khách đặt cùng lúc không thể cùng nhận căn phòng cuối cùng, và một yêu cầu gửi lại do mất kết nối không tạo ra đặt phòng thứ hai?
+\item Làm thế nào để kết hợp đăng nhập bằng email -- mật khẩu, Google và Apple, phân quyền ba vai trò và xác nhận thanh toán qua cổng payOS mà không tin vào dữ liệu do phía máy khách tự khai báo?
+\item Có thể xây dựng một luồng gợi ý khách sạn gồm lọc ứng viên, ghi nhận tương tác, tính đặc trưng và xếp hạng bằng LightGBM LambdaRank, rồi chấm điểm trực tiếp trong máy chủ NestJS mà không cần dịch vụ Python riêng hay không?
+\item Khi chưa có hành vi người dùng thật, các chỉ số MRR và NDCG trên dữ liệu trước phát hành nói lên điều gì và không nói lên điều gì về chất lượng gợi ý?
+\end{enumerate}
+
+\section*{Kết quả chính}
+
+Hệ thống đã được cài đặt và triển khai với API tại \code{api.hotelia.asia} trên Render, bảng điều khiển tại \code{admin.hotelia.asia} trên Vercel và cơ sở dữ liệu MongoDB Atlas. Danh mục gồm 100 khách sạn tại 14 điểm đến và 380 loại phòng. Luồng đặt phòng dùng quy ước ngày nửa mở $[\text{nhận phòng}, \text{trả phòng})$, giữ phòng 15 phút, giao dịch MongoDB, khóa theo loại phòng và khóa lũy đẳng \code{Idempotency-Key}. Bộ kiểm thử tự động gồm 50 ca kiểm thử đơn vị/tích hợp trên máy chủ, 80 ca kiểm thử Python và một kịch bản kiểm thử tranh chấp chạy trên MongoDB thật; tất cả đều đạt ở thời điểm viết báo cáo.
+
+Với phần gợi ý, đồ án huấn luyện ba phiên bản mô hình LightGBM. Phiên bản v3 đang phục vụ trên môi trường vận hành dùng đúng dữ liệu khách sạn mà API chấm điểm và tính 16 đặc trưng giống hệt phía TypeScript. Trên tập kiểm tra trước phát hành, mô hình đạt MRR@10 = 0,415, gần với giới hạn trên 0,424 của chính bộ dữ liệu, nhưng không vượt bộ xếp hạng theo nội dung (0,416). Phiên bản v2 trước đó đạt MRR@10 = 0,539 và NDCG@10 = 0,650 so với 0,373 và 0,520 của đường cơ sở chất lượng, nhưng được đo trên điều kiện dễ hơn. \Cref{chap:evaluation} phân tích vì sao các con số này chỉ xác nhận đường ống huấn luyện -- triển khai, chưa chứng minh hiệu quả với người dùng thật.
+
+\section*{Bố cục báo cáo}
+
+Ngoài phần mở đầu và kết luận, báo cáo gồm năm chương. \Cref{chap:overview} trình bày lý do chọn đề tài, mục tiêu, phạm vi và phương pháp. \Cref{chap:theory} tổng hợp cơ sở lý thuyết về nghiệp vụ đặt phòng, công nghệ sử dụng, bảo mật và học xếp hạng. \Cref{chap:design} phân tích yêu cầu và thiết kế hệ thống. \Cref{chap:implementation} mô tả cài đặt và triển khai. \Cref{chap:evaluation} trình bày kiểm thử, đánh giá mô hình và hướng phát triển.

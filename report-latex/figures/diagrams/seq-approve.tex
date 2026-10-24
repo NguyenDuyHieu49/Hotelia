@@ -1,0 +1,22 @@
+\begin{seqdiagram}
+  \participant{user}{0}{Người dùng (iOS)}
+  \participant{api}{3.5}{API NestJS}
+  \participant{db}{7.0}{MongoDB}
+  \participant{adm}{10.5}{Quản trị viên (web)}
+  \msg{user}{api}{POST /owners/apply \{businessName, businessLicense\}}
+  \msg{api}{db}{user.ownerStatus = PENDING}
+  \msg{adm}{api}{GET /admin/owners/pending}
+  \msg{adm}{api}{POST /admin/owners/:id/approve}
+  \msg{api}{db}{role = OWNER, ownerStatus = APPROVED}
+  \msg{user}{api}{POST /hotels (tạo DRAFT), POST /room-types/hotel/:id}
+  \msg{user}{api}{POST /hotels/:id/submit}
+  \msg{api}{db}{status = PENDING\_APPROVAL}
+  \msg{adm}{api}{GET /admin/hotels/pending}
+  \fragopen{user}{adm}{alt}{[duyệt]}
+  \msg{adm}{api}{POST /admin/hotels/:id/approve}
+  \msg{api}{db}{status = PUBLISHED: xuất hiện trong tìm kiếm}
+  \fragelse{[từ chối]}
+  \msg{adm}{api}{POST /admin/hotels/:id/reject \{reason\}}
+  \msg{api}{db}{status = REJECTED, rejectionReason}
+  \fragclose
+\end{seqdiagram}

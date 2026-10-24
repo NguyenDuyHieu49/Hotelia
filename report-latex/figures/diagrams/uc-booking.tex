@@ -1,0 +1,26 @@
+\begin{tikzpicture}[font=\sffamily\small]
+  \tikzset{uc/.style={usecase, minimum width=36mm, text width=29mm, inner sep=0pt, minimum height=11mm, font=\sffamily\footnotesize},
+           rel/.style={dashed, ->, font=\sffamily\scriptsize}}
+  \draw[sysbox] (2.2,1.1) rectangle (12.9,-8.6);
+  \node[font=\sffamily\small\bfseries, anchor=north] at (7.55,1.05) {Đặt phòng và thanh toán};
+  \node[uc] (room) at (4.6,-0.6) {UC15 Chọn loại phòng};
+  \node[uc] (book) at (4.6,-2.0) {UC16 Đặt phòng (giữ 15 phút)};
+  \node[uc] (cancel) at (4.6,-3.4) {UC19 Hủy đặt phòng};
+  \node[uc] (hist) at (4.6,-4.8) {UC20 Xem lịch sử đặt phòng};
+  \node[uc] (review) at (4.6,-6.2) {UC21 Đánh giá sau lưu trú};
+  \node[uc] (noti) at (4.6,-7.6) {UC22 Xem thông báo};
+  \node[uc] (avail) at (10.3,-0.6) {Kiểm tra phòng trống};
+  \node[uc] (idem) at (10.3,-2.0) {Kiểm tra Idempotency-Key};
+  \node[uc] (hotel) at (10.3,-3.6) {UC17 Trả tại khách sạn};
+  \node[uc] (payos) at (10.3,-5.0) {UC18 Thanh toán payOS};
+  \node[uc] (hook) at (10.3,-6.6) {Xác minh webhook ký số};
+  \draw[rel] (room) -- node[above] {«include»} (avail);
+  \draw[rel] (book) -- node[above] {«include»} (idem);
+  \draw[rel] (hotel.west) -- node[above, sloped] {«extend»} (book.south east);
+  \draw[rel] (payos.west) -- node[below, sloped] {«extend»} (book.south east);
+  \draw[rel] (payos) -- node[right] {«include»} (hook);
+  \actor{u}{0.8,-4.0}{Khách}
+  \actor{p}{14.0,-5.8}{payOS}
+  \foreach \x in {room,book,cancel,hist,review,noti} \draw (u) -- (\x.west);
+  \draw (hook.east) -- (p); \draw (payos.east) -- (p);
+\end{tikzpicture}
