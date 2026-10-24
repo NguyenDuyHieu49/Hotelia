@@ -50,3 +50,12 @@ research/venv/
 
 # Local database snapshots (may contain ownership identifiers)
 backend/backups/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Generated report drafts and Office lock files
+.codex-doc-report/
+reports/
+~$*
