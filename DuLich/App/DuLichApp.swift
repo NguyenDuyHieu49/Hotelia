@@ -14,10 +14,14 @@ struct DuLichApp: App {
                 MainTabView()
                     .environmentObject(authViewModel)
                     .environment(\.locale, (AppLanguage(rawValue: appLanguage) ?? .system).locale)
+                    // L10n.text reads the language when a view renders; a new identity
+                    // re-renders every screen instead of leaving earlier text untranslated.
+                    .id(appLanguage)
             } else {
                 WelcomeView()
                     .environmentObject(authViewModel)
                     .environment(\.locale, (AppLanguage(rawValue: appLanguage) ?? .system).locale)
+                    .id(appLanguage)
             }
         }
     }

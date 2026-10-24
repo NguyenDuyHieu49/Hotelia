@@ -237,36 +237,33 @@ struct RoomBookingView: View {
                 .font(AppTypography.headline)
                 .foregroundColor(AppColors.textPrimary)
 
-            HStack(spacing: AppSpacing.base) {
-                // Check In
+            // Stacked rows: two compact pickers side by side overflow the screen with
+            // Vietnamese dates ("24 thg 10, 2026") and push the whole form off-centre.
+            VStack(spacing: 0) {
                 DatePicker(
                     "Nhận phòng",
                     selection: $checkIn,
                     in: Date()...,
                     displayedComponents: .date
                 )
-                .datePickerStyle(.compact)
-                .labelsHidden()
-                .padding(AppSpacing.base)
-                .background(Color.white)
-                .cornerRadius(AppSpacing.radiusSmall)
+                .padding(.vertical, AppSpacing.sm)
 
-                Image(systemName: "arrow.right")
-                    .foregroundColor(AppColors.textTertiary)
+                Divider()
 
-                // Check Out
                 DatePicker(
                     "Trả phòng",
                     selection: $checkOut,
                     in: checkIn...,
                     displayedComponents: .date
                 )
-                .datePickerStyle(.compact)
-                .labelsHidden()
-                .padding(AppSpacing.base)
-                .background(Color.white)
-                .cornerRadius(AppSpacing.radiusSmall)
+                .padding(.vertical, AppSpacing.sm)
             }
+            .datePickerStyle(.compact)
+            .font(AppTypography.body)
+            .foregroundColor(AppColors.textSecondary)
+            .padding(.horizontal, AppSpacing.base)
+            .background(Color.white)
+            .cornerRadius(AppSpacing.radiusSmall)
 
             // Guest Count
             HStack {
@@ -520,7 +517,8 @@ struct RoomTypeCard: View {
                         .cornerRadius(AppSpacing.radiusSmall)
                         .padding(AppSpacing.sm)
                 }
-                .frame(height: 140)
+                // Bound the width too: a .fill photo would otherwise widen the card past the screen.
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 140, maxHeight: 140)
                 .clipped()
 
                 // Info Section

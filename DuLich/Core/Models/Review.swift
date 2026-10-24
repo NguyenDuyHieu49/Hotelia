@@ -12,11 +12,12 @@ struct Review: Codable, Identifiable {
     let isVisible: Bool
     let createdAt: String?
     let userName: String?
+    let ownerReply: String?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case hotelId, userId, rating, title, content
-        case helpfulCount, isVisible, createdAt, userName
+        case helpfulCount, isVisible, createdAt, userName, ownerReply
     }
 }
 

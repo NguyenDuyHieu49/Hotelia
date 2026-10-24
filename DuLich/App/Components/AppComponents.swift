@@ -268,7 +268,7 @@ struct StatusBadge: View {
     let status: String
 
     var body: some View {
-        Text(LocalizedStringKey(statusText))
+        Text(L10n.text(statusText))
             .font(AppTypography.caption1Medium)
             .foregroundColor(statusColor)
             .padding(.horizontal, AppSpacing.sm)
@@ -285,8 +285,10 @@ struct StatusBadge: View {
         case "CHECKED_IN": return "Đã nhận phòng"
         case "CHECKED_OUT": return "Đã trả phòng"
         case "COMPLETED": return "Hoàn thành"
+        case "CANCEL_REQUESTED": return "Yêu cầu hủy"
         case "CANCELLED": return "Đã hủy"
         case "REFUNDED": return "Đã hoàn tiền"
+        case "EXPIRED": return "Hết hạn"
         case "PUBLISHED": return "Đang hoạt động"
         case "PENDING_APPROVAL": return "Chờ duyệt"
         case "DRAFT": return "Bản nháp"
@@ -299,7 +301,7 @@ struct StatusBadge: View {
         switch status {
         case "COMPLETED", "PUBLISHED": return AppColors.success
         case "CANCELLED", "REFUNDED", "REJECTED": return AppColors.error
-        case "PENDING_PAYMENT", "PENDING_APPROVAL": return AppColors.warning
+        case "PENDING_PAYMENT", "PENDING_APPROVAL", "CANCEL_REQUESTED": return AppColors.warning
         case "PAID", "CONFIRMED": return AppColors.info
         case "CHECKED_IN", "CHECKED_OUT": return AppColors.secondary
         default: return AppColors.textSecondary

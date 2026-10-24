@@ -28,6 +28,20 @@ struct ReviewCardItemView: View {
             Text(review.content)
                 .font(.body)
                 .foregroundColor(.secondary)
+
+            if let reply = review.ownerReply, !reply.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L10n.text("Phản hồi từ khách sạn"))
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                    Text(reply)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.white.opacity(0.7), in: RoundedRectangle(cornerRadius: 8))
+            }
         }
         .padding()
         .background(Color.gray.opacity(0.1))
