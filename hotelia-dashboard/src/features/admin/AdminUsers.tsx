@@ -8,9 +8,9 @@ import { Search, Ban, CheckCircle, Mail } from 'lucide-react';
 import type { User as UserType, UserRole, UserStatus } from '../../types';
 
 const roleConfig: Record<UserRole, { label: string; variant: 'default' | 'info' | 'success' }> = {
-  USER: { label: 'User', variant: 'default' },
-  OWNER: { label: 'Owner', variant: 'info' },
-  ADMIN: { label: 'Admin', variant: 'success' },
+  USER: { label: 'Khách hàng', variant: 'default' },
+  OWNER: { label: 'Chủ khách sạn', variant: 'info' },
+  ADMIN: { label: 'Quản trị viên', variant: 'success' },
 };
 
 const statusConfig: Record<UserStatus, { label: string; variant: 'default' | 'success' | 'warning' | 'danger' }> = {
