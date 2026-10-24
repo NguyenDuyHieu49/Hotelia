@@ -100,12 +100,10 @@ export class UsersService {
       await user.save();
       return false;
     }
-    if (user.loginAttempts > 0 || user.lockedUntil) {
-      user.loginAttempts = 0;
-      user.lockedUntil = undefined;
-      user.lastLoginAt = new Date();
-      await user.save();
-    }
+    user.loginAttempts = 0;
+    user.lockedUntil = undefined;
+    user.lastLoginAt = new Date();
+    await user.save();
     return true;
   }
 

@@ -116,3 +116,21 @@ describe('recommendation service isolation',()=>{
     expect(f.deletes.recommendation_impressions).toHaveBeenCalledWith({actor:`session:${sessionId}`});
   });
 });
+
+describe('LightGBM fallback',()=>{
+  function withRanker(ranker:any) {
+    const f=fixture();
+    return {...f,service:new RecommendationsService((f.service as any).connection,ranker)};
+  }
+  it('falls back to the content ranker when the model cannot score',async()=>{
+    const f=withRanker({rank:jest.fn(()=>undefined),version:'broken'});
+    const r=await f.service.recommend({sessionId:'s'});
+    expect(r.hotels).toHaveLength(2);
+    expect(r.ranking).toMatchObject({modelUsed:false,mode:'discovery',version:'content-v1'});
+  });
+  it('reports the model version when LightGBM ranks the candidates',async()=>{
+    const f=withRanker({rank:jest.fn((hotels:any[])=>hotels.map((hotel,i)=>({hotel,score:-i,reason:'model'}))),version:'hotelia-lgbm-test'});
+    const r=await f.service.recommend({sessionId:'s'});
+    expect(r.ranking).toMatchObject({modelUsed:true,mode:'lightgbm-discovery',version:'hotelia-lgbm-test'});
+  });
+});

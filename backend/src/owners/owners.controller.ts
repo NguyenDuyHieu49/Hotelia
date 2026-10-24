@@ -34,6 +34,8 @@ export class OwnersController {
   @Roles(Role.OWNER,Role.ADMIN)
   bookings(@CurrentUser('sub') userId:string) {return this.ownersService.getBookings(userId);}
 
+  @UseGuards(RolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN)
   @Get('hotels/:hotelId/bookings')
   @ApiOperation({ summary: 'Get bookings for a hotel' })
   async getHotelBookings(
@@ -43,6 +45,8 @@ export class OwnersController {
     return this.ownersService.getHotelBookings(userId, hotelId);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN)
   @Get('revenue')
   @ApiOperation({ summary: 'Get revenue by month' })
   async getRevenueByMonth(

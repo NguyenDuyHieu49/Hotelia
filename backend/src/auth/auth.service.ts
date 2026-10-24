@@ -86,6 +86,7 @@ export class AuthService {
       const payload = this.jwtService.verify<JwtPayload>(refreshToken, {
         secret: this.configService.get<string>('JWT_SECRET')!,
       });
+      if (payload.typ === 'access') throw new UnauthorizedException('Invalid refresh token');
 
       const valid = await this.usersService.validateRefreshToken(payload.sub, refreshToken);
       if (!valid) throw new UnauthorizedException('Invalid refresh token');
@@ -111,11 +112,11 @@ export class AuthService {
     const accessLifetime = this.configService.get<string>('JWT_EXPIRES_IN', '15m') as JwtSignOptions['expiresIn'];
     const refreshLifetime = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d') as JwtSignOptions['expiresIn'];
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, {
+      this.jwtService.signAsync({ ...payload, typ: 'access' }, {
         secret: this.configService.get<string>('JWT_SECRET')!,
         expiresIn: accessLifetime,
       }),
-      this.jwtService.signAsync(payload, {
+      this.jwtService.signAsync({ ...payload, typ: 'refresh' }, {
         secret: this.configService.get<string>('JWT_SECRET')!,
         expiresIn: refreshLifetime,
       }),

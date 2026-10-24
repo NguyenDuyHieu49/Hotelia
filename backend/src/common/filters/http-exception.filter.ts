@@ -29,7 +29,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const map: Record<number, string> = {
       400: 'BAD_REQUEST', 401: 'UNAUTHORIZED', 403: 'FORBIDDEN',
       404: 'NOT_FOUND', 409: 'CONFLICT', 422: 'UNPROCESSABLE_ENTITY',
-      429: 'TOO_MANY_REQUESTS', 500: 'INTERNAL_ERROR',
+      429: 'TOO_MANY_REQUESTS', 500: 'INTERNAL_ERROR', 502: 'BAD_GATEWAY',
+      503: 'SERVICE_UNAVAILABLE',
     };
     return map[status] || 'UNKNOWN_ERROR';
   }

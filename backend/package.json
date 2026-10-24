@@ -23,8 +23,7 @@
     "catalog:check": "node scripts/activate-operational-catalog.cjs",
     "catalog:activate": "node scripts/activate-operational-catalog.cjs --apply",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:cov": "jest --coverage"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.7",

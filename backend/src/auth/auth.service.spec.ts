@@ -65,3 +65,23 @@ describe('verified social sign-in', () => {
       'guest@privaterelay.appleid.com', 'Guest', true);
   });
 });
+
+describe('token types', () => {
+  const user = { _id: new Types.ObjectId(), email: 'guest@example.com', name: 'Guest', role: 'USER', isActive: true, tokenVersion: 0 };
+  const config = { get: jest.fn((key: string, fallback?: string) => ({ JWT_SECRET: 'secret' } as Record<string, string>)[key] ?? fallback) };
+
+  it('signs access and refresh tokens with distinct types', async () => {
+    const jwt = { signAsync: jest.fn(async (payload: { typ: string }) => payload.typ) };
+    const users = { findByEmail: jest.fn(async () => user), validatePassword: jest.fn(async () => true), updateRefreshToken: jest.fn() };
+    const result = await new AuthService(users as any, jwt as any, config as any).login({ email: user.email, password: 'x' } as any);
+    expect(result.accessToken).toBe('access');
+    expect(result.refreshToken).toBe('refresh');
+  });
+
+  it('refuses to refresh a session with an access token', async () => {
+    const jwt = { verify: jest.fn(() => ({ sub: String(user._id), typ: 'access' })), signAsync: jest.fn() };
+    const users = { validateRefreshToken: jest.fn(async () => true), findById: jest.fn(async () => user), updateRefreshToken: jest.fn() };
+    await expect(new AuthService(users as any, jwt as any, config as any).refresh('token')).rejects.toThrow('Invalid refresh token');
+    expect(users.validateRefreshToken).not.toHaveBeenCalled();
+  });
+});
