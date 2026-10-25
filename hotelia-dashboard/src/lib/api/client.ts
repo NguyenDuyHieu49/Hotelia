@@ -82,7 +82,11 @@ export const authApi = {
     api.post('/auth/login', { email, password }),
   register: (data: { email: string; password: string; name: string }) =>
     api.post('/auth/register', data),
-  logout: () => api.post('/auth/logout'),
+  // keepalive lets the revocation finish while the page navigates to /login.
+  logout: (refreshToken: string) => fetch(`${api.defaults.baseURL}/auth/logout`, {
+    method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
+  }),
   refresh: (refreshToken: string) =>
     api.post('/auth/refresh', { refreshToken }),
 };
