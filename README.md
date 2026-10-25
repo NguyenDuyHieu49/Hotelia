@@ -347,7 +347,7 @@ Key collections:
 ### Implemented Security Measures
 
 - ✅ JWT with short-lived access tokens (15 min)
-- ✅ Refresh token rotation
+- ✅ Refresh token rotation (SHA-256 digest of each token; logout revokes the refresh token)
 - ✅ Password hashing with bcrypt (12 rounds)
 - ✅ Rate limiting (100 req/min)
 - ✅ Input validation with class-validator
