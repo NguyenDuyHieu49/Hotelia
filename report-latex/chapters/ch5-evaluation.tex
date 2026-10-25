@@ -441,8 +441,7 @@ Trên hành vi thật của Trivago, LightGBM hơn thứ tự hiển thị gốc
 8 & Bảng điều khiển chỉ có tiếng Việt & Chưa có i18n cho web; nội dung dữ liệu chủ yếu tiếng Việt. \\ \hline
 9 & Hạ tầng gói miễn phí & Render tạm dừng khi không có lưu lượng; yêu cầu đầu tiên có thể chờ hơn 20 giây. Chưa có giám sát, cảnh báo, sao lưu được cấu hình trong mã. \\ \hline
 10 & Chưa kiểm thử tải và kiểm thử giao diện tự động & Chưa đo thông lượng, độ trễ dưới tải; chưa có XCUITest, Playwright. \\ \hline
-11 & Tên miền chính trỏ tới bản cũ & \code{hotelia.asia} đang phục vụ bản admin cũ \code{hotelia-web}, gây nhầm lẫn với \code{admin.hotelia.asia}. \\ \hline
-12 & Chưa có cơ chế xin đồng ý thu thập dữ liệu & Dữ liệu tương tác được tối thiểu hóa và tự xóa, nhưng chưa có màn hình xin đồng ý theo Nghị định 13/2023/NĐ-CP. \\ \hline
+11 & Chưa có cơ chế xin đồng ý thu thập dữ liệu & Dữ liệu tương tác được tối thiểu hóa và tự xóa, nhưng chưa có màn hình xin đồng ý theo Nghị định 13/2023/NĐ-CP. \\ \hline
 \end{longtable}
 \end{rtable}
 
@@ -465,7 +464,7 @@ Trên hành vi thật của Trivago, LightGBM hơn thứ tự hiển thị gốc
 \item Tối ưu tập ứng viên. Với danh mục lớn, thêm giai đoạn lọc thô (ví dụ theo khoảng cách, giá, độ phổ biến) để chỉ chấm điểm vài trăm ứng viên; lưu đệm danh mục đã lọc.
 \item Đa dạng hóa kết quả. Áp dụng xếp hạng lại theo độ đa dạng (thành phố, mức giá, loại hình) cho cả đầu ra của LightGBM, không chỉ cho bộ xếp hạng dự phòng \cite{carbonell1998}.
 \item Bảo mật môi trường vận hành. Hỗ trợ nhiều refresh token theo thiết bị kèm phát hiện tái sử dụng; thu hồi chủ động token cũ không có \code{typ}; chuyển refresh token trên web sang cookie \code{HttpOnly}; bổ sung giới hạn tần suất riêng cho \code{/auth}; quét phụ thuộc định kỳ; đối chiếu với OWASP ASVS \cite{owaspasvs}.
-\item Hoàn thiện sản phẩm. Bản tiếng Anh cho bảng điều khiển; dịch nội dung khách sạn; trạng thái COMPLETED tự động sau khi trả phòng; thông báo đẩy; phát hành TestFlight; kiểm thử giao diện tự động; trỏ \code{hotelia.asia} tới trang giới thiệu sản phẩm.
+\item Hoàn thiện sản phẩm. Bản tiếng Anh cho bảng điều khiển; dịch nội dung khách sạn; trạng thái COMPLETED tự động sau khi trả phòng; thông báo đẩy; phát hành TestFlight; kiểm thử giao diện tự động; thay chuyển hướng ở \code{hotelia.asia} bằng trang giới thiệu sản phẩm.
 \end{enumerate}
 
 \section{Kết luận chương}

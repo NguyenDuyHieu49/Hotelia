@@ -283,7 +283,7 @@ Tệp \code{render.yaml} là bản thiết kế (blueprint) của dịch vụ \c
 \thead{Tên miền} & \thead{Bản ghi DNS / máy chủ} & \thead{Nội dung đang phục vụ} \\ \hline
 api.hotelia.asia & CNAME \code{hotelia-api-eimb.onrender.com}; tiêu đề \code{x-render-origin-server: Render}, \code{server: cloudflare} & API NestJS; \code{/health} trả 200; \code{/api/v1/hotels} trả 100 khách sạn \\ \hline
 admin.hotelia.asia & CNAME tới \code{vercel-dns}; \code{server: Vercel} & Bảng điều khiển \code{hotelia-dashboard} \\ \hline
-hotelia.asia, www & Bản ghi A tới Vercel; \code{server: Vercel} & Bản admin cũ \code{hotelia-web}. Cần trỏ lại hoặc thay bằng trang giới thiệu \\ \hline
+hotelia.asia, www & Bản ghi A/CNAME tới Vercel & Chuyển hướng 308 sang \code{admin.hotelia.asia}, giữ nguyên đường dẫn \\ \hline
 \end{tabular}
 \end{rtable}
 \end{table}

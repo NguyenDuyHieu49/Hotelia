@@ -410,7 +410,7 @@ The current production endpoints are:
 
 - Owner and admin dashboard: `https://admin.hotelia.asia` (`hotelia-dashboard`)
 - API: `https://api.hotelia.asia/api/v1`
-- `https://hotelia.asia` currently serves the older `hotelia-web` admin prototype. There is no customer web app; guests use the iOS app.
+- `https://hotelia.asia` and `https://www.hotelia.asia` redirect (308) to `https://admin.hotelia.asia`. There is no customer web app; guests use the iOS app.
 
 ---
 
