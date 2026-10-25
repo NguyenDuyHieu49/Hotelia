@@ -77,4 +77,11 @@ final class RecommendationService {
         }
         try? await client.requestVoid(endpoint: "/recommendations/views", body: body)
     }
+
+    /// Deletes the views and impressions of this actor (the signed-in user, or this app session).
+    func clearHistory() async throws {
+        var query = URLComponents()
+        query.queryItems = [URLQueryItem(name: "sessionId", value: sessionId)]
+        try await client.requestVoid(endpoint: "/recommendations/views?\(query.percentEncodedQuery ?? "")", method: "DELETE")
+    }
 }

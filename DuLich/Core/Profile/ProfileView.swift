@@ -3,6 +3,9 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @State private var route: AccountRoute?
+    @State private var confirmClearHistory = false
+    @State private var clearingHistory = false
+    @State private var clearHistoryMessage: String?
     private enum AccountRoute: String, Identifiable {
         case profile, history, notifications, security, support, about, saved, applyOwner, language
         var id: String { rawValue }
@@ -142,6 +145,15 @@ struct ProfileView: View {
 
             Divider().padding(.leading, 56)
 
+            MenuItemView(
+                icon: "clock.arrow.circlepath",
+                title: "Xóa lịch sử gợi ý",
+                subtitle: "Xóa lượt xem dùng để cá nhân hóa",
+                action: { if !clearingHistory { confirmClearHistory = true } }
+            )
+
+            Divider().padding(.leading, 56)
+
             // Help
             MenuItemView(
                 icon: "questionmark.circle.fill",
@@ -163,6 +175,31 @@ struct ProfileView: View {
         }
         .background(Color.white)
         .cornerRadius(AppSpacing.radiusMedium)
+        .confirmationDialog("Xóa toàn bộ lịch sử gợi ý?", isPresented: $confirmClearHistory, titleVisibility: .visible) {
+            Button("Xóa", role: .destructive) { clearRecommendationHistory() }
+            Button("Hủy", role: .cancel) {}
+        } message: {
+            Text("Hàng Đề xuất cho bạn sẽ quay về gợi ý khám phá cho tới khi bạn xem khách sạn mới.")
+        }
+        .alert(
+            Text(LocalizedStringKey(clearHistoryMessage ?? "")),
+            isPresented: Binding(get: { clearHistoryMessage != nil }, set: { if !$0 { clearHistoryMessage = nil } })
+        ) {
+            Button("Đóng", role: .cancel) {}
+        }
+    }
+
+    private func clearRecommendationHistory() {
+        clearingHistory = true
+        Task {
+            do {
+                try await RecommendationService.shared.clearHistory()
+                clearHistoryMessage = "Đã xóa lịch sử gợi ý."
+            } catch {
+                clearHistoryMessage = "Không thể xóa lịch sử gợi ý. Vui lòng thử lại."
+            }
+            clearingHistory = false
+        }
     }
 
     // MARK: - Logout Button

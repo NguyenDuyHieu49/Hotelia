@@ -60,8 +60,15 @@ class AuthService {
     }
 
     func logout() {
+        let refreshToken = SecureTokenStore.shared.value(for: .refresh)
         client.clearToken()
         clearUserData()
+        // Revoke the session on the server too; signing out must not wait for the network.
+        guard let refreshToken else { return }
+        let client = self.client
+        Task {
+            try? await client.requestVoid(endpoint: "/auth/logout", body: ["refreshToken": refreshToken])
+        }
     }
 
     func getCurrentUser() -> User? {

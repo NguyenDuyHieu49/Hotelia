@@ -1,6 +1,125 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Xóa lịch sử gợi ý" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear recommendation history"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa lịch sử gợi ý"
+          }
+        }
+      }
+    },
+    "Xóa lượt xem dùng để cá nhân hóa" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove views used for personalization"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa lượt xem dùng để cá nhân hóa"
+          }
+        }
+      }
+    },
+    "Xóa toàn bộ lịch sử gợi ý?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear all recommendation history?"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa toàn bộ lịch sử gợi ý?"
+          }
+        }
+      }
+    },
+    "Xóa" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa"
+          }
+        }
+      }
+    },
+    "Hàng Đề xuất cho bạn sẽ quay về gợi ý khám phá cho tới khi bạn xem khách sạn mới." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recommended for you will show discovery picks until you view new hotels."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hàng Đề xuất cho bạn sẽ quay về gợi ý khám phá cho tới khi bạn xem khách sạn mới."
+          }
+        }
+      }
+    },
+    "Đã xóa lịch sử gợi ý." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recommendation history cleared."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã xóa lịch sử gợi ý."
+          }
+        }
+      }
+    },
+    "Không thể xóa lịch sử gợi ý. Vui lòng thử lại." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not clear recommendation history. Please try again."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể xóa lịch sử gợi ý. Vui lòng thử lại."
+          }
+        }
+      }
+    },
     "Phản hồi từ khách sạn" : {
       "extractionState" : "manual",
       "localizations" : {
