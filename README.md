@@ -1,448 +1,227 @@
-# DuLich - Hotel Booking Platform
+# Hotelia
 
-<div align="center">
+Nền tảng đặt phòng khách sạn có gợi ý cá nhân hóa, gồm ứng dụng iOS cho khách, bảng điều khiển web cho chủ khách sạn và quản trị viên, máy chủ NestJS với MongoDB, và mô hình xếp hạng LightGBM chạy ngay trong máy chủ.
 
-**A full-stack hotel booking platform built with SwiftUI, NestJS, and MongoDB**
+Đồ án liên ngành, Trường Công nghệ Thông tin Phenikaa, Đại học Phenikaa (2026).
 
-*Book hotels seamlessly with a modern, scalable architecture*
+| Thành phần | Địa chỉ |
+|---|---|
+| API | `https://api.hotelia.asia/api/v1` |
+| Bảng điều khiển chủ khách sạn và quản trị viên | `https://admin.hotelia.asia` |
+| `hotelia.asia`, `www.hotelia.asia` | Chuyển hướng 308 tới `admin.hotelia.asia` |
 
-[Features](#-features) • [Architecture](#-architecture) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Documentation](#-documentation) • [Contributing](#-contributing)
-
-</div>
-
----
-
-## 📋 Features
-
-### For Users
-- 🔐 **Secure Authentication** - JWT-based auth with refresh token rotation
-- 🔍 **Smart Search** - Filter by location, date, price, amenities, rating
-- 🏨 **Hotel Discovery** - Browse hotels with images, amenities, and reviews
-- 📅 **Easy Booking** - Intuitive booking flow with real-time availability
-- 💳 **Payments** - Signed payOS checkout/webhooks plus pay-at-hotel confirmation
-- 📱 **Real-time Updates** - Booking status tracking and notifications
-- ⭐ **Reviews** - Share and read authentic guest reviews
-
-### For Hotel Owners
-- 📊 **Owner Dashboard** - Revenue analytics and booking management
-- 🏢 **Hotel Management** - Create, edit, and manage hotel listings
-- 🛏️ **Room Management** - Configure room types, pricing, and availability
-- ✅ **Approval Workflow** - Admin-reviewed hotel submissions
-
-### For Administrators
-- 📈 **Analytics Dashboard** - System-wide statistics and metrics
-- 👥 **User Management** - Manage users and hotel owners
-- ✔️ **Content Moderation** - Approve/reject hotels and reviews
-- 🔒 **Access Control** - Role-based permissions (USER, OWNER, ADMIN)
+Khách dùng ứng dụng iOS; dự án không có trang web đặt phòng cho khách.
 
 ---
 
-## 🏗️ Architecture
+## Chức năng
 
-### System Overview
+**Khách (ứng dụng iOS, tiếng Việt và tiếng Anh)**
+- Đăng ký, đăng nhập bằng email, Google hoặc Apple; quên và đổi mật khẩu.
+- Tìm kiếm theo điểm đến, ngày, số khách, khoảng giá, điểm và tiện nghi.
+- Hàng "Đề xuất cho bạn" cá nhân hóa theo lịch sử xem và đặt phòng; có thể xóa lịch sử gợi ý.
+- Xem số phòng trống theo khoảng ngày, đặt phòng và giữ phòng 15 phút.
+- Thanh toán qua payOS (VietQR) hoặc trả tại khách sạn; hủy đặt phòng.
+- Lịch sử đặt phòng, đánh giá sau lưu trú, khách sạn yêu thích, thông báo, yêu cầu hỗ trợ.
+- Thẻ thời tiết cho 8 thành phố (Open-Meteo).
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                           DuLich Platform                           │
-└─────────────────────────────────────────────────────────────────────┘
+**Chủ khách sạn (bảng điều khiển web)**
+- Đăng ký làm chủ khách sạn và chờ duyệt.
+- Tạo, sửa, gửi duyệt, ngừng khách sạn; quản lý loại phòng và tồn kho.
+- Xem đặt phòng, nhận phòng, trả phòng, xử lý yêu cầu hủy; doanh thu theo tháng.
+- Phản hồi đánh giá của khách.
 
-     ┌─────────────┐                    ┌─────────────────────┐
-     │   iOS App   │                    │   Admin Dashboard   │
-     │  (SwiftUI)  │                    │     (Web App)       │
-     └──────┬──────┘                    └──────────┬──────────┘
-            │                                        │
-            │                                        │
-            ▼                                        ▼
-     ┌─────────────────────────────────────────────────────────────┐
-     │                    REST API (NestJS)                        │
-     │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
-     │  │   Auth   │  │  Hotels  │  │ Bookings │  │ Payments │     │
-     │  └──────────┘  └──────────┘  └──────────┘  └──────────┘     │
-     │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐     │
-     │  │  Users   │  │ Reviews  │  │  Owners  │  │  Admin   │     │
-     │  └──────────┘  └──────────┘  └──────────┘  └──────────┘     │
-     └─────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-     ┌─────────────────────────────────────────────────────────────┐
-     │                      MongoDB                                │
-     │  users | hotels | bookings | payments | reviews | ...       │
-     └─────────────────────────────────────────────────────────────┘
-```
+**Quản trị viên (bảng điều khiển web)**
+- Duyệt chủ khách sạn và khách sạn.
+- Tìm kiếm, khóa, mở khóa người dùng; ẩn đánh giá vi phạm.
+- Xem thống kê, đặt phòng, thanh toán, nhật ký thao tác; trả lời yêu cầu hỗ trợ.
 
-### Booking State Machine
+---
+
+## Kiến trúc
 
 ```
-                    ┌─────────────────┐
-                    │ PENDING_PAYMENT │
-                    └────────┬────────┘
-                             │
-              ┌──────────────┼──────────────┐
-              ▼              ▼              ▼
-         ┌─────────┐   ┌─────────┐   ┌──────────┐
-         │  PAID   │   │CANCELLED│   │  EXPIRED │
-         └────┬────┘   └─────────┘   └──────────┘
-              │
-              ▼
-         ┌───────────┐
-         │ CONFIRMED │
-         └─────┬─────┘
-               │
-     ┌─────────┴─────────┐
-     ▼                   ▼
-┌───────────┐      ┌─────────────────┐
-│ CHECKED_IN│      │CANCEL_REQUESTED │
-└─────┬─────┘      └────────┬────────┘
-      │                      │
-      ▼                      ▼
-┌───────────┐         ┌──────────┐
-│CHECKED_OUT│         │ REFUNDED │
-└─────┬─────┘         └──────────┘
-      │
-      ▼
-┌───────────┐
-│ COMPLETED │◄────────────────┐
-└───────────┘                 │
-      │                       │
-      └─────► Review ◄─────────┘
+ Ứng dụng iOS (SwiftUI, MVVM)        Bảng điều khiển (React, Vite)
+            │                                   │
+            └──────────────┬────────────────────┘
+                           ▼
+          REST API: NestJS 11, Docker trên Render
+   auth · users · account · hotels · room-types · bookings
+   payments · reviews · owners · admin · notifications
+   recommendations (LightGBM từ tệp JSON, có bộ xếp hạng dự phòng)
+                           │
+                           ▼
+                 MongoDB Atlas (replica set)
+
+ Dịch vụ ngoài: payOS · Google/Apple ID token · Open-Meteo (gọi từ iOS)
 ```
 
-### Concurrency Handling
+### Đặt phòng không bán trùng
+
+- Kỳ lưu trú là khoảng nửa mở `[checkIn, checkOut)`; ngày trả phòng không chiếm tồn kho.
+- Mỗi yêu cầu đặt phòng mang khóa `Idempotency-Key` (UUID). Gửi lại cùng khóa và cùng nội dung trả về đặt phòng cũ; cùng khóa khác nội dung trả 409.
+- Trong một giao dịch MongoDB, máy chủ tăng `inventoryVersion` của loại phòng, nên các yêu cầu đặt cùng loại phòng chạy tuần tự. Sau đó máy chủ đếm phòng trống theo từng đêm rồi mới tạo đặt phòng.
+- Giữ phòng 15 phút; quá hạn thì đặt phòng chuyển sang `EXPIRED`.
+
+### Trạng thái đặt phòng
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│              Double Booking Prevention                      │
-└─────────────────────────────────────────────────────────────┘
+PENDING_PAYMENT ──► CONFIRMED ──► CHECKED_IN ──► CHECKED_OUT
+      │                 │
+      ├──► CANCELLED    └──► CANCEL_REQUESTED ──► CANCELLED
+      └──► EXPIRED
+```
 
-  User A ───────┐
-                 ├──► Check Availability ──► Room Available
-  User B ───────┘                                        │
-                                                         │
-                    ⚠️ Only ONE succeeds ────────────────┘
-                                                        │
-                    ┌─────────────────────────────────┐
-                    │   MongoDB Transaction +         │
-                    │   Atomic findOneAndUpdate       │
-                    │   with $gte: 1 condition        │
-                    └─────────────────────────────────┘
+`PAID`, `COMPLETED` và `REFUNDED` đã được khai báo nhưng chưa có luồng sử dụng; hoàn tiền tự động chưa được cài đặt.
+
+### Gợi ý khách sạn
+
+- Máy chủ lọc ứng viên theo điểm đến và bộ lọc, rồi tính 16 đặc trưng từ lượt xem (trọng số giảm một nửa sau 14 ngày) và đặt phòng.
+- Mô hình LightGBM LambdaRank được huấn luyện bằng Python, xuất ra JSON và chấm điểm bằng TypeScript ngay trong tiến trình NestJS (`backend/src/recommendations/models/hotelia-lgbm.active.json`).
+- Nếu tệp mô hình lỗi hoặc thiếu, API chuyển sang bộ xếp hạng theo nội dung.
+- Mô hình mới được đánh giá ngoại tuyến trên dữ liệu sinh, trước khi có người dùng thật. Chi tiết ở `docs/Recommendation.md` và `docs/LightGBM-Training-Process.md`.
+
+---
+
+## Công nghệ
+
+| Phần | Công nghệ |
+|---|---|
+| iOS | Swift 5, SwiftUI, MVVM, Keychain, String Catalog; iOS 26.2; Xcode 26 |
+| Máy chủ | Node.js 20, NestJS 11, TypeScript 5.9, Mongoose 8, Jest 30 |
+| Cơ sở dữ liệu | MongoDB Atlas; giao dịch cần replica set |
+| Bảng điều khiển | React 18, Vite, React Router 6, Axios, Recharts |
+| Học máy | Python 3, LightGBM 4.7, pandas, Polars, scikit-learn, pytest |
+| Hạ tầng | Render (Docker, `render.yaml`), Vercel, MongoDB Atlas |
+| Thanh toán | payOS (VietQR, webhook ký HMAC-SHA256) |
+
+---
+
+## Cấu trúc thư mục
+
+```
+.
+├── DuLich/                 # Ứng dụng iOS (App/, Core/, Localizable.xcstrings)
+├── DuLich.xcodeproj        # Dự án Xcode, scheme "Hotelia"
+├── backend/                # API NestJS
+│   ├── src/                # auth, users, account, hotels, bookings, payments,
+│   │                       # reviews, owners, admin, notifications, recommendations
+│   ├── scripts/            # kiểm thử tranh chấp trên MongoDB thật, kích hoạt danh mục
+│   ├── public/media/       # ảnh khách sạn và phòng do API phục vụ
+│   └── Dockerfile
+├── hotelia-dashboard/      # Bảng điều khiển chủ khách sạn và quản trị viên (đang dùng)
+├── hotelia-web/            # Bản admin cũ, không còn triển khai
+├── research/               # Huấn luyện và đánh giá LightGBM (Python)
+├── docs/                   # Tài liệu kỹ thuật: gợi ý, payOS, bảo mật, đăng nhập mạng xã hội
+├── report-latex/           # Báo cáo đồ án (LaTeX)
+└── render.yaml             # Cấu hình triển khai API trên Render
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## Chạy trên máy
 
-### Mobile (iOS)
+### Yêu cầu
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Swift | 5 | Programming language |
-| SwiftUI | iOS 26.2 deployment target | UI framework (MVVM) |
-| Xcode | 26 | IDE |
-| Combine | Built-in | View-model state publishing |
-| String Catalog | `Localizable.xcstrings` | Vietnamese and English UI |
+- macOS với Xcode 26 (để chạy ứng dụng iOS)
+- Node.js 20
+- Docker (để chạy MongoDB)
+- Python 3 (chỉ khi huấn luyện lại mô hình)
 
-### Backend
+### 1. MongoDB dạng replica set
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Node.js | 20 LTS | Runtime |
-| NestJS | 11 | Framework |
-| TypeScript | 5.9 | Language |
-| MongoDB | Atlas (production), 6–7 (local) | Database; transactions need a replica set |
-| Mongoose | 8 | ODM |
-
-### Infrastructure
-
-| Technology | Purpose | Tier |
-|------------|---------|------|
-| MongoDB Atlas | Database | Managed |
-| Render | Backend hosting (Docker, `render.yaml`) | Free |
-| Vercel | Owner/admin dashboard (`hotelia-dashboard`) | Hobby |
-| payOS | VietQR checkout and signed webhooks | Merchant account |
-| Docker | API image and local MongoDB | Local dev |
-
-Hotel and room photos are served by the API from `backend/public/media`; there is no separate image CDN.
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **macOS** with Xcode 15+
-- **Node.js** 20 LTS
-- **Docker** & Docker Compose
-- **MongoDB** (local or Atlas)
-
-### Quick Start
-
-#### 1. Clone the Repository
+Đặt phòng và thanh toán dùng giao dịch MongoDB, nên cần replica set. Tệp `backend/docker-compose.yml` chạy MongoDB một nút đơn, không hỗ trợ giao dịch. Có thể dùng:
 
 ```bash
-git clone https://github.com/NguyenDuyHieu49/Hotelia.git
-cd Hotelia
+docker run -d --name hotelia-mongo -p 27018:27017 mongo:7.0 --replSet rs0 --bind_ip_all
 ```
 
-#### 2. Setup Backend
+```bash
+docker exec hotelia-mongo mongosh --quiet --eval 'rs.initiate()'
+```
+
+### 2. Máy chủ
 
 ```bash
 cd backend
-
-# Install dependencies
 npm install
-
-# Copy environment file
 cp .env.example .env
+```
 
-# Start with Docker
-docker-compose up -d
+Trong `backend/.env`, đặt `MONGODB_URI=mongodb://127.0.0.1:27018/hotelia?directConnection=true` và một `JWT_SECRET` ngẫu nhiên dài ít nhất 32 ký tự. Khóa payOS và mã ứng dụng Google/Apple chỉ cần khi thử các chức năng đó. Các biến khác được mô tả ngay trong `.env.example`.
 
-# Or run locally
+```bash
 npm run start:dev
 ```
 
-#### 3. Setup iOS App
+API chạy tại `http://localhost:3000/api/v1`; tài liệu Swagger ở `http://localhost:3000/docs` (chỉ bật ngoài môi trường vận hành).
+
+`backend/seed.js` nạp dữ liệu mẫu nhưng **xóa toàn bộ cơ sở dữ liệu** trước khi nạp; chỉ chạy trên cơ sở dữ liệu thử nghiệm.
+
+### 3. Bảng điều khiển
 
 ```bash
-cd DuLich
-open DuLich.xcodeproj
+cd hotelia-dashboard
+npm install
+echo "VITE_API_URL=http://localhost:3000/api/v1" > .env
+npm run dev
 ```
 
-Build and run in Xcode Simulator.
+Ngoài môi trường vận hành, máy chủ đã cho phép sẵn `http://localhost:5173`–`5175`; địa chỉ khác cần thêm vào `CORS_ORIGINS`.
 
-### Environment Variables
+### 4. Ứng dụng iOS
 
-```env
-# Backend (.env)
-NODE_ENV=development
-PORT=3000
-MONGODB_URI=mongodb://admin:password@localhost:27017/dulich
-JWT_SECRET=your-secret-key-min-32-chars
-JWT_EXPIRES_IN=15m
-JWT_REFRESH_EXPIRES_IN=7d
-```
+Mở `DuLich.xcodeproj`, chọn scheme **Hotelia** và chạy trên Simulator. Địa chỉ API lấy từ build setting `HOTELIA_API_BASE_URL`: cấu hình Release trỏ tới `https://api.hotelia.asia/api/v1`; cấu hình Debug trỏ tới máy phát triển, cần đổi thành địa chỉ máy chủ của bạn.
 
 ---
 
-## 📁 Project Structure
-
-### Backend (`/backend`)
-
-```
-backend/
-├── src/
-│   ├── auth/                    # Authentication
-│   │   ├── auth.controller.ts
-│   │   ├── auth.service.ts
-│   │   ├── jwt.strategy.ts
-│   │   └── dto/
-│   │
-│   ├── users/                  # User management
-│   │   ├── users.controller.ts
-│   │   ├── users.service.ts
-│   │   ├── schemas/
-│   │   └── dto/
-│   │
-│   ├── hotels/                 # Hotel management
-│   │   ├── hotels.controller.ts
-│   │   ├── hotels.service.ts
-│   │   └── schemas/
-│   │
-│   ├── bookings/               # Booking system
-│   │   ├── bookings.controller.ts
-│   │   ├── bookings.service.ts
-│   │   ├── schemas/
-│   │   └── state-machine/
-│   │
-│   ├── payments/               # Payment processing
-│   │   ├── payments.controller.ts
-│   │   ├── payments.service.ts
-│   │   └── providers/
-│   │
-│   ├── reviews/                # Review system
-│   ├── notifications/           # In-app notifications
-│   ├── admin/                  # Admin endpoints
-│   ├── owners/                 # Owner dashboard
-│   │
-│   └── common/                 # Shared utilities
-│       ├── decorators/
-│       ├── guards/
-│       ├── filters/
-│       ├── interceptors/
-│       └── middleware/
-│
-├── test/                       # E2E tests
-├── Dockerfile
-├── docker-compose.yml
-└── package.json
-```
-
-### iOS App (`/DuLich`)
-
-```
-DuLich/
-├── App/
-│   ├── DuLichApp.swift        # App entry point
-│   └── AppDelegate.swift
-│
-├── Core/
-│   ├── Auth/                   # Authentication
-│   ├── Explore/               # Home & Search
-│   ├── Hotel/                 # Hotel detail
-│   ├── Booking/               # Booking flow
-│   ├── Payment/               # Payment
-│   ├── Profile/               # User profile
-│   ├── Admin/                 # Admin features
-│   └── Settings/              # Settings
-│
-├── Shared/
-│   ├── Models/                # Data models
-│   ├── Components/           # Reusable UI
-│   └── Extensions/             # Swift extensions
-│
-└── Resources/
-    ├── Assets.xcassets
-    └── Localizable.strings
-```
-
----
-
-## 📚 Documentation
-
-### API Documentation
-
-API documentation available via Swagger when running in development:
-
-```
-http://localhost:3000/docs
-```
-
-### Key Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/auth/register` | Register new user |
-| POST | `/api/v1/auth/login` | User login |
-| GET | `/api/v1/hotels` | Search hotels |
-| GET | `/api/v1/hotels/:id` | Hotel details |
-| POST | `/api/v1/bookings` | Create booking |
-| GET | `/api/v1/bookings` | User's bookings |
-| POST | `/api/v1/payments` | Process payment |
-
-### Database Schema
-
-Key collections:
-- `users` - User accounts and profiles
-- `hotels` - Hotel listings
-- `roomTypes` - Room configurations
-- `roomAvailability` - Daily availability
-- `bookings` - Booking records
-- `payments` - Payment transactions
-- `reviews` - Hotel reviews
-
----
-
-## 🔒 Security
-
-### Implemented Security Measures
-
-- ✅ JWT with short-lived access tokens (15 min)
-- ✅ Refresh token rotation (SHA-256 digest of each token; logout revokes the refresh token)
-- ✅ Password hashing with bcrypt (12 rounds)
-- ✅ Rate limiting (100 req/min)
-- ✅ Input validation with class-validator
-- ✅ Role-based access control (RBAC)
-- ✅ Ownership verification guards
-- ✅ MongoDB injection prevention
-- ✅ CORS configuration
-- ✅ Brute force protection (5 attempts = 15 min lockout)
-
----
-
-## 🧪 Testing
-
-### Backend Tests
+## Kiểm thử
 
 ```bash
-# Unit tests
-npm run test
-
-# Test coverage
-npm run test:cov
-
-# Booking concurrency against a real MongoDB replica set on port 27018
-npm run build && npm run test:booking-db
+cd backend
+npm test                                  # 57 ca Jest, 14 bộ
+npm run build && npm run test:booking-db  # tranh chấp đặt phòng trên MongoDB thật (cổng 27018)
 ```
-
-### Mobile Testing
-
-- Manual testing in iOS Simulator against a local API and MongoDB
-- `tests/ExploreRefreshRegression.swift` regression check for Explore refresh
-- No XCTest UI test target yet
-
----
-
-## 🚢 Deployment
-
-### Docker
 
 ```bash
-# Build image
-docker build -t dulich-api .
-
-# Run container
-docker run -p 3000:3000 dulich-api
-
-# With Docker Compose
-docker-compose up -d
+cd research
+python3 -m venv venv && venv/bin/pip install -r requirements.txt
+venv/bin/python -m pytest tests
 ```
 
-### Production Deployment
-
-| Component | Platform |
-|-----------|----------|
-| API | Render web service from `backend/Dockerfile` (`render.yaml`) |
-| Database | MongoDB Atlas |
-| Owner/admin dashboard | Vercel, `hotelia-dashboard` |
-| Mobile app | iOS (Simulator/development builds) |
-
-The current production endpoints are:
-
-- Owner and admin dashboard: `https://admin.hotelia.asia` (`hotelia-dashboard`)
-- API: `https://api.hotelia.asia/api/v1`
-- `https://hotelia.asia` and `https://www.hotelia.asia` redirect (308) to `https://admin.hotelia.asia`. There is no customer web app; guests use the iOS app.
+Ứng dụng iOS chưa có bộ kiểm thử giao diện tự động; `tests/ExploreRefreshRegression.swift` là kiểm tra hồi quy cho màn Khám phá.
 
 ---
 
-## 📊 Cost Analysis ($0 MVP)
+## Bảo mật
 
-| Component | Technology | Cost |
-|-----------|------------|------|
-| Backend | Render | Free |
-| Database | MongoDB Atlas | Free tier |
-| Dashboard | Vercel | Free |
-| Auth | JWT (self-hosted) | Free |
-| Payment | payOS | Per-transaction provider fees |
-| **Total** | | **$0/month** |
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
+- Access token sống 15 phút; refresh token 7 ngày, xoay vòng mỗi lần làm mới. Máy chủ chỉ lưu bản băm SHA-256 của refresh token; đăng xuất thu hồi refresh token trên máy chủ.
+- Claim `typ` phân biệt access token và refresh token; đổi hoặc đặt lại mật khẩu làm mọi phiên cũ mất hiệu lực (`tokenVersion`).
+- Mật khẩu băm bằng bcrypt (12 vòng); khóa tài khoản 15 phút sau 5 lần sai; giới hạn 100 yêu cầu mỗi phút.
+- ID token Google/Apple được máy chủ tự xác minh bằng JWKS; Apple dùng thêm nonce.
+- Phân quyền theo vai trò USER, OWNER, ADMIN, kèm kiểm tra quyền sở hữu khách sạn trong từng dịch vụ.
+- Mọi đầu vào qua `ValidationPipe`; trường lạ bị từ chối.
+- Thanh toán chỉ được xác nhận qua webhook payOS có chữ ký hợp lệ và đúng số tiền.
+- Thao tác ghi của người đã đăng nhập được ghi vào `audit_logs`.
 
 ---
 
-## 👤 Author
+## Giới hạn hiện tại
 
-**Nguyễn Duy Hiệu**
+- Mô hình gợi ý chưa được huấn luyện hay đánh giá trên hành vi người dùng thật.
+- 80 trong 100 khách sạn có giá, tồn kho và chủ khách sạn mô phỏng; điểm hiển thị là điểm biên tập.
+- payOS chưa được thử với giao dịch thật; chưa có hoàn tiền tự động.
+- Bảng điều khiển chỉ có tiếng Việt.
+- Hạ tầng dùng gói miễn phí; API trên Render có thể mất khoảng 20 giây cho yêu cầu đầu tiên sau khi ngủ.
+
+---
+
+## Tác giả
+
+**Nguyễn Duy Hiệu**, khóa K17, Trường Công nghệ Thông tin Phenikaa
+Giảng viên hướng dẫn: TS. Nguyễn Lệ Thu
 
 - GitHub: [@NguyenDuyHieu49](https://github.com/NguyenDuyHieu49)
 - Email: nguyenduyhieuwork49@gmail.com
----
 
-<div align="center">
-
-**Built with ❤️ using SwiftUI, NestJS, and MongoDB**
-
-</div>
+Kho mã chưa kèm giấy phép sử dụng.
