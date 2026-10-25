@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException, ServiceUnavailableException } from '@nestjs/common';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { createRemoteJWKSet, jwtVerify, JWTPayload } from 'jose';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
@@ -102,8 +102,19 @@ export class AuthService {
     }
   }
 
-  async logout(userId: string) {
-    await this.usersService.updateRefreshToken(userId, null);
+  // Revocation is keyed by the refresh token, so logout still works after the
+  // 15-minute access token has expired. Unknown tokens get the same reply.
+  async logout(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify<JwtPayload>(refreshToken, {
+        secret: this.configService.get<string>('JWT_SECRET')!,
+      });
+      if (payload.typ !== 'access' && await this.usersService.validateRefreshToken(payload.sub, refreshToken)) {
+        await this.usersService.updateRefreshToken(payload.sub, null);
+      }
+    } catch {
+      // Expired, forged or already revoked tokens need no further action.
+    }
     return { message: 'Logged out successfully' };
   }
 
@@ -116,7 +127,8 @@ export class AuthService {
         secret: this.configService.get<string>('JWT_SECRET')!,
         expiresIn: accessLifetime,
       }),
-      this.jwtService.signAsync({ ...payload, typ: 'refresh' }, {
+      // jti makes each refresh token unique, even when two are issued in the same second.
+      this.jwtService.signAsync({ ...payload, typ: 'refresh', jti: randomUUID() }, {
         secret: this.configService.get<string>('JWT_SECRET')!,
         expiresIn: refreshLifetime,
       }),

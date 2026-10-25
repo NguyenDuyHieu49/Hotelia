@@ -2,12 +2,16 @@ import { Injectable, ConflictException, NotFoundException, BadRequestException }
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { User, UserDocument, UserRole, OwnerStatus } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 const SALT_ROUNDS = 12;
+
+// bcrypt reads only the first 72 bytes, and every refresh JWT of one user shares
+// its first 72 bytes (header + sub), so refresh tokens are stored as SHA-256 digests.
+const refreshDigest = (token: string) => 'sha256:' + createHash('sha256').update(token).digest('hex');
 
 @Injectable()
 export class UsersService {
@@ -110,7 +114,7 @@ export class UsersService {
   async updateRefreshToken(userId: string, token: string | null): Promise<void> {
     const user = await this.findById(userId);
     if (token) {
-      user.refreshToken = await bcrypt.hash(token, SALT_ROUNDS);
+      user.refreshToken = refreshDigest(token);
       user.refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     } else {
       user.refreshToken = undefined;
@@ -123,6 +127,10 @@ export class UsersService {
     const user = await this.findById(userId);
     if (!user.refreshToken || !user.refreshTokenExpiry) return false;
     if (user.refreshTokenExpiry < new Date()) return false;
+    if (user.refreshToken.startsWith('sha256:')) {
+      return timingSafeEqual(Buffer.from(user.refreshToken), Buffer.from(refreshDigest(token)));
+    }
+    // Sessions issued before the digest change keep working until their next rotation.
     return bcrypt.compare(token, user.refreshToken);
   }
 

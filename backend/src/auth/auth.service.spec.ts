@@ -84,4 +84,24 @@ describe('token types', () => {
     await expect(new AuthService(users as any, jwt as any, config as any).refresh('token')).rejects.toThrow('Invalid refresh token');
     expect(users.validateRefreshToken).not.toHaveBeenCalled();
   });
+
+  it('revokes the refresh token it is given, even without a valid access token', async () => {
+    const jwt = { verify: jest.fn(() => ({ sub: String(user._id), typ: 'refresh' })) };
+    const users = { validateRefreshToken: jest.fn(async () => true), updateRefreshToken: jest.fn() };
+    await new AuthService(users as any, jwt as any, config as any).logout('refresh-token');
+    expect(users.validateRefreshToken).toHaveBeenCalledWith(String(user._id), 'refresh-token');
+    expect(users.updateRefreshToken).toHaveBeenCalledWith(String(user._id), null);
+  });
+
+  it('answers logout the same way for access, stale or forged tokens without revoking', async () => {
+    const users = { validateRefreshToken: jest.fn(async () => false), updateRefreshToken: jest.fn() };
+    const access = { verify: jest.fn(() => ({ sub: String(user._id), typ: 'access' })) };
+    const stale = { verify: jest.fn(() => ({ sub: String(user._id), typ: 'refresh' })) };
+    const forged = { verify: jest.fn(() => { throw new Error('invalid signature'); }) };
+    for (const jwt of [access, stale, forged]) {
+      await expect(new AuthService(users as any, jwt as any, config as any).logout('t'))
+        .resolves.toEqual({ message: 'Logged out successfully' });
+    }
+    expect(users.updateRefreshToken).not.toHaveBeenCalled();
+  });
 });
