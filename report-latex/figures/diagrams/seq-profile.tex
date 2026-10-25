@@ -1,0 +1,14 @@
+\begin{seqdiagram}
+  \participant{app}{0}{ProfileView}
+  \participant{ctl}{3.0}{Users-\\Controller}
+  \participant{svc}{6.0}{Users-\\Service}
+  \participant{db}{9.0}{MongoDB}
+  \participant[27mm]{loc}{12.0}{DuLichApp\\(@AppStorage)}
+  \msg{app}{ctl}{PUT /users/me (name, phone, avatar)}
+  \self{ctl}{ValidationPipe: trường lạ $\rightarrow$ 400}
+  \msg{ctl}{svc}{update(userId, dto)}
+  \msg{svc}{db}{lưu name, phone, avatar}
+  \ret{ctl}{app}{hồ sơ công khai, không có passwordHash}
+  \msg{app}{loc}{chọn ngôn ngữ: ghi appLanguage}
+  \ret{loc}{app}{đổi locale và .id(appLanguage): dựng lại giao diện bằng ngôn ngữ mới}
+\end{seqdiagram}

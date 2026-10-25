@@ -1,6 +1,6 @@
 % Hotelia – Nền tảng đặt phòng khách sạn tích hợp hệ thống gợi ý cá nhân hóa
 % Build: latexmk -lualatex main.tex
-\documentclass[fontsize=13pt,paper=a4,oneside,listof=totoc,
+\documentclass[fontsize=13pt,paper=a4,oneside,listof=nottotoc,
   bibliography=totoc,numbers=noenddot,parskip=false]{scrreprt}
 \input{preamble}
 
@@ -13,12 +13,13 @@
 \begin{document}
 
 % ------------------------------------------------------------ front matter --
-\pagenumbering{gobble}
-\input{frontmatter/cover}
+% Roman numbers keep page anchors unique but are never printed.
 \pagenumbering{roman}
+\frontmattertrue
+\pagestyle{empty}\renewcommand*{\chapterpagestyle}{empty}
+\input{frontmatter/cover}
 \input{frontmatter/declaration}
 \input{frontmatter/acknowledgement}
-\input{frontmatter/review}
 \tableofcontents
 \listoffigures
 \listoftables
@@ -26,6 +27,8 @@
 
 % ------------------------------------------------------------------- body --
 \cleardoublepage
+\frontmatterfalse
+\pagestyle{scrheadings}\renewcommand*{\chapterpagestyle}{plain}
 \pagenumbering{arabic}
 \input{chapters/introduction}
 \input{chapters/ch1-overview}

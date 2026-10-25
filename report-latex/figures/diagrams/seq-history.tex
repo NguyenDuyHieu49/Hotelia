@@ -1,0 +1,15 @@
+\begin{seqdiagram}
+  \participant{view}{0}{HistoryView}
+  \participant[27mm]{cli}{3.3}{BookingService\\(iOS)}
+  \participant{ctl}{6.6}{Bookings-\\Controller}
+  \participant{svc}{9.9}{Bookings-\\Service}
+  \participant{db}{13.1}{MongoDB}
+  \msg{view}{cli}{tải khi mở màn hình hoặc kéo để làm mới}
+  \msg{cli}{ctl}{GET /bookings}
+  \msg{ctl}{svc}{findByUser(userId)}
+  \msg{svc}{db}{giữ phòng đã quá hạn $\rightarrow$ EXPIRED}
+  \msg{svc}{db}{đặt phòng của người dùng, mới nhất trước}
+  \ret{svc}{cli}{danh sách đặt phòng}
+  \ret{cli}{view}{[Booking]}
+  \self{view}{lọc theo thẻ: Tất cả, Sắp tới, Đã xong, Đã hủy}
+\end{seqdiagram}

@@ -5,7 +5,9 @@
 \usepackage{fontspec}
 \setmainfont{Times New Roman}
 \setsansfont{Arial}
-\setmonofont{Menlo}[Scale=0.82]
+% Source Code Pro (ships with TeX Live) covers Vietnamese; Menlo does not.
+\setmonofont{SourceCodePro}[Extension=.otf, UprightFont=*-Regular, BoldFont=*-Bold,
+  ItalicFont=*-RegularIt, BoldItalicFont=*-BoldIt, Scale=0.85]
 
 \usepackage[a4paper,top=2.54cm,bottom=2.54cm,left=2.54cm,right=2.54cm,
             headheight=15pt,footskip=1.1cm]{geometry}
@@ -77,23 +79,31 @@
 \setcounter{tocdepth}{3}
 
 % Unnumbered front/back matter titles (LỜI CAM ĐOAN, MỤC LỤC, ...).
+% Front matter (before Mở đầu) has no page numbers and no table-of-contents entry.
+\newif\iffrontmatter
 \newcommand{\fronttitle}[1]{%
-  \chapter*{#1}\addcontentsline{toc}{chapter}{#1}}
+  \chapter*{#1}\iffrontmatter\else\addcontentsline{toc}{chapter}{#1}\fi}
 
 % ------------------------------------------------------------ Vietnamese --
-\renewcommand*{\chaptername}{Chương}
-\renewcommand*{\contentsname}{Mục lục}
-\renewcommand*{\listfigurename}{Danh mục hình ảnh}
-\renewcommand*{\listtablename}{Danh mục bảng}
-\renewcommand*{\figurename}{Hình}
-\renewcommand*{\tablename}{Bảng}
-\renewcommand*{\appendixname}{Phụ lục}
-\renewcommand*{\bibname}{Tài liệu tham khảo}
-\renewcommand{\lstlistingname}{Đoạn mã}
-\renewcommand{\lstlistlistingname}{Danh mục đoạn mã}
+% Set again at \begin{document}: the current LaTeX kernel reinstates the English
+% names ("Figure", "Table") after the preamble on LuaLaTeX.
+\newcommand{\hoteliavietnamesenames}{%
+  \renewcommand*{\chaptername}{Chương}%
+  \renewcommand*{\contentsname}{Mục lục}%
+  \renewcommand*{\listfigurename}{Danh mục hình ảnh}%
+  \renewcommand*{\listtablename}{Danh mục bảng}%
+  \renewcommand*{\figurename}{Hình}%
+  \renewcommand*{\tablename}{Bảng}%
+  \renewcommand*{\appendixname}{Phụ lục}%
+  \renewcommand*{\bibname}{Tài liệu tham khảo}%
+  \renewcommand{\lstlistingname}{Đoạn mã}%
+  \renewcommand{\lstlistlistingname}{Danh mục đoạn mã}%
+}
+\hoteliavietnamesenames
+\AddToHook{begindocument/end}{\hoteliavietnamesenames}
 
 % ---------------------------------------------------------------- captions --
-\usepackage[labelsep=period,font={small,bf},justification=centering,
+\usepackage[labelsep=period,font=small,justification=centering,
             singlelinecheck=false,skip=6pt]{caption}
 \captionsetup[table]{position=top}
 \usepackage{subcaption}
@@ -103,10 +113,14 @@
 \renewcommand{\theequation}{\thechapter.\arabic{equation}}
 % List of figures/tables: "Hình 3.1. ..." with the tag in front.
 \usepackage{tocbasic}
-\DeclareTOCStyleEntry[entrynumberformat=\figureentryformat,indent=0pt,numwidth=5.6em]{tocline}{figure}
-\DeclareTOCStyleEntry[entrynumberformat=\tableentryformat,indent=0pt,numwidth=5.6em]{tocline}{table}
-\newcommand*{\figureentryformat}[1]{\figurename~#1.}
-\newcommand*{\tableentryformat}[1]{\tablename~#1.}
+\DeclareTOCStyleEntry[indent=0pt,numwidth=5.6em]{tocline}{figure}
+\DeclareTOCStyleEntry[indent=0pt,numwidth=5.6em]{tocline}{table}
+% The list entry number is written as "Hình 2.1." by caption, so the period stays
+% next to the number instead of being pushed after the number box.
+\DeclareCaptionListFormat{figurelist}{\protect\figurename~#2.}
+\DeclareCaptionListFormat{tablelist}{\protect\tablename~#2.}
+\captionsetup[figure]{listformat=figurelist}
+\captionsetup[table]{listformat=tablelist}
 
 % ------------------------------------------------------------------ pages --
 \usepackage[automark,headsepline=false,footsepline=false]{scrlayer-scrpage}
@@ -124,8 +138,7 @@
   breaklines=true, breakatwhitespace=false, columns=fullflexible,
   keepspaces=true, showstringspaces=false, tabsize=2,
   numbers=left, numberstyle=\tiny\color{black!50}, numbersep=6pt,
-  aboveskip=8pt, belowskip=8pt, captionpos=t,
-  literate={À}{{À}}1 {Á}{{Á}}1 {Â}{{Â}}1 {Ã}{{Ã}}1 {È}{{È}}1 {É}{{É}}1 {Ê}{{Ê}}1 {Ì}{{Ì}}1 {Í}{{Í}}1 {Ò}{{Ò}}1 {Ó}{{Ó}}1 {Ô}{{Ô}}1 {Õ}{{Õ}}1 {×}{{×}}1 {Ù}{{Ù}}1 {Ú}{{Ú}}1 {Ý}{{Ý}}1 {à}{{à}}1 {á}{{á}}1 {â}{{â}}1 {ã}{{ã}}1 {è}{{è}}1 {é}{{é}}1 {ê}{{ê}}1 {ì}{{ì}}1 {í}{{í}}1 {ò}{{ò}}1 {ó}{{ó}}1 {ô}{{ô}}1 {õ}{{õ}}1 {ù}{{ù}}1 {ú}{{ú}}1 {ý}{{ý}}1 {Ă}{{Ă}}1 {ă}{{ă}}1 {Đ}{{Đ}}1 {đ}{{đ}}1 {Ĩ}{{Ĩ}}1 {ĩ}{{ĩ}}1 {Ũ}{{Ũ}}1 {ũ}{{ũ}}1 {Ơ}{{Ơ}}1 {ơ}{{ơ}}1 {Ư}{{Ư}}1 {ư}{{ư}}1 {Ḍ}{{Ḍ}}1 {ḍ}{{ḍ}}1 {Ạ}{{Ạ}}1 {ạ}{{ạ}}1 {Ả}{{Ả}}1 {ả}{{ả}}1 {Ấ}{{Ấ}}1 {ấ}{{ấ}}1 {Ầ}{{Ầ}}1 {ầ}{{ầ}}1 {Ẩ}{{Ẩ}}1 {ẩ}{{ẩ}}1 {Ẫ}{{Ẫ}}1 {ẫ}{{ẫ}}1 {Ậ}{{Ậ}}1 {ậ}{{ậ}}1 {Ắ}{{Ắ}}1 {ắ}{{ắ}}1 {Ằ}{{Ằ}}1 {ằ}{{ằ}}1 {Ẳ}{{Ẳ}}1 {ẳ}{{ẳ}}1 {Ẵ}{{Ẵ}}1 {ẵ}{{ẵ}}1 {Ặ}{{Ặ}}1 {ặ}{{ặ}}1 {Ẹ}{{Ẹ}}1 {ẹ}{{ẹ}}1 {Ẻ}{{Ẻ}}1 {ẻ}{{ẻ}}1 {Ẽ}{{Ẽ}}1 {ẽ}{{ẽ}}1 {Ế}{{Ế}}1 {ế}{{ế}}1 {Ề}{{Ề}}1 {ề}{{ề}}1 {Ể}{{Ể}}1 {ể}{{ể}}1 {Ễ}{{Ễ}}1 {ễ}{{ễ}}1 {Ệ}{{Ệ}}1 {ệ}{{ệ}}1 {Ỉ}{{Ỉ}}1 {ỉ}{{ỉ}}1 {Ị}{{Ị}}1 {ị}{{ị}}1 {Ọ}{{Ọ}}1 {ọ}{{ọ}}1 {Ỏ}{{Ỏ}}1 {ỏ}{{ỏ}}1 {Ố}{{Ố}}1 {ố}{{ố}}1 {Ồ}{{Ồ}}1 {ồ}{{ồ}}1 {Ổ}{{Ổ}}1 {ổ}{{ổ}}1 {Ỗ}{{Ỗ}}1 {ỗ}{{ỗ}}1 {Ộ}{{Ộ}}1 {ộ}{{ộ}}1 {Ớ}{{Ớ}}1 {ớ}{{ớ}}1 {Ờ}{{Ờ}}1 {ờ}{{ờ}}1 {Ở}{{Ở}}1 {ở}{{ở}}1 {Ỡ}{{Ỡ}}1 {ỡ}{{ỡ}}1 {Ợ}{{Ợ}}1 {ợ}{{ợ}}1 {Ụ}{{Ụ}}1 {ụ}{{ụ}}1 {Ủ}{{Ủ}}1 {ủ}{{ủ}}1 {Ứ}{{Ứ}}1 {ứ}{{ứ}}1 {Ừ}{{Ừ}}1 {ừ}{{ừ}}1 {Ử}{{Ử}}1 {ử}{{ử}}1 {Ữ}{{Ữ}}1 {ữ}{{ữ}}1 {Ự}{{Ự}}1 {ự}{{ự}}1 {Ỳ}{{Ỳ}}1 {ỳ}{{ỳ}}1 {Ỵ}{{Ỵ}}1 {ỵ}{{ỵ}}1 {Ỷ}{{Ỷ}}1 {ỷ}{{ỷ}}1 {Ỹ}{{Ỹ}}1 {ỹ}{{ỹ}}1 {–}{{–}}1 {—}{{—}}1 {‘}{{‘}}1 {’}{{’}}1 {“}{{“}}1 {”}{{”}}1 {•}{{•}}1 {…}{{…}}1 {₫}{{₫}}1 {→}{{→}}1 {≤}{{≤}}1 {≥}{{≥}}1
+  aboveskip=8pt, belowskip=8pt, captionpos=t
 }
 \lstdefinelanguage{TypeScript}{
   keywords={async,await,break,case,catch,class,const,constructor,continue,
@@ -141,6 +154,26 @@
   sensitive=true, morecomment=[l]{//}, morecomment=[s]{/*}{*/},
   morestring=[b]"}
 \lstset{style=hotelia}
+\ExplSyntaxOn
+\cs_new_eq:cN { hotelia@char } \char_generate:nn
+\ExplSyntaxOff
+\makeatletter
+% listings only treats 8-bit characters as letters. Under LuaTeX/XeTeX the
+% Vietnamese letters above U+00FF would otherwise be typeset before the
+% buffered word ("Số" printed as "ốS"), so register them as letters.
+\def\hotelia@lstletter#1{%
+  \catcode#1=\active
+  \begingroup\edef\x{\endgroup\noexpand\lst@Def{#1}{\noexpand\lst@ProcessLetter\hotelia@char{#1}{11}}}\x}
+\def\hotelia@lstrange#1#2{%
+  \@tempcnta=#1\relax
+  \loop\ifnum\@tempcnta>#2\relax\else
+    \ifnum\@tempcnta="D7 \else\ifnum\@tempcnta="F7 \else
+      \hotelia@lstletter{\the\@tempcnta}\fi\fi
+    \advance\@tempcnta\@ne
+  \repeat}
+\lst@AddToHook{SelectCharTable}{%
+  \hotelia@lstrange{"C0}{"FF}\hotelia@lstrange{"100}{"1B0}\hotelia@lstrange{"1EA0}{"1EF9}}
+\makeatother
 \captionsetup[lstlisting]{font={small,bf},labelsep=period}
 
 % --------------------------------------------------------------- tables --
@@ -148,7 +181,7 @@
 \setlength{\tabcolsep}{3.5pt}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash\setstretch{1.1}}p{#1}}
 \newcolumntype{C}[1]{>{\centering\arraybackslash\setstretch{1.1}}p{#1}}
-\renewcommand{\thead}[1]{\textbf{#1}}
+\renewcommand{\thead}[1]{#1}
 % Long tables use a slightly smaller font so wide content stays inside margins.
 \newenvironment{rtable}{\small\setstretch{1.1}}{}
 
@@ -266,11 +299,11 @@
   \xdef\fragtop{\seqy}\xdef\fragL{\seqx{#1}}\xdef\fragR{\seqx{#2}}%
   \node[anchor=north west, draw=black!70, fill=lane, font=\sffamily\scriptsize\bfseries, inner sep=2pt]
     at (\fragL-0.55,\seqy+0.33) {#3};
-  \node[anchor=north west, font=\sffamily\scriptsize] at (\fragL+0.1,\seqy+0.33) {#4};}
+  \node[anchor=north west, font=\sffamily\scriptsize] at (\fragL+0.1,\seqy+0.33) {#4};\seqadvance[0.25]}
 \newcommand{\fragelse}[1]{%
   \seqadvance[0.75]%
   \draw[densely dashed, black!60] (\fragL-0.55,\seqy+0.35) -- (\fragR+0.55,\seqy+0.35);
-  \node[anchor=north west, font=\sffamily\scriptsize] at (\fragL+0.1,\seqy+0.33) {#1};}
+  \node[anchor=north west, font=\sffamily\scriptsize] at (\fragL+0.1,\seqy+0.33) {#1};\seqadvance[0.25]}
 \newcommand{\fragclose}{%
   \seqadvance[0.5]%
   \draw[black!70] (\fragL-0.55,\fragtop+0.35) rectangle (\fragR+0.55,\seqy+0.1);}
@@ -279,11 +312,13 @@
 \usepackage[backend=biber,style=ieee,sorting=none,dashed=false,
             maxnames=3,minnames=1]{biblatex}
 \DefineBibliographyStrings{english}{andothers={và cộng sự},
-  urlseen={truy cập ngày}, in={trong}}
+  urlseen={truy cập ngày}, in={trong}, url={Địa chỉ}}
+% No stretchable glue inside URLs: justified lines otherwise space out every slash.
+\biburlbigskip=0mu \biburlnumskip=0mu \biburlucskip=0mu \biburllcskip=0mu
 \addbibresource{references.bib}
 
 % ------------------------------------------------------------- hyperlinks --
-\usepackage[hidelinks,unicode,bookmarksnumbered]{hyperref}
+\usepackage[hidelinks,unicode,bookmarksnumbered,pdfpagelabels=false]{hyperref}
 \usepackage[nameinlink,noabbrev]{cleveref}
 \crefname{figure}{Hình}{Hình}\Crefname{figure}{Hình}{Hình}
 \crefname{table}{Bảng}{Bảng}\Crefname{table}{Bảng}{Bảng}

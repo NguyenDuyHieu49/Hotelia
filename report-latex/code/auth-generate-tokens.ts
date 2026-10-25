@@ -7,7 +7,8 @@
         secret: this.configService.get<string>('JWT_SECRET')!,
         expiresIn: accessLifetime,
       }),
-      this.jwtService.signAsync({ ...payload, typ: 'refresh' }, {
+      // jti makes each refresh token unique, even when two are issued in the same second.
+      this.jwtService.signAsync({ ...payload, typ: 'refresh', jti: randomUUID() }, {
         secret: this.configService.get<string>('JWT_SECRET')!,
         expiresIn: refreshLifetime,
       }),

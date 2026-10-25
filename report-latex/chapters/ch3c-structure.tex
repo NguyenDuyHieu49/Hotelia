@@ -105,7 +105,7 @@ ownerStatus & Enum & PENDING, APPROVED, REJECTED & Trạng thái hồ sơ chủ 
 businessName, businessLicense & String & & Thông tin doanh nghiệp khi đăng ký chủ khách sạn \\ \hline
 isActive & Boolean & mặc định true & false khi bị quản trị viên khóa \\ \hline
 loginAttempts, lockedUntil & Number, Date & & Chống dò mật khẩu \\ \hline
-refreshToken, refreshTokenExpiry & String, Date & & Băm bcrypt của refresh token hiện hành \\ \hline
+refreshToken, refreshTokenExpiry & String, Date & & Băm SHA-256 của refresh token hiện hành (tiền tố \code{sha256:}) \\ \hline
 tokenVersion & Number & mặc định 0 & Tăng khi đổi/đặt lại mật khẩu để thu hồi token \\ \hline
 passwordChangedAt, lastLoginAt & Date & & Mốc thời gian bảo mật \\ \hline
 }
@@ -169,13 +169,13 @@ metadata & String (JSON) & & Mã tham chiếu, thời điểm giao dịch từ w
 }
 
 \ddtable{Từ điển dữ liệu bộ sưu tập \code{reviews} và \code{notifications}}{tab:dd-reviews}{
-\multicolumn{4}{|l|}{\textbf{reviews}} \\ \hline
+\multicolumn{4}{|l|}{\textit{reviews}} \\ \hline
 hotelId, userId, bookingId & ObjectId & hotelId, userId bắt buộc & Khách sạn, người viết, đặt phòng làm căn cứ \\ \hline
 rating & Number & 1--5 & Số sao \\ \hline
 title, content & String & content bắt buộc & Nội dung \\ \hline
 ownerReply & String & & Phản hồi của chủ khách sạn \\ \hline
 helpfulCount, isVisible & Number, Boolean & isVisible mặc định true & Lượt hữu ích; false khi bị quản trị viên ẩn \\ \hline
-\multicolumn{4}{|l|}{\textbf{notifications}} \\ \hline
+\multicolumn{4}{|l|}{\textit{notifications}} \\ \hline
 userId & ObjectId & bắt buộc & Người nhận \\ \hline
 title, message & String & bắt buộc & Nội dung \\ \hline
 type, relatedId & String, ObjectId & & Loại (BOOKING, PAYMENT, \ldots), đối tượng liên quan \\ \hline
@@ -183,23 +183,23 @@ isRead & Boolean & mặc định false & Đã đọc \\ \hline
 }
 
 \ddtable{Từ điển dữ liệu các bộ sưu tập phụ trợ}{tab:dd-misc}{
-\multicolumn{4}{|l|}{\textbf{favorites}: \_id = \code{userId:hotelId} (chống trùng)} \\ \hline
+\multicolumn{4}{|l|}{\textit{favorites}: \_id = \code{userId:hotelId} (chống trùng)} \\ \hline
 userId, hotelId, createdAt & ObjectId, Date & & Khách sạn yêu thích \\ \hline
-\multicolumn{4}{|l|}{\textbf{support\_tickets}} \\ \hline
+\multicolumn{4}{|l|}{\textit{support\_tickets}} \\ \hline
 userId, subject, message & ObjectId, String & 3--160, 10--4000 ký tự & Yêu cầu hỗ trợ \\ \hline
 status, reply, repliedAt & String, Date & OPEN, RESOLVED & Trạng thái, phản hồi của quản trị viên \\ \hline
-\multicolumn{4}{|l|}{\textbf{password\_resets}: một tài liệu cho mỗi người dùng} \\ \hline
+\multicolumn{4}{|l|}{\textit{password\_resets}: một tài liệu cho mỗi người dùng} \\ \hline
 userId, tokenHash, expiresAt & ObjectId, String, Date & hạn 15 phút & SHA-256 của mã khôi phục, không lưu mã gốc \\ \hline
-\multicolumn{4}{|l|}{\textbf{audit\_logs}} \\ \hline
+\multicolumn{4}{|l|}{\textit{audit\_logs}} \\ \hline
 actorId, role, method, path, createdAt & String, Date & & Ai thực hiện thao tác ghi nào; không lưu nội dung yêu cầu \\ \hline
-\multicolumn{4}{|l|}{\textbf{recommendation\_views}: \_id = \code{actor:hotelId}} \\ \hline
+\multicolumn{4}{|l|}{\textit{recommendation\_views}: \_id = \code{actor:hotelId}} \\ \hline
 actor, hotelId, viewedAt & String, ObjectId, Date & TTL 90 ngày & Lượt mở chi tiết, mỗi khách sạn một bản ghi cho mỗi tác nhân \\ \hline
-\multicolumn{4}{|l|}{\textbf{recommendation\_impressions}: \_id = \code{actor:impressionId}} \\ \hline
+\multicolumn{4}{|l|}{\textit{recommendation\_impressions}: \_id = \code{actor:impressionId}} \\ \hline
 candidateIds, candidatePositions & [ObjectId], [Object] & tối đa 8, không trùng & Thứ tự hiển thị \\ \hline
 destinationKey, filters, searchTextPresent & String, Object, Boolean & & Ngữ cảnh truy vấn; chỉ giữ thành phố có trong danh mục, không lưu văn bản tìm kiếm tự do \\ \hline
 detailOpenedHotelIds, detailOpenedAt & [ObjectId], Object & & Kết quả (khách sạn được mở) \\ \hline
 rowLoadedAt, expiresAt & Date & TTL theo expiresAt (90 ngày) & Thời điểm hiển thị \\ \hline
-\multicolumn{4}{|l|}{\textbf{roomavailabilities}: lược đồ được khai báo nhưng không còn được sử dụng} \\ \hline
+\multicolumn{4}{|l|}{\textit{roomavailabilities}: lược đồ được khai báo nhưng không còn được sử dụng} \\ \hline
 }
 
 \subsection{Chỉ mục}
@@ -245,7 +245,7 @@ Thông điệp lỗi nghiệp vụ được viết bằng tiếng Việt ở má
 
 \subsection{Danh mục điểm cuối}
 
-\Cref{tab:api} liệt kê toàn bộ điểm cuối của API, được trích từ các controller. Cột ``Quyền'' dùng ký hiệu: \textbf{C} là công khai; \textbf{U} là mọi người dùng đã đăng nhập; \textbf{O} là chủ khách sạn; \textbf{A} là quản trị viên; \textbf{C$^{*}$} là công khai nhưng nhận token nếu có (gợi ý).
+\Cref{tab:api} liệt kê toàn bộ điểm cuối của API, được trích từ các controller. Cột ``Quyền'' dùng ký hiệu: C là công khai; U là mọi người dùng đã đăng nhập; O là chủ khách sạn; A là quản trị viên; C$^{*}$ là công khai nhưng nhận token nếu có (gợi ý).
 
 \begin{rtable}
 \begin{longtable}{|C{1.7cm}|L{5.6cm}|C{1.3cm}|L{6.2cm}|}
@@ -256,15 +256,15 @@ Thông điệp lỗi nghiệp vụ được viết bằng tiếng Việt ở má
 \hline
 \thead{Phương thức} & \thead{Đường dẫn} & \thead{Quyền} & \thead{Chức năng} \\ \hline
 \endhead
-\multicolumn{4}{|l|}{\textbf{Xác thực -- \code{/auth}}} \\ \hline
+\multicolumn{4}{|l|}{\textit{Xác thực -- \code{/auth}}} \\ \hline
 POST & \code{/auth/register} & C & Đăng ký, trả cặp token \\ \hline
 POST & \code{/auth/login} & C & Đăng nhập email -- mật khẩu \\ \hline
 POST & \code{/auth/social} & C & Đăng nhập Google/Apple bằng ID token \\ \hline
 POST & \code{/auth/refresh} & C & Xoay vòng refresh token \\ \hline
-POST & \code{/auth/logout} & U & Thu hồi refresh token \\ \hline
+POST & \code{/auth/logout} & C & Thu hồi refresh token gửi trong thân yêu cầu \\ \hline
 POST & \code{/auth/forgot-password} & C & Gửi mã khôi phục qua dịch vụ email \\ \hline
 POST & \code{/auth/reset-password} & C & Đặt mật khẩu mới bằng mã \\ \hline
-\multicolumn{4}{|l|}{\textbf{Người dùng và tài khoản}} \\ \hline
+\multicolumn{4}{|l|}{\textit{Người dùng và tài khoản}} \\ \hline
 GET, PUT & \code{/users/me} & U & Xem, cập nhật hồ sơ \\ \hline
 GET & \code{/account/favorites} & U & Danh sách yêu thích \\ \hline
 PUT, DELETE & \code{/account/favorites/:id} & U & Thêm, bỏ yêu thích \\ \hline
@@ -274,7 +274,7 @@ GET & \code{/account/support/all} & A & Mọi yêu cầu hỗ trợ \\ \hline
 POST & \code{/account/support/:id/reply} & A & Trả lời yêu cầu hỗ trợ \\ \hline
 GET & \code{/notifications} & U & Thông báo (phân trang) \\ \hline
 POST & \code{/notifications/:id/read, /notifications/read-all} & U & Đánh dấu đã đọc \\ \hline
-\multicolumn{4}{|l|}{\textbf{Khách sạn và loại phòng}} \\ \hline
+\multicolumn{4}{|l|}{\textit{Khách sạn và loại phòng}} \\ \hline
 GET & \code{/hotels} & C & Tìm kiếm, lọc, sắp xếp, phân trang \\ \hline
 GET & \code{/hotels/:id} & C & Chi tiết khách sạn đã duyệt \\ \hline
 POST & \code{/hotels} & O, A & Tạo khách sạn (DRAFT) \\ \hline
@@ -286,7 +286,7 @@ GET & \code{/room-types/hotel/:hotelId?checkIn\&checkOut} & C & Loại phòng, k
 POST & \code{/room-types/hotel/:hotelId} & O, A & Tạo loại phòng \\ \hline
 PUT, DELETE & \code{/room-types/:id} & O, A & Cập nhật (kiểm tra số phòng đã bán), ngừng bán \\ \hline
 GET & \code{/room-types/:id/availability?start\&end} & U & Số phòng trống từng ngày (tối đa 90 ngày) \\ \hline
-\multicolumn{4}{|l|}{\textbf{Đặt phòng và thanh toán}} \\ \hline
+\multicolumn{4}{|l|}{\textit{Đặt phòng và thanh toán}} \\ \hline
 POST & \code{/bookings (tiêu đề Idempotency-Key)} & U & Tạo đặt phòng, giữ 15 phút \\ \hline
 GET & \code{/bookings?status} & U & Đặt phòng của tôi \\ \hline
 GET & \code{/bookings/:id} & U & Chi tiết (khách, chủ khách sạn hoặc quản trị viên) \\ \hline
@@ -297,7 +297,7 @@ POST & \code{/bookings/:id/check-in, /check-out} & O & Nhận phòng, trả phò
 POST & \code{/payments} & U & Tạo hoặc lấy lại liên kết payOS \\ \hline
 POST & \code{/payments/webhooks/payos} & C (ký số) & Webhook của payOS \\ \hline
 GET & \code{/payments, /payments/:id, /payments/booking/:id} & U & Thanh toán của tôi \\ \hline
-\multicolumn{4}{|l|}{\textbf{Đánh giá}} \\ \hline
+\multicolumn{4}{|l|}{\textit{Đánh giá}} \\ \hline
 GET & \code{/reviews/hotel/:hotelId} & C & Đánh giá đang hiển thị \\ \hline
 POST & \code{/reviews} & U & Tạo đánh giá sau lưu trú \\ \hline
 GET & \code{/reviews/my-reviews} & U & Đánh giá của tôi \\ \hline
@@ -305,34 +305,34 @@ POST & \code{/reviews/:id/helpful} & U & Đánh dấu hữu ích \\ \hline
 GET & \code{/reviews/owner} & O, A & Đánh giá về khách sạn của tôi \\ \hline
 POST & \code{/reviews/:id/reply} & O, A & Phản hồi đánh giá \\ \hline
 POST & \code{/reviews/:id/hide} & A & Ẩn đánh giá, tính lại điểm \\ \hline
-\multicolumn{4}{|l|}{\textbf{Chủ khách sạn -- \code{/owners}}} \\ \hline
+\multicolumn{4}{|l|}{\textit{Chủ khách sạn -- \code{/owners}}} \\ \hline
 POST & \code{/owners/apply} & U & Đăng ký làm chủ khách sạn \\ \hline
 GET & \code{/owners/dashboard} & O, A & Thống kê tổng quan \\ \hline
 GET & \code{/owners/bookings} & O, A & Mọi đặt phòng của các khách sạn của tôi \\ \hline
 GET & \code{/owners/hotels/:hotelId/bookings} & O, A & Đặt phòng của một khách sạn \\ \hline
 GET & \code{/owners/revenue?year} & O, A & Doanh thu theo tháng \\ \hline
-\multicolumn{4}{|l|}{\textbf{Quản trị -- \code{/admin} (toàn bộ yêu cầu vai trò A)}} \\ \hline
+\multicolumn{4}{|l|}{\textit{Quản trị -- \code{/admin} (toàn bộ yêu cầu vai trò A)}} \\ \hline
 GET & \code{/admin/stats} & A & Thống kê hệ thống \\ \hline
-GET & /admin/users?page\&search\&role & A & Tìm kiếm người dùng \\ \hline
+GET & \code{/admin/users?page\&search\&role} & A & Tìm kiếm người dùng \\ \hline
 POST & \code{/admin/users/:id/suspend, /activate} & A & Khóa, mở khóa \\ \hline
 GET & \code{/admin/owners, /admin/owners/pending} & A & Hồ sơ chủ khách sạn \\ \hline
 POST & \code{/admin/owners/:id/approve, /reject} & A & Duyệt, từ chối \\ \hline
 GET & \code{/admin/hotels, /admin/hotels/pending} & A & Khách sạn \\ \hline
 POST & \code{/admin/hotels/:id/approve, /reject} & A & Duyệt, từ chối kèm lý do \\ \hline
 GET & \code{/admin/bookings, /payments, /reviews, /audit-logs} & A & Giám sát (tối đa 200 bản ghi gần nhất) \\ \hline
-\multicolumn{4}{|l|}{\textbf{Gợi ý -- \code{/recommendations}}} \\ \hline
+\multicolumn{4}{|l|}{\textit{Gợi ý -- \code{/recommendations}}} \\ \hline
 GET & \code{/recommendations?sessionId\&destination\&}\ldots & C$^{*}$ & Danh sách gợi ý và thông tin xếp hạng \\ \hline
 POST & \code{/recommendations/impressions} & C$^{*}$ & Ghi lượt hiển thị (tối đa 8 ứng viên) \\ \hline
 POST & \code{/recommendations/views} & C$^{*}$ & Ghi lượt mở chi tiết \\ \hline
 DELETE & \code{/recommendations/views?sessionId} & C$^{*}$ & Xóa lịch sử gợi ý của tác nhân \\ \hline
-\multicolumn{4}{|l|}{\textbf{Vận hành}} \\ \hline
+\multicolumn{4}{|l|}{\textit{Vận hành}} \\ \hline
 GET & \code{/health} & C & Kiểm tra sức khỏe (ngoài tiền tố /api) \\ \hline
 \end{longtable}
 \end{rtable}
 
 \subsection{Tìm kiếm và lọc ứng viên}\label{sec:search-design}
 
-Lớp \code{CatalogFilter} được hai điểm cuối \code{GET /hotels} và \code{GET /recommendations} dùng chung cho các tham số giá tối thiểu, giá tối đa, số khách, điểm tối thiểu, ngày nhận và ngày trả. Khi có bất kỳ tham số liên quan tới phòng, hàm \code{eligibleRooms} thực hiện ba bước: (i) tìm loại phòng đang bán, có sức chứa đủ và giá nằm trong khoảng; (ii) nếu có khoảng ngày, đọc các đặt phòng chồng lấn đang chiếm tồn kho; (iii) giữ lại loại phòng còn ít nhất một phòng ở mọi đêm. Một khách sạn được giữ lại khi còn ít nhất một loại phòng thỏa điều kiện.
+Việc tìm kiếm khách sạn và việc gợi ý (hai điểm cuối \code{GET /hotels} và \code{GET /recommendations}) dùng chung lớp \code{CatalogFilter} cho các tham số giá tối thiểu, giá tối đa, số khách, điểm tối thiểu, ngày nhận và ngày trả. Khi có bất kỳ tham số liên quan tới phòng, hàm \code{eligibleRooms} thực hiện ba bước: (i) tìm loại phòng đang bán, có sức chứa đủ và giá nằm trong khoảng; (ii) nếu có khoảng ngày, đọc các đặt phòng chồng lấn đang chiếm tồn kho; (iii) giữ lại loại phòng còn ít nhất một phòng ở mọi đêm. Một khách sạn được giữ lại khi còn ít nhất một loại phòng thỏa điều kiện.
 
 Với điểm tối thiểu, khách sạn có đánh giá đã xác minh được so bằng \code{averageRating}; khách sạn chưa có đánh giá xác minh được so bằng điểm biên tập. Từ khóa điểm đến được thoát ký tự đặc biệt của biểu thức chính quy trước khi dùng, để tránh truy vấn có chi phí bất thường. Kết quả sắp theo điểm, hoặc theo giá thấp nhất khi người dùng chọn sắp xếp theo giá. Mỗi trang có tối đa 100 phần tử.
 

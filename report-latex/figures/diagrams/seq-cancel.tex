@@ -1,0 +1,26 @@
+\begin{seqdiagram}
+  \participant{app}{0}{Khách (iOS)}
+  \participant{svc}{3.3}{Bookings-\\Service}
+  \participant{db}{6.6}{MongoDB}
+  \participant{pay}{9.9}{Payments-\\Service}
+  \participant{own}{13.1}{Chủ khách sạn / quản trị}
+  \msg{app}{svc}{POST /bookings/:id/cancel (lý do)}
+  \msg{svc}{db}{đọc đặt phòng, kiểm tra người đặt}
+  \fragopen{app}{own}{alt}{[đã CANCELLED hoặc CANCEL\_REQUESTED]}
+  \ret{svc}{app}{trả lại đặt phòng (lũy đẳng)}
+  \fragelse{[PENDING\_PAYMENT]}
+  \msg{svc}{db}{cập nhật có điều kiện $\rightarrow$ CANCELLED, giải phóng tồn kho}
+  \msg{svc}{pay}{cancelPendingCheckout (lỗi chỉ ghi cảnh báo)}
+  \fragelse{[CONFIRMED]}
+  \msg{svc}{db}{cập nhật có điều kiện $\rightarrow$ CANCEL\_REQUESTED, vẫn giữ tồn kho}
+  \fragclose
+  \ret{svc}{app}{đặt phòng sau khi hủy}
+  \msg{own}{svc}{POST /bookings/:id/resolve-cancellation}
+  \msg{svc}{db}{sở hữu khách sạn? có thanh toán COMPLETED?}
+  \fragopen{app}{own}{alt}{[đã có thanh toán trực tuyến hoàn tất]}
+  \ret{svc}{own}{400: cần hoàn tiền với nhà cung cấp trước}
+  \fragelse{[chưa thanh toán trực tuyến]}
+  \msg{svc}{db}{CANCEL\_REQUESTED $\rightarrow$ CANCELLED, refundAmount = 0}
+  \ret{svc}{own}{200 CANCELLED}
+  \fragclose
+\end{seqdiagram}

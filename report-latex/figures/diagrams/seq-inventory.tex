@@ -1,0 +1,20 @@
+\begin{seqdiagram}
+  \participant{own}{0}{Chủ khách sạn (web)}
+  \participant{guard}{3.3}{JwtAuth + Roles Guard}
+  \participant{svc}{6.6}{RoomTypes-\\Service}
+  \participant{db}{9.9}{MongoDB (giao dịch)}
+  \msg{own}{guard}{PUT /room-types/:id (giá, sức chứa, totalRooms)}
+  \msg{guard}{svc}{role = OWNER hoặc ADMIN}
+  \msg{svc}{db}{bắt đầu giao dịch}
+  \msg{svc}{db}{\$inc inventoryVersion của loại phòng}
+  \msg{svc}{db}{khách sạn có thuộc chủ này?}
+  \msg{svc}{db}{nếu giảm totalRooms: đặt phòng tương lai đang chiếm tồn kho}
+  \self{svc}{đếm phòng đã đặt tại mỗi mốc ngày}
+  \fragopen{own}{db}{alt}{[số phòng đã đặt vượt totalRooms mới]}
+  \msg{svc}{db}{hủy giao dịch}
+  \ret{svc}{own}{400: số phòng mới nhỏ hơn số đã đặt}
+  \fragelse{[hợp lệ]}
+  \msg{svc}{db}{lưu loại phòng, commit}
+  \ret{svc}{own}{200 loại phòng đã cập nhật}
+  \fragclose
+\end{seqdiagram}

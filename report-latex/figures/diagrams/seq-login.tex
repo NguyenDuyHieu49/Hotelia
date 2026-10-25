@@ -20,7 +20,7 @@
   \fragelse{[đúng mật khẩu]}
   \msg{users}{db}{đặt lại đếm sai, lastLoginAt}
   \self{auth}{ký access (15 phút), refresh (7 ngày)}
-  \msg{users}{db}{lưu bcrypt(refreshToken)}
+  \msg{users}{db}{lưu SHA-256(refreshToken)}
   \ret{auth}{app}{200 \{user, accessToken, refreshToken\}}
   \msg{app}{kc}{lưu hai token}
   \fragclose

@@ -1,0 +1,18 @@
+\begin{seqdiagram}
+  \participant{view}{0}{Weather-\\ViewModel}
+  \participant{svc}{3.6}{Weather-\\Service}
+  \participant{cache}{7.2}{UserDefaults (bộ đệm)}
+  \participant{api}{10.8}{Open-Meteo}
+  \msg{view}{svc}{forecasts(forceRefresh)}
+  \msg{svc}{cache}{đọc bộ đệm và thời điểm lưu}
+  \fragopen{view}{api}{alt}{[bộ đệm dưới 30 phút và không ép tải lại]}
+  \ret{svc}{view}{dự báo từ bộ đệm}
+  \fragelse{[cần tải mới]}
+  \msg{svc}{api}{GET /v1/forecast, một yêu cầu cho mọi thành phố (tối đa 12 giây)}
+  \ret{api}{svc}{thời tiết hiện tại và 4 ngày tới}
+  \msg{svc}{cache}{lưu bộ đệm}
+  \ret{svc}{view}{dự báo mới}
+  \fragelse{[Open-Meteo lỗi]}
+  \ret{svc}{view}{bộ đệm dưới 6 giờ, nếu không có thì báo lỗi}
+  \fragclose
+\end{seqdiagram}

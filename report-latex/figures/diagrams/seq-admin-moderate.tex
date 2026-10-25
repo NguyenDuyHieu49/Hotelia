@@ -1,0 +1,19 @@
+\begin{seqdiagram}
+  \participant{web}{0}{Bảng điều khiển quản trị}
+  \participant{guard}{3.3}{JwtAuth + Roles Guard}
+  \participant[29mm]{svc}{6.6}{AdminService,\\ReviewsService}
+  \participant{db}{9.9}{MongoDB}
+  \participant{audit}{13.1}{Audit-\\Interceptor}
+  \msg{web}{guard}{POST /admin/users/:id/suspend}
+  \msg{guard}{svc}{role = ADMIN; suspendUser(id)}
+  \msg{svc}{db}{isActive = false}
+  \ret{svc}{web}{người dùng, đã bỏ passwordHash và refresh token}
+  \msg{audit}{db}{audit\_logs: actorId, role, method, path}
+  \msg{web}{guard}{POST /reviews/:id/hide}
+  \msg{guard}{svc}{role = ADMIN; hideReview(id)}
+  \msg{svc}{db}{giao dịch: reviewVersion + 1, isVisible = false}
+  \msg{svc}{db}{tính lại reviewCount, averageRating từ đánh giá đang hiện}
+  \ret{svc}{web}{đánh giá đã ẩn}
+  \msg{audit}{db}{ghi nhật ký thao tác}
+  \seqnotew{svc}{58mm}{Yêu cầu kế tiếp của tài khoản bị khóa bị JwtStrategy từ chối với 401.}
+\end{seqdiagram}

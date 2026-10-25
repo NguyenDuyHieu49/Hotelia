@@ -1,0 +1,17 @@
+\begin{seqdiagram}
+  \participant{web}{0}{Bảng điều khiển quản trị}
+  \participant{guard}{3.3}{JwtAuth + Roles Guard}
+  \participant{ctl}{6.6}{Admin-\\Controller}
+  \participant{svc}{9.9}{Admin-\\Service}
+  \participant{db}{13.1}{MongoDB}
+  \msg{web}{guard}{GET /admin/stats}
+  \msg{guard}{ctl}{role = ADMIN}
+  \msg{ctl}{svc}{getStats()}
+  \msg{svc}{db}{đếm song song 5 chỉ số}
+  \ret{svc}{web}{số liệu tổng quan}
+  \msg{web}{guard}{GET /admin/audit-logs}
+  \msg{guard}{ctl}{role = ADMIN}
+  \msg{ctl}{svc}{auditLogs()}
+  \msg{svc}{db}{200 bản ghi mới nhất}
+  \ret{svc}{web}{nhật ký thao tác}
+\end{seqdiagram}

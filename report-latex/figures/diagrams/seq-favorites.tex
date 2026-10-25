@@ -1,0 +1,21 @@
+\begin{seqdiagram}
+  \participant{app}{0}{FavoritesStore (iOS)}
+  \participant{ctl}{3.3}{Account-\\Controller}
+  \participant{svc}{6.6}{Account-\\Service}
+  \participant{db}{9.9}{MongoDB}
+  \msg{app}{ctl}{GET /account/favorites}
+  \msg{ctl}{svc}{favorites(userId)}
+  \msg{svc}{db}{favorites của người dùng, chỉ khách sạn PUBLISHED}
+  \ret{svc}{app}{danh sách khách sạn đã lưu}
+  \self{app}{toggle(hotel): bỏ qua nếu đang xử lý khách sạn này}
+  \fragopen{app}{db}{alt}{[chưa lưu]}
+  \msg{app}{ctl}{PUT /account/favorites/:id}
+  \msg{svc}{db}{khách sạn PUBLISHED? upsert \_id = userId:hotelId}
+  \ret{svc}{app}{saved = true}
+  \fragelse{[đã lưu]}
+  \msg{app}{ctl}{DELETE /account/favorites/:id}
+  \msg{svc}{db}{xóa \_id = userId:hotelId}
+  \ret{svc}{app}{saved = false}
+  \fragclose
+  \self{app}{chỉ cập nhật danh sách khi máy chủ trả thành công}
+\end{seqdiagram}

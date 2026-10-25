@@ -106,11 +106,11 @@ Về dữ liệu, danh mục gồm 20 khách sạn có tên, địa chỉ, mô t
 Đề tài sử dụng kết hợp các phương pháp sau.
 
 \begin{itemize}
-\item \textbf{Nghiên cứu tài liệu.} Tổng hợp các tiêu chuẩn và tài liệu chính thức về HTTP, JWT, OAuth 2.0, OpenID Connect, MongoDB, payOS, và các công trình gốc về gradient boosting, LambdaRank, MRR, NDCG \cite{rfc9110,rfc7519,rfc6749,oidc,mongodbtx,payosdocs,friedman2001,burges2010,jarvelin2002,voorhees1999}.
-\item \textbf{Phân tích và thiết kế hướng đối tượng.} Mô hình hóa yêu cầu bằng biểu đồ ca sử dụng, hoạt động, tuần tự, trạng thái, thành phần và triển khai theo UML \cite{fowler2003uml}.
-\item \textbf{Phát triển lặp.} Hệ thống được xây dựng qua nhiều vòng nhỏ, mỗi vòng kết thúc bằng một commit có kiểm thử. Đến ngày 24/10/2026, kho mã có 102 commit: 39 commit trong tháng 5, 2 commit trong tháng 6, 46 commit trong tháng 9 và 15 commit trong tháng 10 năm 2026.
-\item \textbf{Kiểm thử tự động và kiểm thử thủ công.} Các quy tắc nghiệp vụ được viết thành ca kiểm thử Jest (TypeScript) và pytest (Python). Tình huống tranh chấp được kiểm thử trên MongoDB thật chạy dưới dạng replica set. Giao diện được kiểm thử thủ công trên iOS Simulator ở cả hai ngôn ngữ và trên trình duyệt ở ba kích thước màn hình.
-\item \textbf{Thực nghiệm ngoại tuyến (offline).} Mô hình gợi ý được huấn luyện và đánh giá trên tập dữ liệu sinh có kiểm soát, so sánh với đường cơ sở chất lượng, bộ xếp hạng theo nội dung và mức trần (oracle) của chính tập dữ liệu.
+\item Nghiên cứu tài liệu. Tổng hợp các tiêu chuẩn và tài liệu chính thức về HTTP, JWT, OAuth 2.0, OpenID Connect, MongoDB, payOS, và các công trình gốc về gradient boosting, LambdaRank, MRR, NDCG \cite{rfc9110,rfc7519,rfc6749,oidc,mongodbtx,payosdocs,friedman2001,burges2010,jarvelin2002,voorhees1999}.
+\item Phân tích và thiết kế hướng đối tượng. Mô hình hóa yêu cầu bằng biểu đồ ca sử dụng, hoạt động, tuần tự, trạng thái, thành phần và triển khai theo UML \cite{fowler2003uml}.
+\item Phát triển lặp. Hệ thống được xây dựng qua nhiều vòng nhỏ, mỗi vòng kết thúc bằng một commit có kiểm thử. Đến ngày 24/10/2026, kho mã có 102 commit: 39 commit trong tháng 5, 2 commit trong tháng 6, 46 commit trong tháng 9 và 15 commit trong tháng 10 năm 2026.
+\item Kiểm thử tự động và kiểm thử thủ công. Các quy tắc nghiệp vụ được viết thành ca kiểm thử Jest (TypeScript) và pytest (Python). Tình huống tranh chấp được kiểm thử trên MongoDB thật chạy dưới dạng replica set. Giao diện được kiểm thử thủ công trên iOS Simulator ở cả hai ngôn ngữ và trên trình duyệt ở ba kích thước màn hình.
+\item Thực nghiệm ngoại tuyến (offline). Mô hình gợi ý được huấn luyện và đánh giá trên tập dữ liệu sinh có kiểm soát, so sánh với đường cơ sở chất lượng, bộ xếp hạng theo nội dung và mức trần (oracle) của chính tập dữ liệu.
 \end{itemize}
 
 \section{Đóng góp của đề tài}\label{sec:contrib}
@@ -129,9 +129,9 @@ Về mặt sản phẩm, đề tài đóng góp một nền tảng đặt phòng
 Báo cáo gồm phần mở đầu, năm chương nội dung, phần kết luận và tài liệu tham khảo:
 
 \begin{itemize}
-\item \textbf{\Cref{chap:overview}} -- Tổng quan đề tài: lý do, bối cảnh, mục tiêu, phạm vi, phương pháp và đóng góp.
-\item \textbf{\Cref{chap:theory}} -- Cơ sở lý thuyết và công nghệ: nghiệp vụ đặt phòng; SwiftUI, MVVM, React, NestJS, MongoDB, REST; JWT, refresh token, OAuth, RBAC; payOS và webhook có chữ ký; hệ gợi ý, học xếp hạng, LightGBM LambdaRank, MRR, NDCG.
-\item \textbf{\Cref{chap:design}} -- Phân tích và thiết kế hệ thống: yêu cầu, tác nhân, ca sử dụng, quy tắc nghiệp vụ, kiến trúc, cơ sở dữ liệu, API, đường ống gợi ý và giao diện.
-\item \textbf{\Cref{chap:implementation}} -- Cài đặt hệ thống: môi trường, cấu trúc mã nguồn, cài đặt iOS, máy chủ, web, xác thực, thanh toán, máy trạng thái, gợi ý và triển khai.
-\item \textbf{\Cref{chap:evaluation}} -- Kiểm thử, đánh giá và hướng phát triển.
+\item \Cref{chap:overview} -- Tổng quan đề tài: lý do, bối cảnh, mục tiêu, phạm vi, phương pháp và đóng góp.
+\item \Cref{chap:theory} -- Cơ sở lý thuyết và công nghệ: nghiệp vụ đặt phòng; SwiftUI, MVVM, React, NestJS, MongoDB, REST; JWT, refresh token, OAuth, RBAC; payOS và webhook có chữ ký; hệ gợi ý, học xếp hạng, LightGBM LambdaRank, MRR, NDCG.
+\item \Cref{chap:design} -- Phân tích và thiết kế hệ thống: yêu cầu, tác nhân, ca sử dụng, quy tắc nghiệp vụ, kiến trúc, cơ sở dữ liệu, API, đường ống gợi ý và giao diện.
+\item \Cref{chap:implementation} -- Cài đặt hệ thống: môi trường, cấu trúc mã nguồn, cài đặt iOS, máy chủ, web, xác thực, thanh toán, máy trạng thái, gợi ý và triển khai.
+\item \Cref{chap:evaluation} -- Kiểm thử, đánh giá và hướng phát triển.
 \end{itemize}

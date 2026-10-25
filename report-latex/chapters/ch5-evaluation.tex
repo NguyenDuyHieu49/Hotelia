@@ -15,11 +15,11 @@ Chương này trình bày chiến lược kiểm thử, kết quả kiểm thử
 \hline
 \thead{Mức} & \thead{Công cụ} & \thead{Phạm vi} & \thead{Số ca, kết quả} \\ \hline
 \endhead
-Đơn vị (máy chủ) & Jest 30, ts-jest & Quy tắc ngày, tồn kho, máy trạng thái, xác thực, webhook, bộ xếp hạng, cấu hình & 52 ca / 13 bộ; 52 đạt \\ \hline
-Tích hợp dịch vụ (máy chủ) & Jest với MongoDB giả lập trong bộ nhớ & BookingsService, PaymentsService, RecommendationsService, luồng trả tại khách sạn & (nằm trong 52 ca) \\ \hline
+Đơn vị (máy chủ) & Jest 30, ts-jest & Quy tắc ngày, tồn kho, máy trạng thái, xác thực, webhook, bộ xếp hạng, cấu hình & 57 ca / 14 bộ; 57 đạt \\ \hline
+Tích hợp dịch vụ (máy chủ) & Jest với MongoDB giả lập trong bộ nhớ & BookingsService, PaymentsService, RecommendationsService, luồng trả tại khách sạn & (nằm trong 57 ca) \\ \hline
 Tích hợp cơ sở dữ liệu thật & Node, MongoDB 7.0 replica set (Docker) & Tranh chấp, thử lại, hết hạn, hủy, nhận/trả phòng & 1 kịch bản, 24 khẳng định; đạt \\ \hline
 Đơn vị (nghiên cứu ML) & pytest 9.1 & Đặc trưng Python, chuẩn hóa, giờ Việt Nam, ảnh chụp danh mục, pipeline Trivago & 80 ca; 80 đạt \\ \hline
-Phân quyền qua HTTP & Kịch bản Node gọi API cục bộ & Vai trò, quyền sở hữu, loại token, kiểm tra đầu vào & 13 ca; 13 đạt \\ \hline
+Phân quyền qua HTTP & Kịch bản Node gọi API cục bộ & Vai trò, quyền sở hữu, loại token, kiểm tra đầu vào, thu hồi phiên & 13 + 7 ca; 20 đạt \\ \hline
 Khả năng chịu lỗi của mô hình & Kịch bản Node trên bản sao thư mục build & Tệp mô hình hỏng, thiếu, sai đặc trưng & 6 kịch bản; 6 đạt \\ \hline
 Giao diện iOS & iOS Simulator, iPhone 17 Pro & Luồng khách đầy đủ, tiếng Việt và tiếng Anh & 18 ca thủ công (\cref{tab:test-ui}) \\ \hline
 Giao diện web & Chrome headless (Puppeteer) & 14 trang owner/admin; 3 kích thước màn hình; lỗi console, HTTP, tràn ngang & 16 ảnh; 0 lỗi tự động phát hiện \\ \hline
@@ -54,11 +54,11 @@ TC-B07 & Hai khách cùng đặt căn phòng cuối & Đúng một khách thành
 TC-B08 & Đặt khách sạn thuộc danh mục chỉ xem dù đã có loại phòng & Từ chối & Đạt \\ \hline
 TC-B09 & Hủy đặt phòng CONFIRMED & CANCEL\_REQUESTED, vẫn giữ tồn kho tới khi chủ khách sạn xác nhận & Đạt \\ \hline
 TC-B10 & Giữ phòng, thử lại, trả tại khách sạn, nhận phòng, trả phòng & Chuỗi trạng thái đúng; thao tác lặp lại lũy đẳng & Đạt \\ \hline
-TC-D01 & \textbf{MongoDB thật}: hai khách gửi đồng thời (\code{Promise.allSettled}) cho loại phòng còn 1 phòng & 1 thành công; tổng số đặt phòng = 1 & Đạt \\ \hline
-TC-D02 & \textbf{MongoDB thật}: gửi lại cùng khóa; hai yêu cầu cùng khóa đồng thời; cùng khóa khác nội dung & Cùng một đặt phòng; không tạo thêm; lỗi ``nội dung khác'' & Đạt \\ \hline
-TC-D03 & \textbf{MongoDB thật}: giữ phòng hết hạn; gửi lại khóa cũ; xác nhận trả tại khách sạn sau khi hết hạn & Trả về EXPIRED; từ chối xác nhận & Đạt \\ \hline
-TC-D04 & \textbf{MongoDB thật}: hủy giữ chỗ; xác nhận rồi hủy; đặt lại trước và sau khi chủ khách sạn xác nhận hủy & Phòng bị giữ khi CANCEL\_REQUESTED; trống lại sau khi CANCELLED & Đạt \\ \hline
-TC-D05 & \textbf{MongoDB thật}: người không sở hữu nhận phòng; chủ khách sạn nhận/trả phòng hai lần; đặt chồng ngày lưu trú & 403; lũy đẳng; hết phòng & Đạt \\ \hline
+TC-D01 & MongoDB thật: hai khách gửi đồng thời (\code{Promise.allSettled}) cho loại phòng còn 1 phòng & 1 thành công; tổng số đặt phòng = 1 & Đạt \\ \hline
+TC-D02 & MongoDB thật: gửi lại cùng khóa; hai yêu cầu cùng khóa đồng thời; cùng khóa khác nội dung & Cùng một đặt phòng; không tạo thêm; lỗi ``nội dung khác'' & Đạt \\ \hline
+TC-D03 & MongoDB thật: giữ phòng hết hạn; gửi lại khóa cũ; xác nhận trả tại khách sạn sau khi hết hạn & Trả về EXPIRED; từ chối xác nhận & Đạt \\ \hline
+TC-D04 & MongoDB thật: hủy giữ chỗ; xác nhận rồi hủy; đặt lại trước và sau khi chủ khách sạn xác nhận hủy & Phòng bị giữ khi CANCEL\_REQUESTED; trống lại sau khi CANCELLED & Đạt \\ \hline
+TC-D05 & MongoDB thật: người không sở hữu nhận phòng; chủ khách sạn nhận/trả phòng hai lần; đặt chồng ngày lưu trú & 403; lũy đẳng; hết phòng & Đạt \\ \hline
 \end{longtable}
 \end{rtable}
 
@@ -84,7 +84,7 @@ Luồng đặt phòng được thực hiện đầy đủ trên Simulator với 
 
 \subsection{Xác thực}
 
-\Cref{tab:test-auth} là các ca kiểm thử tự động của xác thực và cấu hình bảo mật. TC-A05 đến TC-A08 được bổ sung khi sửa lỗi refresh token dùng được như access token (\cref{sec:impl-auth}).
+\Cref{tab:test-auth} là các ca kiểm thử tự động của xác thực và cấu hình bảo mật. TC-A05 đến TC-A08 được bổ sung khi sửa lỗi refresh token dùng được như access token; TC-A13 đến TC-A17 được bổ sung khi sửa cách lưu và thu hồi refresh token (\cref{sec:impl-auth}).
 
 \begin{rtable}
 \begin{longtable}{|C{1.4cm}|L{8.0cm}|L{3.6cm}|C{1.6cm}|}
@@ -107,6 +107,11 @@ TC-A09 & Cấu hình phát triển hợp lệ & Khởi động & Đạt \\ \hlin
 TC-A10 & Thiếu \code{MONGODB\_URI} hoặc \code{JWT\_SECRET} & Từ chối khởi động & Đạt \\ \hline
 TC-A11 & \code{JWT\_SECRET} dạng mẫu ở môi trường vận hành & Từ chối khởi động & Đạt \\ \hline
 TC-A12 & Môi trường vận hành không khai báo \code{CORS\_ORIGINS} & Từ chối khởi động & Đạt \\ \hline
+TC-A13 & Hai refresh token của cùng người dùng (giống nhau ở 72 byte đầu); xoay vòng sang token mới & Token cũ bị từ chối & Đạt \\ \hline
+TC-A14 & Thu hồi phiên rồi dùng lại refresh token & Từ chối & Đạt \\ \hline
+TC-A15 & Bản băm bcrypt lưu trước bản sửa & Vẫn chấp nhận tới lần xoay vòng kế tiếp & Đạt \\ \hline
+TC-A16 & Đăng xuất bằng refresh token hợp lệ & Xóa bản băm phiên & Đạt \\ \hline
+TC-A17 & Đăng xuất bằng access token, token cũ hoặc token giả & Trả cùng thông báo, không thu hồi & Đạt \\ \hline
 \end{longtable}
 \end{rtable}
 
@@ -140,6 +145,29 @@ A13 & OWNER xem chi tiết đặt phòng tại khách sạn không sở hữu & 
 \end{rtable}
 
 Ca A11 cho thấy \code{ValidationPipe} với \code{forbidNonWhitelisted} chặn tấn công gán hàng loạt (mass assignment): người dùng không thể tự nâng vai trò bằng cách gửi thêm trường \code{role}.
+
+\subsection{Phiên đăng nhập}
+
+\Cref{tab:test-session} kiểm tra việc xoay vòng và thu hồi refresh token, cùng chức năng xóa lịch sử gợi ý, trên cùng máy chủ cục bộ. Lần chạy đầu, ca S2 không đạt: lần đăng nhập và lần làm mới diễn ra trong cùng một giây nên máy chủ phát lại đúng refresh token cũ. Sau khi thêm claim \code{jti} ngẫu nhiên, cả bảy ca đều đạt.
+
+\begin{rtable}
+\begin{longtable}{|C{1.0cm}|L{11.0cm}|C{1.8cm}|}
+\caption{Ca kiểm thử phiên đăng nhập và xóa lịch sử gợi ý}\label{tab:test-session}\\
+\hline
+\thead{Mã} & \thead{Kịch bản} & \thead{Kết quả} \\ \hline
+\endfirsthead
+\hline
+\thead{Mã} & \thead{Kịch bản} & \thead{Kết quả} \\ \hline
+\endhead
+S1 & Làm mới phiên bằng refresh token hiện tại & Đạt \\ \hline
+S2 & Refresh token cũ bị từ chối sau khi xoay vòng & Đạt \\ \hline
+S3 & Đăng xuất chỉ với refresh token (không có access token) trả 200 & Đạt \\ \hline
+S4 & Refresh token đã thu hồi không làm mới được phiên & Đạt \\ \hline
+S5 & Đăng xuất với token giả vẫn trả 200, không lộ thông tin & Đạt \\ \hline
+S6 & Gửi access token tới \code{/auth/logout} không thu hồi phiên & Đạt \\ \hline
+S7 & Sau khi xóa lịch sử gợi ý, gợi ý không còn được cá nhân hóa & Đạt \\ \hline
+\end{longtable}
+\end{rtable}
 
 \subsection{Thanh toán và webhook}
 
@@ -189,18 +217,18 @@ UI-02 & Đăng nhập email, mật khẩu & Vào Khám phá; hộp thoại lưu 
 UI-03 & Khám phá: tìm kiếm, thời tiết 8 thành phố & Đúng & Đạt \\ \hline
 UI-04 & Đề xuất cho bạn với tài khoản có lịch sử & Mô tả ``Dựa trên khách sạn bạn đã xem và booking đã xác nhận'' & Đạt \\ \hline
 UI-05 & Chi tiết khách sạn; tách đánh giá xác minh và nhận xét biên tập & Đúng & Đạt \\ \hline
-UI-06 & Phản hồi của chủ khách sạn dưới đánh giá & \textbf{Lỗi}: ứng dụng không hiển thị phản hồi. Đã sửa: thêm \code{ownerReply} vào Model và thẻ đánh giá & Đạt sau sửa \\ \hline
-UI-07 & Màn đặt phòng với ngày tiếng Việt & \textbf{Lỗi}: nội dung tràn khỏi màn hình, lệch trái. Nguyên nhân: hai DatePicker cạnh nhau rộng $\approx$ 408 điểm $>$ 402 điểm. Đã sửa: xếp dọc, giới hạn chiều rộng ảnh phòng & Đạt sau sửa \\ \hline
+UI-06 & Phản hồi của chủ khách sạn dưới đánh giá & Lỗi: ứng dụng không hiển thị phản hồi. Đã sửa: thêm \code{ownerReply} vào Model và thẻ đánh giá & Đạt sau sửa \\ \hline
+UI-07 & Màn đặt phòng với ngày tiếng Việt & Lỗi: nội dung tràn khỏi màn hình, lệch trái. Nguyên nhân: hai DatePicker cạnh nhau rộng $\approx$ 408 điểm $>$ 402 điểm. Đã sửa: xếp dọc, giới hạn chiều rộng ảnh phòng & Đạt sau sửa \\ \hline
 UI-08 & Giữ phòng, trả tại khách sạn & Trạng thái chuyển đúng & Đạt \\ \hline
 UI-09 & payOS khi chưa cấu hình & Thông báo rõ ràng, không tạo đơn & Đạt \\ \hline
 UI-10 & Lịch sử: lọc Tất cả, Sắp tới, Đã xong, Đã hủy & Đúng & Đạt \\ \hline
-UI-11 & Đổi ngôn ngữ sang tiếng Anh & \textbf{Lỗi}: tiêu đề và thẻ đã dựng vẫn tiếng Việt tới khi khởi động lại. Đã sửa: \code{.id(appLanguage)} & Đạt sau sửa \\ \hline
-UI-12 & Trạng thái EXPIRED tiếng Anh & \textbf{Lỗi}: hiển thị nguyên ``EXPIRED''; thiếu cả CANCEL\_REQUESTED. Đã sửa nhãn trạng thái & Đạt sau sửa \\ \hline
+UI-11 & Đổi ngôn ngữ sang tiếng Anh & Lỗi: tiêu đề và thẻ đã dựng vẫn tiếng Việt tới khi khởi động lại. Đã sửa: \code{.id(appLanguage)} & Đạt sau sửa \\ \hline
+UI-12 & Trạng thái EXPIRED tiếng Anh & Lỗi: hiển thị nguyên ``EXPIRED''; thiếu cả CANCEL\_REQUESTED. Đã sửa nhãn trạng thái & Đạt sau sửa \\ \hline
 UI-13 & Định dạng số theo ngôn ngữ & ``520.933'' (vi), ``520,933'' (en) & Đạt \\ \hline
 UI-14 & Nội dung dữ liệu khi chọn tiếng Anh & Mô tả, nhận xét biên tập vẫn tiếng Việt & Giới hạn dữ liệu \\ \hline
 UI-15 & Bảng điều khiển 1440$\times$900: 14 trang & Không lỗi console, không lỗi HTTP, không tràn ngang & Đạt \\ \hline
 UI-16 & Bảng điều khiển 390$\times$844 (điện thoại) và 768$\times$1024 (máy tính bảng) & Không tràn ngang (\cref{fig:web-responsive}) & Đạt \\ \hline
-UI-17 & Nhãn tiếng Anh lẫn trong bảng điều khiển & \textbf{Lỗi}: ``Hotel Owners'', vai trò ``User/Owner/Admin''. Đã Việt hóa & Đạt sau sửa \\ \hline
+UI-17 & Nhãn tiếng Anh lẫn trong bảng điều khiển & Lỗi: ``Hotel Owners'', vai trò ``User/Owner/Admin''. Đã Việt hóa & Đạt sau sửa \\ \hline
 UI-18 & Bảng điều khiển bằng tiếng Anh & Chưa có & Giới hạn \\ \hline
 \end{longtable}
 \end{rtable}
@@ -279,7 +307,7 @@ M6 & Tệp bị xóa & không & dự phòng & ENOENT \\ \hline
 
 \subsection{Thiết lập}
 
-Ba phiên bản mô hình đã được huấn luyện. Cả ba dùng cùng 16 đặc trưng và mục tiêu LambdaRank, nhưng khác nhau về dữ liệu và cách đánh giá (\cref{tab:model-versions}). Mọi số liệu đều là \textbf{đánh giá ngoại tuyến trên dữ liệu sinh trước phát hành}, không phải số đo trên người dùng thật.
+Ba phiên bản mô hình đã được huấn luyện. Cả ba dùng cùng 16 đặc trưng và mục tiêu LambdaRank, nhưng khác nhau về dữ liệu và cách đánh giá (\cref{tab:model-versions}). Mọi số liệu đều là đánh giá ngoại tuyến trên dữ liệu sinh trước phát hành, không phải số đo trên người dùng thật.
 
 \begin{rtable}
 \begin{longtable}{|L{3.8cm}|L{3.5cm}|L{3.5cm}|L{3.8cm}|}
@@ -317,7 +345,7 @@ Số cây (best iteration) & 7 & 41 & 10 \\ \hline
 \multirow{2}{*}{v2} & Đường cơ sở quality\_prior & 0,373 & 0,520 & 1,000 & \multirow{2}{*}{Kiểm định} \\ \cline{2-5}
  & LightGBM & 0,539 & 0,650 & 1,000 & \\ \hline
 \multirow{4}{*}{v3} & Đường cơ sở quality\_prior & 0,286 & 0,405 & 0,796 & \multirow{4}{2.4cm}{Kiểm tra, 3.000 truy vấn} \\ \cline{2-5}
- & Bộ xếp hạng nội dung (dự phòng) & \textbf{0,416} & \textbf{0,526} & \textbf{0,879} & \\ \cline{2-5}
+ & Bộ xếp hạng nội dung (dự phòng) & 0,416 & 0,526 & 0,879 & \\ \cline{2-5}
  & LightGBM & 0,415 & 0,524 & 0,871 & \\ \cline{2-5}
  & Oracle (lợi ích kỳ vọng, không nhiễu) & 0,424 & 0,534 & 0,884 & \\ \hline
 \end{tabular}
@@ -333,9 +361,9 @@ Số cây (best iteration) & 7 & 41 & 10 \\ \hline
 \begin{tabular}{|L{2.8cm}|C{1.5cm}|C{1.8cm}|C{1.8cm}|C{1.9cm}|C{2.1cm}|C{1.6cm}|}
 \hline
 \thead{Nhóm} & \thead{Truy vấn} & \thead{Ứng viên TB} & \thead{Quality} & \thead{Nội dung} & \thead{LightGBM} & \thead{Oracle} \\ \hline
-sample\_8 & 1.311 & 8 & 0,335 & 0,519 & \textbf{0,529} & 0,537 \\ \hline
-destination & 1.106 & 8,8 & 0,363 & \textbf{0,414} & 0,407 & 0,414 \\ \hline
-full\_catalog & 583 & 100 & 0,029 & \textbf{0,190} & 0,176 & 0,191 \\ \hline
+sample\_8 & 1.311 & 8 & 0,335 & 0,519 & 0,529 & 0,537 \\ \hline
+destination & 1.106 & 8,8 & 0,363 & 0,414 & 0,407 & 0,414 \\ \hline
+full\_catalog & 583 & 100 & 0,029 & 0,190 & 0,176 & 0,191 \\ \hline
 \multicolumn{3}{|l|}{Hit@10 của nhóm full\_catalog} & 0,084 & 0,458 & 0,419 & 0,480 \\ \hline
 \end{tabular}
 \end{rtable}
@@ -357,7 +385,7 @@ full\_catalog & 583 & 100 & 0,029 & \textbf{0,190} & 0,176 & 0,191 \\ \hline
 \caption{Tỷ lệ độ lợi (gain) của từng đặc trưng trong mô hình v3}\label{fig:importance}
 \end{figure}
 
-\paragraph{Kết luận về mô hình.} Các thực nghiệm chứng minh được bốn điều: (i) đường ống huấn luyện -- xuất -- phục vụ hoạt động đầu-cuối; (ii) mã TypeScript tái hiện chính xác điểm số và đặc trưng của Python; (iii) mô hình học được quy luật có trong dữ liệu, sát giới hạn trên; (iv) cơ chế dự phòng hoạt động khi mô hình lỗi. Các thực nghiệm \textbf{không} chứng minh rằng LightGBM gợi ý tốt hơn bộ xếp hạng nội dung, cũng không chứng minh rằng gợi ý làm tăng tỷ lệ đặt phòng của người dùng thật. Hai kết luận đó chỉ có thể rút ra từ dữ liệu hành vi thật và thử nghiệm A/B (\cref{sec:future}).
+\paragraph{Kết luận về mô hình.} Các thực nghiệm chứng minh được bốn điều: (i) đường ống huấn luyện -- xuất -- phục vụ hoạt động đầu-cuối; (ii) mã TypeScript tái hiện chính xác điểm số và đặc trưng của Python; (iii) mô hình học được quy luật có trong dữ liệu, sát giới hạn trên; (iv) cơ chế dự phòng hoạt động khi mô hình lỗi. Các thực nghiệm không chứng minh rằng LightGBM gợi ý tốt hơn bộ xếp hạng nội dung, cũng không chứng minh rằng gợi ý làm tăng tỷ lệ đặt phòng của người dùng thật. Hai kết luận đó chỉ có thể rút ra từ dữ liệu hành vi thật và thử nghiệm A/B (\cref{sec:future}).
 
 \subsection{Thí nghiệm phụ trên dữ liệu Trivago}\label{sec:trivago}
 
@@ -373,7 +401,7 @@ Trước khi xây dựng mô hình cho danh mục Hotelia, đồ án thử Lambd
 B0: giữ thứ tự hiển thị gốc & 0,389 & 0,472 & 0,744 & 7.055 \\ \hline
 B1: tần suất bấm theo (thành phố, khách sạn) & 0,313 & 0,412 & 0,737 & 7.068 \\ \hline
 B2: độ phổ biến thành phố + số tiện nghi & 0,263 & 0,343 & 0,607 & 7.068 \\ \hline
-LightGBM LambdaRank (B6, 43 cây) & \textbf{0,521} & \textbf{0,597} & \textbf{0,842} & 7.055 \\ \hline
+LightGBM LambdaRank (B6, 43 cây) & 0,521 & 0,597 & 0,842 & 7.055 \\ \hline
 \end{tabular}
 \end{rtable}
 \end{table}
@@ -385,11 +413,11 @@ Trên hành vi thật của Trivago, LightGBM hơn thứ tự hiển thị gốc
 \subsection{Kết quả đạt được và ưu điểm}
 
 \begin{itemize}
-\item \textbf{Tính đúng của đặt phòng được kiểm chứng trên cơ sở dữ liệu thật.} Tình huống hai khách tranh căn phòng cuối, thử lại, hết hạn giữ và hủy được kiểm tra bằng giao dịch MongoDB thật, không chỉ bằng mô hình giả lập.
-\item \textbf{Bảo mật theo nguyên tắc ``không tin máy khách''.} Số tiền thanh toán, trạng thái thanh toán, vai trò và quyền sở hữu đều được quyết định ở máy chủ. Quá trình kiểm tra lại khi viết báo cáo phát hiện và sửa một lỗ hổng thật (refresh token dùng như access token).
-\item \textbf{Gợi ý chạy trong cùng tiến trình, có dự phòng và có kiểm thử khớp.} Không cần thêm dịch vụ, độ trễ mạng hay chi phí vận hành. Mọi lỗi của mô hình đều được chuyển sang dự phòng.
-\item \textbf{Trung thực về dữ liệu.} Giao diện phân biệt điểm biên tập với đánh giá đã xác minh; báo cáo phân biệt dữ liệu thật với dữ liệu mô phỏng.
-\item \textbf{Triển khai thật.} API, bảng điều khiển và cơ sở dữ liệu đang chạy với tên miền \code{hotelia.asia}; việc cập nhật mô hình có quy trình và đã được thực hiện.
+\item Tính đúng của đặt phòng được kiểm chứng trên cơ sở dữ liệu thật. Tình huống hai khách tranh căn phòng cuối, thử lại, hết hạn giữ và hủy được kiểm tra bằng giao dịch MongoDB thật, không chỉ bằng mô hình giả lập.
+\item Bảo mật theo nguyên tắc ``không tin máy khách''. Số tiền thanh toán, trạng thái thanh toán, vai trò và quyền sở hữu đều được quyết định ở máy chủ. Quá trình kiểm tra lại khi viết báo cáo phát hiện và sửa một lỗ hổng thật (refresh token dùng như access token).
+\item Gợi ý chạy trong cùng tiến trình, có dự phòng và có kiểm thử khớp. Không cần thêm dịch vụ, độ trễ mạng hay chi phí vận hành. Mọi lỗi của mô hình đều được chuyển sang dự phòng.
+\item Trung thực về dữ liệu. Giao diện phân biệt điểm biên tập với đánh giá đã xác minh; báo cáo phân biệt dữ liệu thật với dữ liệu mô phỏng.
+\item Triển khai thật. API, bảng điều khiển và cơ sở dữ liệu đang chạy với tên miền \code{hotelia.asia}; việc cập nhật mô hình có quy trình và đã được thực hiện.
 \end{itemize}
 
 \subsection{Giới hạn}\label{sec:limitations}
@@ -421,25 +449,25 @@ Trên hành vi thật của Trivago, LightGBM hơn thứ tự hiển thị gốc
 \subsection{Rủi ro}
 
 \begin{itemize}
-\item \textbf{Rủi ro vận hành thanh toán}: nếu địa chỉ webhook bị chặn hoặc máy chủ đang ngủ khi payOS gửi webhook, đặt phòng có thể hết hạn giữ dù khách đã trả tiền. Hệ thống đã xử lý tình huống tiền về sau hạn bằng cách chuyển sang CANCEL\_REQUESTED, nhưng việc hoàn tiền vẫn phải làm thủ công.
-\item \textbf{Rủi ro dữ liệu}: catalog thay đổi (giá, khách sạn mới) mà không huấn luyện lại sẽ làm phân phối đặc trưng lúc phục vụ lệch dần khỏi lúc huấn luyện.
-\item \textbf{Rủi ro bảo mật}: refresh token cũ (không có \code{typ}) còn được chấp nhận tới khi hết hạn 7 ngày sau bản sửa. Mỗi tài khoản chỉ giữ một refresh token, nên đăng nhập trên thiết bị thứ hai làm phiên trên thiết bị thứ nhất hết hiệu lực khi access token hết hạn.
+\item Rủi ro vận hành thanh toán: nếu địa chỉ webhook bị chặn hoặc máy chủ đang ngủ khi payOS gửi webhook, đặt phòng có thể hết hạn giữ dù khách đã trả tiền. Hệ thống đã xử lý tình huống tiền về sau hạn bằng cách chuyển sang CANCEL\_REQUESTED, nhưng việc hoàn tiền vẫn phải làm thủ công.
+\item Rủi ro dữ liệu: catalog thay đổi (giá, khách sạn mới) mà không huấn luyện lại sẽ làm phân phối đặc trưng lúc phục vụ lệch dần khỏi lúc huấn luyện.
+\item Rủi ro bảo mật: refresh token cũ (không có \code{typ}) còn được chấp nhận tới khi hết hạn 7 ngày sau bản sửa. Mỗi tài khoản chỉ giữ một refresh token, nên đăng nhập trên thiết bị thứ hai làm phiên trên thiết bị thứ nhất hết hiệu lực khi access token hết hạn.
 \end{itemize}
 
 \section{Hướng phát triển}\label{sec:future}
 
 \begin{enumerate}
-\item \textbf{Dữ liệu hành vi thật có đồng thuận.} Bổ sung màn hình xin đồng ý thu thập dữ liệu tương tác cho mục đích gợi ý, cho phép rút lại đồng ý; dùng lượt hiển thị, lượt mở chi tiết, giữ phòng và đặt phòng đã xác nhận làm nhãn nhiều mức (ví dụ mở = 1, giữ = 2, xác nhận = 3). Cần hiệu chỉnh thiên lệch vị trí khi học từ nhật ký \cite{joachims2017}.
-\item \textbf{Thử nghiệm A/B.} Chia ngẫu nhiên người dùng giữa bộ xếp hạng nội dung và LightGBM. Chỉ số chính là tỷ lệ đặt phòng được xác nhận trên mỗi lượt hiển thị; chỉ số bảo vệ là tỷ lệ hủy và độ trễ phản hồi \cite{kohavi2009}. Chỉ bật mô hình cho toàn bộ người dùng khi chênh lệch có ý nghĩa thống kê.
-\item \textbf{Giám sát mô hình và hệ thống.} Ghi \code{ranking.mode} và \code{version} của mỗi phản hồi để theo dõi tỷ lệ rơi về dự phòng; theo dõi phân phối đặc trưng để phát hiện lệch; giám sát sức khỏe API, lỗi 5xx và thời gian phản hồi; nâng cấp gói hạ tầng để tránh khởi động lạnh.
-\item \textbf{Kho đặc trưng (feature store).} Khi số khách sạn và người dùng tăng, tính sẵn các đặc trưng theo khách sạn và theo người dùng, dùng chung cho huấn luyện và phục vụ để loại bỏ lệch về định nghĩa.
-\item \textbf{Thanh toán trực tuyến đầy đủ.} Cấu hình khóa payOS trên môi trường vận hành, kiểm thử bằng giao dịch thật giá trị nhỏ, cài đặt hoàn tiền theo \code{calculateRefund} với đối soát, và chuyển trạng thái REFUNDED.
-\item \textbf{Tối ưu tập ứng viên.} Với danh mục lớn, thêm giai đoạn lọc thô (ví dụ theo khoảng cách, giá, độ phổ biến) để chỉ chấm điểm vài trăm ứng viên; lưu đệm danh mục đã lọc.
-\item \textbf{Đa dạng hóa kết quả.} Áp dụng xếp hạng lại theo độ đa dạng (thành phố, mức giá, loại hình) cho cả đầu ra của LightGBM, không chỉ cho bộ xếp hạng dự phòng \cite{carbonell1998}.
-\item \textbf{Bảo mật môi trường vận hành.} Hỗ trợ nhiều refresh token theo thiết bị kèm phát hiện tái sử dụng; thu hồi chủ động token cũ không có \code{typ}; chuyển refresh token trên web sang cookie \code{HttpOnly}; bổ sung giới hạn tần suất riêng cho \code{/auth}; quét phụ thuộc định kỳ; đối chiếu với OWASP ASVS \cite{owaspasvs}.
-\item \textbf{Hoàn thiện sản phẩm.} Bản tiếng Anh cho bảng điều khiển; dịch nội dung khách sạn; trạng thái COMPLETED tự động sau khi trả phòng; thông báo đẩy; phát hành TestFlight; kiểm thử giao diện tự động; trỏ \code{hotelia.asia} tới trang giới thiệu sản phẩm.
+\item Dữ liệu hành vi thật có đồng thuận. Bổ sung màn hình xin đồng ý thu thập dữ liệu tương tác cho mục đích gợi ý, cho phép rút lại đồng ý; dùng lượt hiển thị, lượt mở chi tiết, giữ phòng và đặt phòng đã xác nhận làm nhãn nhiều mức (ví dụ mở = 1, giữ = 2, xác nhận = 3). Cần hiệu chỉnh thiên lệch vị trí khi học từ nhật ký \cite{joachims2017}.
+\item Thử nghiệm A/B. Chia ngẫu nhiên người dùng giữa bộ xếp hạng nội dung và LightGBM. Chỉ số chính là tỷ lệ đặt phòng được xác nhận trên mỗi lượt hiển thị; chỉ số bảo vệ là tỷ lệ hủy và độ trễ phản hồi \cite{kohavi2009}. Chỉ bật mô hình cho toàn bộ người dùng khi chênh lệch có ý nghĩa thống kê.
+\item Giám sát mô hình và hệ thống. Ghi \code{ranking.mode} và \code{version} của mỗi phản hồi để theo dõi tỷ lệ rơi về dự phòng; theo dõi phân phối đặc trưng để phát hiện lệch; giám sát sức khỏe API, lỗi 5xx và thời gian phản hồi; nâng cấp gói hạ tầng để tránh khởi động lạnh.
+\item Kho đặc trưng (feature store). Khi số khách sạn và người dùng tăng, tính sẵn các đặc trưng theo khách sạn và theo người dùng, dùng chung cho huấn luyện và phục vụ để loại bỏ lệch về định nghĩa.
+\item Thanh toán trực tuyến đầy đủ. Cấu hình khóa payOS trên môi trường vận hành, kiểm thử bằng giao dịch thật giá trị nhỏ, cài đặt hoàn tiền theo \code{calculateRefund} với đối soát, và chuyển trạng thái REFUNDED.
+\item Tối ưu tập ứng viên. Với danh mục lớn, thêm giai đoạn lọc thô (ví dụ theo khoảng cách, giá, độ phổ biến) để chỉ chấm điểm vài trăm ứng viên; lưu đệm danh mục đã lọc.
+\item Đa dạng hóa kết quả. Áp dụng xếp hạng lại theo độ đa dạng (thành phố, mức giá, loại hình) cho cả đầu ra của LightGBM, không chỉ cho bộ xếp hạng dự phòng \cite{carbonell1998}.
+\item Bảo mật môi trường vận hành. Hỗ trợ nhiều refresh token theo thiết bị kèm phát hiện tái sử dụng; thu hồi chủ động token cũ không có \code{typ}; chuyển refresh token trên web sang cookie \code{HttpOnly}; bổ sung giới hạn tần suất riêng cho \code{/auth}; quét phụ thuộc định kỳ; đối chiếu với OWASP ASVS \cite{owaspasvs}.
+\item Hoàn thiện sản phẩm. Bản tiếng Anh cho bảng điều khiển; dịch nội dung khách sạn; trạng thái COMPLETED tự động sau khi trả phòng; thông báo đẩy; phát hành TestFlight; kiểm thử giao diện tự động; trỏ \code{hotelia.asia} tới trang giới thiệu sản phẩm.
 \end{enumerate}
 
 \section{Kết luận chương}
 
-Chương này đã trình bày kết quả của 52 ca kiểm thử máy chủ, 80 ca kiểm thử Python, kịch bản tranh chấp trên MongoDB thật, 13 ca phân quyền qua HTTP, 6 kịch bản lỗi mô hình và 18 ca kiểm thử giao diện. Quá trình kiểm thử phát hiện và sửa năm lỗi giao diện cùng một lỗ hổng xác thực. Đánh giá mô hình cho thấy LightGBM v3 học sát giới hạn của dữ liệu sinh nhưng không vượt bộ xếp hạng nội dung. Vì vậy đánh giá ngoại tuyến hiện tại chỉ xác nhận tính đúng của đường ống, chưa xác nhận hiệu quả gợi ý.
+Chương này đã trình bày kết quả của 57 ca kiểm thử máy chủ, 80 ca kiểm thử Python, kịch bản tranh chấp trên MongoDB thật, 13 ca phân quyền và 7 ca phiên đăng nhập qua HTTP, 6 kịch bản lỗi mô hình và 18 ca kiểm thử giao diện. Quá trình kiểm thử phát hiện và sửa năm lỗi giao diện cùng một lỗ hổng xác thực. Đánh giá mô hình cho thấy LightGBM v3 học sát giới hạn của dữ liệu sinh nhưng không vượt bộ xếp hạng nội dung. Vì vậy đánh giá ngoại tuyến hiện tại chỉ xác nhận tính đúng của đường ống, chưa xác nhận hiệu quả gợi ý.

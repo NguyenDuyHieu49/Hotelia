@@ -1,0 +1,19 @@
+\begin{seqdiagram}
+  \participant{app}{0}{BookingDetail-\\View}
+  \participant{ctl}{3.6}{Bookings-\\Controller}
+  \participant{svc}{7.2}{Bookings-\\Service}
+  \participant{db}{10.8}{MongoDB}
+  \msg{app}{ctl}{POST /bookings/:id/pay-at-hotel}
+  \msg{ctl}{svc}{confirmPayAtHotel(id, userId)}
+  \msg{svc}{db}{đọc đặt phòng, chuyển EXPIRED nếu quá hạn giữ}
+  \self{svc}{đúng người đặt?}
+  \fragopen{app}{db}{alt}{[đã CONFIRMED]}
+  \ret{svc}{app}{trả lại đặt phòng hiện tại (lũy đẳng)}
+  \fragelse{[không còn PENDING\_PAYMENT]}
+  \ret{svc}{app}{400: không còn chờ xác nhận}
+  \fragelse{[PENDING\_PAYMENT]}
+  \msg{svc}{db}{cập nhật có điều kiện: còn hạn giữ $\rightarrow$ CONFIRMED, PAY\_AT\_HOTEL}
+  \ret{db}{svc}{tài liệu mới, hoặc null nếu hạn giữ vừa hết}
+  \ret{svc}{app}{200 CONFIRMED hoặc 400: hết thời gian giữ phòng}
+  \fragclose
+\end{seqdiagram}

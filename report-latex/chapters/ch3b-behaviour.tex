@@ -43,11 +43,11 @@ BR-25 & Không giảm số phòng của loại phòng xuống dưới số phòn
 
 \subsection{Kiểm tra phòng trống và chống bán trùng}
 
-Quy trình tạo đặt phòng ở \cref{fig:act-create} kết hợp ba lớp bảo vệ. Lớp thứ nhất là \textbf{khóa lũy đẳng}. Trước khi làm bất cứ việc gì, máy chủ tìm đặt phòng có cùng \code{(userId, requestKey)}. Nếu tìm thấy và nội dung băm giống nhau, máy chủ trả lại kết quả cũ.
+Quy trình tạo đặt phòng ở \cref{fig:act-create} kết hợp ba lớp bảo vệ. Lớp thứ nhất là khóa lũy đẳng. Trước khi làm bất cứ việc gì, máy chủ tìm đặt phòng có cùng \code{(userId, requestKey)}. Nếu tìm thấy và nội dung băm giống nhau, máy chủ trả lại kết quả cũ.
 
-Lớp thứ hai là \textbf{tuần tự hóa theo loại phòng}. Trong giao dịch, máy chủ thực hiện \code{findOneAndUpdate} tăng trường \code{inventoryVersion} của loại phòng. Hai giao dịch đặt cùng một loại phòng vì vậy cùng ghi vào một tài liệu. MongoDB phát hiện xung đột ghi và buộc giao dịch đến sau chạy lại từ đầu. Lần chạy lại thấy đặt phòng của giao dịch trước, nên đếm đúng số phòng còn lại. Đây là kỹ thuật ``hiện thực hóa xung đột'' đã nêu ở \cref{chap:theory}. Hai loại phòng khác nhau không chặn nhau, nên mức độ tranh chấp chỉ giới hạn trong từng loại phòng.
+Lớp thứ hai là tuần tự hóa theo loại phòng. Trong giao dịch, máy chủ thực hiện \code{findOneAndUpdate} tăng trường \code{inventoryVersion} của loại phòng. Hai giao dịch đặt cùng một loại phòng vì vậy cùng ghi vào một tài liệu. MongoDB phát hiện xung đột ghi và buộc giao dịch đến sau chạy lại từ đầu. Lần chạy lại thấy đặt phòng của giao dịch trước, nên đếm đúng số phòng còn lại. Đây là kỹ thuật ``hiện thực hóa xung đột'' đã nêu ở \cref{chap:theory}. Hai loại phòng khác nhau không chặn nhau, nên mức độ tranh chấp chỉ giới hạn trong từng loại phòng.
 
-Lớp thứ ba là \textbf{đếm theo đêm}. Truy vấn lấy mọi đặt phòng của loại phòng thỏa \cref{eq:overlap} và đang chiếm tồn kho (BR-04), rồi áp dụng \cref{eq:free-rooms}.
+Lớp thứ ba là đếm theo đêm. Truy vấn lấy mọi đặt phòng của loại phòng thỏa \cref{eq:overlap} và đang chiếm tồn kho (BR-04), rồi áp dụng \cref{eq:free-rooms}.
 
 \begin{figure}[H]
 \centering
@@ -57,7 +57,7 @@ Lớp thứ ba là \textbf{đếm theo đêm}. Truy vấn lấy mọi đặt ph�
 
 \subsection{Thử lại và hết thời gian chờ}\label{sec:retry-design}
 
-Hệ thống phân biệt hai loại lỗi khi tạo đặt phòng. \textbf{Lỗi xác định} là các mã 4xx có thông điệp nghiệp vụ, như hết phòng hay vượt sức chứa. Với lỗi này, ứng dụng hiển thị thông điệp và tải lại danh sách loại phòng. \textbf{Lỗi không xác định} gồm lỗi mạng (\code{URLError}, kể cả hết thời gian chờ), mã 5xx và phản hồi không giải mã được. Với lỗi này, ứng dụng không biết đặt phòng đã được tạo hay chưa. Ứng dụng vì vậy \emph{giữ nguyên} khóa lũy đẳng, khóa các trường nhập liệu và hiển thị nút ``Kiểm tra lại kết quả''. Khi khách bấm nút, cùng khóa được gửi lại: nếu đặt phòng đã tồn tại, máy chủ trả lại nó; nếu chưa, máy chủ tạo mới. Khóa chỉ được sinh mới khi khách thay đổi nội dung đặt phòng.
+Hệ thống phân biệt hai loại lỗi khi tạo đặt phòng. Lỗi xác định là các mã 4xx có thông điệp nghiệp vụ, như hết phòng hay vượt sức chứa. Với lỗi này, ứng dụng hiển thị thông điệp và tải lại danh sách loại phòng. Lỗi không xác định gồm lỗi mạng (\code{URLError}, kể cả hết thời gian chờ), mã 5xx và phản hồi không giải mã được. Với lỗi này, ứng dụng không biết đặt phòng đã được tạo hay chưa. Ứng dụng vì vậy \emph{giữ nguyên} khóa lũy đẳng, khóa các trường nhập liệu và hiển thị nút ``Kiểm tra lại kết quả''. Khi khách bấm nút, cùng khóa được gửi lại: nếu đặt phòng đã tồn tại, máy chủ trả lại nó; nếu chưa, máy chủ tạo mới. Khóa chỉ được sinh mới khi khách thay đổi nội dung đặt phòng.
 
 Các lời gọi từ máy chủ ra dịch vụ ngoài đều có thời gian chờ. payOS có thời gian chờ 10 giây và tối đa 2 lần thử lại do thư viện @payos/node thực hiện. Dịch vụ gửi email đặt lại mật khẩu có thời gian chờ 10 giây. Ở phía ứng dụng, Open-Meteo có thời gian chờ 12 giây. Khi access token hết hạn, ứng dụng làm mới token đúng một lần rồi gửi lại yêu cầu; nhiều yêu cầu cùng gặp 401 dùng chung một lần làm mới nhờ \code{actor AccessTokenRefresher}. Hệ thống không tự động thử lại việc tạo đặt phòng. Việc tự động gửi lại một thao tác có tác động tài chính nên do người dùng chủ động thực hiện, có khóa lũy đẳng bảo vệ.
 
@@ -122,11 +122,11 @@ Khách sạn đi qua các trạng thái DRAFT (mới tạo), PENDING\_APPROVAL (
 
 \section{Biểu đồ tuần tự}\label{sec:sequences}
 
-Mục này trình bày các biểu đồ tuần tự của những luồng có nhiều thành phần tham gia. Các biểu đồ dùng chung một quy ước: hộp xám là thành phần tham gia, nét chấm là đường sống, mũi tên liền có đánh số là lời gọi, mũi tên nét đứt là phản hồi, khung có nhãn \textbf{alt} là các nhánh điều kiện.
+Mục này trình bày các biểu đồ tuần tự của những luồng có nhiều thành phần tham gia. Các biểu đồ dùng chung một quy ước: hộp xám là thành phần tham gia, nét chấm là đường sống, mũi tên liền có đánh số là lời gọi, mũi tên nét đứt là phản hồi, khung có nhãn alt là các nhánh điều kiện.
 
 \subsection{Xác thực}\label{sec:auth-design}
 
-\paragraph{Đăng nhập email -- mật khẩu.} \Cref{fig:seq-login} thể hiện luồng UC02. Hai token được ký bằng cùng khóa bí mật nhưng mang claim \code{typ} khác nhau. Refresh token được lưu dưới dạng băm bcrypt trong tài liệu người dùng, nên mỗi tài khoản chỉ có một refresh token hợp lệ tại một thời điểm.
+\paragraph{Đăng nhập email -- mật khẩu.} \Cref{fig:seq-login} thể hiện luồng UC02. Hai token được ký bằng cùng khóa bí mật nhưng mang claim \code{typ} khác nhau. Refresh token được lưu dưới dạng băm SHA-256 trong tài liệu người dùng, nên mỗi tài khoản chỉ có một refresh token hợp lệ tại một thời điểm.
 
 \begin{figure}[H]
 \centering
@@ -150,9 +150,52 @@ Mục này trình bày các biểu đồ tuần tự của những luồng có n
 \caption{Biểu đồ tuần tự làm mới access token}\label{fig:seq-refresh}
 \end{figure}
 
+
+\paragraph{Quên và đặt lại mật khẩu.} \Cref{fig:seq-password} thể hiện UC05. Máy chủ chỉ lưu giá trị băm SHA-256 của mã khôi phục, mã có hiệu lực 15 phút và mỗi tài khoản chỉ được yêu cầu một lần trong 60 giây. Phản hồi của bước yêu cầu mã giống nhau dù email có đăng ký hay không, để không lộ danh sách tài khoản. Nếu không gửi được email, mã vừa tạo bị xóa và máy chủ trả 503. Khi đặt lại mật khẩu, mã bị xóa ngay trong cùng giao dịch nên chỉ dùng được một lần. \code{tokenVersion} tăng lên làm mọi access token cũ bị \code{JwtStrategy} từ chối. Luồng đổi mật khẩu khi đã đăng nhập (UC06) cũng tăng \code{tokenVersion} theo cách tương tự, sau khi kiểm tra mật khẩu hiện tại.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-password}
+\caption{Biểu đồ tuần tự quên và đặt lại mật khẩu}\label{fig:seq-password}
+\end{figure}
+
+\paragraph{Hồ sơ và ngôn ngữ.} \Cref{fig:seq-profile} gộp UC07 và UC08. Cập nhật hồ sơ chỉ nhận ba trường \code{name}, \code{phone}, \code{avatar}; trường lạ như \code{role} bị \code{ValidationPipe} từ chối với lỗi 400 (ca A11 ở \cref{tab:test-authz}). Ngôn ngữ là thiết lập cục bộ của ứng dụng, không gửi lên máy chủ: giá trị được lưu bằng \code{@AppStorage}, và việc gắn \code{.id(appLanguage)} vào cây giao diện buộc SwiftUI dựng lại mọi màn hình bằng chuỗi của ngôn ngữ mới.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-profile}
+\caption{Biểu đồ tuần tự cập nhật hồ sơ và đổi ngôn ngữ}\label{fig:seq-profile}
+\end{figure}
+
+\subsection{Khám phá khách sạn}
+
+\paragraph{Thời tiết.} \Cref{fig:seq-weather} thể hiện UC13. Ứng dụng gọi thẳng Open-Meteo, không qua máy chủ Hotelia, và gộp mọi thành phố vào một yêu cầu. Bộ đệm trong \code{UserDefaults} được dùng ngay nếu còn dưới 30 phút; khi mạng lỗi, bộ đệm cũ tới 6 giờ vẫn được hiển thị thay vì báo lỗi.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-weather}
+\caption{Biểu đồ tuần tự tải dự báo thời tiết}\label{fig:seq-weather}
+\end{figure}
+
+\paragraph{Kiểm tra phòng trống.} \Cref{fig:seq-availability} thể hiện UC15. Điểm cuối này công khai, nên khách chưa đăng nhập vẫn xem được số phòng trống. Số phòng trống của một loại phòng là giá trị nhỏ nhất qua các đêm trong khoảng $[d_{\text{in}}, d_{\text{out}})$, tính bằng cùng hàm \code{freeRooms} mà giao dịch đặt phòng dùng, nên con số hiển thị và điều kiện khi đặt phòng thống nhất với nhau.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-availability}
+\caption{Biểu đồ tuần tự kiểm tra phòng trống theo khoảng ngày}\label{fig:seq-availability}
+\end{figure}
+
+\paragraph{Khách sạn yêu thích.} \Cref{fig:seq-favorites} thể hiện UC14. Khóa của bản ghi yêu thích là \code{userId:hotelId}, nên thao tác lưu được viết bằng \code{upsert} với \code{\$setOnInsert} và có tính lũy đẳng: bấm lưu hai lần vẫn chỉ có một bản ghi. Phía ứng dụng chặn bấm lặp khi yêu cầu đang chạy và chỉ đổi biểu tượng sau khi máy chủ trả thành công.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-favorites}
+\caption{Biểu đồ tuần tự lưu và bỏ lưu khách sạn yêu thích}\label{fig:seq-favorites}
+\end{figure}
+
 \subsection{Đặt phòng}
 
-\Cref{fig:seq-booking} là biểu đồ tuần tự của UC16, ứng với quy trình ở \cref{fig:act-create}. Khối \textbf{alt} đầu tiên xử lý yêu cầu gửi lại. Khối thứ hai thể hiện giao dịch cùng việc tăng \code{inventoryVersion}.
+\Cref{fig:seq-booking} là biểu đồ tuần tự của UC16, ứng với quy trình ở \cref{fig:act-create}. Khối alt đầu tiên xử lý yêu cầu gửi lại. Khối thứ hai thể hiện giao dịch cùng việc tăng \code{inventoryVersion}.
 
 \begin{figure}[H]
 \centering
@@ -160,9 +203,25 @@ Mục này trình bày các biểu đồ tuần tự của những luồng có n
 \caption{Biểu đồ tuần tự tạo đặt phòng}\label{fig:seq-booking}
 \end{figure}
 
+
+\paragraph{Lịch sử đặt phòng.} \Cref{fig:seq-history} thể hiện UC20. Trước khi đọc danh sách, máy chủ chuyển các giữ phòng đã quá hạn sang EXPIRED, nên người dùng không thấy một đặt phòng ``chờ thanh toán'' đã hết hiệu lực. Việc chia theo thẻ được làm ở phía ứng dụng.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-history}
+\caption{Biểu đồ tuần tự tải lịch sử đặt phòng}\label{fig:seq-history}
+\end{figure}
+
 \subsection{Thanh toán}\label{sec:payment-design}
 
-\paragraph{Trả tại khách sạn.} Đây là luồng đơn giản nhất: một cập nhật có điều kiện chuyển PENDING\_PAYMENT sang CONFIRMED, kèm điều kiện giữ phòng còn hạn (BR-04). Đặt phòng dạng này không tạo bản ghi thanh toán, vì chưa có tiền nào được thu. Trang thanh toán của bảng điều khiển ghi rõ điều này cho quản trị viên.
+\paragraph{Trả tại khách sạn.} \Cref{fig:seq-pay-at-hotel} thể hiện UC17, luồng đơn giản nhất: một cập nhật có điều kiện chuyển PENDING\_PAYMENT sang CONFIRMED, kèm điều kiện giữ phòng còn hạn (BR-04). Nếu hạn giữ vừa hết giữa lúc đọc và lúc cập nhật, điều kiện không khớp và người dùng nhận lỗi thay vì một đặt phòng không còn phòng. Gọi lại khi đã CONFIRMED chỉ trả về đặt phòng hiện tại. Đặt phòng dạng này không tạo bản ghi thanh toán, vì chưa có tiền nào được thu. Trang thanh toán của bảng điều khiển ghi rõ điều này cho quản trị viên.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-pay-at-hotel}
+\caption{Biểu đồ tuần tự xác nhận trả tại khách sạn}\label{fig:seq-pay-at-hotel}
+\end{figure}
+
 
 \paragraph{payOS.} \Cref{fig:seq-payos} chi tiết luồng UC18 và tương ứng với sơ đồ tổng quát ở \cref{fig:payos-theory}. Điểm khác với sơ đồ lý thuyết là việc kiểm tra lại hạn giữ phòng \emph{sau} khi payOS trả liên kết. Bước này đóng khe hở thời gian trong đó giữ phòng có thể hết hạn khi đang gọi payOS. Webhook được xử lý trong một giao dịch MongoDB gồm cập nhật thanh toán, cập nhật đặt phòng và ghi thông báo.
 
@@ -173,6 +232,14 @@ Mục này trình bày các biểu đồ tuần tự của những luồng có n
 \end{figure}
 
 \subsection{Hủy, nhận phòng, trả phòng và đánh giá}
+
+\Cref{fig:seq-cancel} thể hiện UC19 và UC30, tương ứng với biểu đồ hoạt động ở \cref{fig:act-cancel}. Đặt phòng chưa thanh toán được hủy ngay và trả phòng về tồn kho. Đặt phòng đã xác nhận chỉ chuyển sang CANCEL\_REQUESTED và vẫn giữ phòng cho tới khi chủ khách sạn hoặc quản trị viên xử lý. Hệ thống chưa tự hoàn tiền, nên yêu cầu hủy có thanh toán trực tuyến hoàn tất bị chặn cho tới khi hoàn tiền được làm thủ công với payOS.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-cancel}
+\caption{Biểu đồ tuần tự hủy đặt phòng và xử lý yêu cầu hủy}\label{fig:seq-cancel}
+\end{figure}
 
 \Cref{fig:seq-stay} gộp ba luồng của chủ khách sạn và khách sau khi đặt phòng được xác nhận: nhận phòng, trả phòng và đánh giá. Mỗi lời gọi của chủ khách sạn đều được kiểm tra hai lớp: vai trò OWNER ở guard và quyền sở hữu khách sạn ở dịch vụ.
 
@@ -190,6 +257,41 @@ Mục này trình bày các biểu đồ tuần tự của những luồng có n
 \centering
 \diagram{seq-approve}
 \caption{Biểu đồ tuần tự đăng ký chủ khách sạn, gửi và duyệt khách sạn}\label{fig:seq-approve}
+\end{figure}
+
+
+\paragraph{Bảng điều khiển của chủ khách sạn.} \Cref{fig:seq-owner-dashboard} thể hiện UC25. Các số liệu chỉ tính trên khách sạn thật của chủ, bỏ qua khách sạn thuộc danh mục mẫu. Doanh thu chỉ cộng các đặt phòng đã xác nhận trở đi, và ngày được quy đổi sang giờ Việt Nam trước khi so sánh, để đặt phòng lúc 0 giờ 30 không bị tính sang ngày hôm trước.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-owner-dashboard}
+\caption{Biểu đồ tuần tự tổng hợp bảng điều khiển của chủ khách sạn}\label{fig:seq-owner-dashboard}
+\end{figure}
+
+\paragraph{Cập nhật tồn kho loại phòng.} \Cref{fig:seq-inventory} thể hiện UC27. Thao tác này ghi vào cùng tài liệu loại phòng (tăng \code{inventoryVersion}) như giao dịch đặt phòng, nên MongoDB buộc hai thao tác chạy tuần tự. Khi chủ khách sạn giảm \code{totalRooms}, dịch vụ đếm số phòng đã bán tại mỗi mốc ngày trong tương lai và hủy giao dịch nếu con số mới nhỏ hơn (BR-25).
+
+\begin{figure}[H]
+\centering
+\diagram{seq-inventory}
+\caption{Biểu đồ tuần tự cập nhật tồn kho loại phòng}\label{fig:seq-inventory}
+\end{figure}
+
+\subsection{Quản trị và giám sát}
+
+\Cref{fig:seq-admin-moderate} thể hiện hai thao tác kiểm duyệt: khóa người dùng (UC34) và ẩn đánh giá (UC35). Khóa tài khoản chỉ đặt \code{isActive = false}; hiệu lực đến ở yêu cầu kế tiếp, khi \code{JwtStrategy} đọc lại người dùng và trả 401. Ẩn đánh giá chạy trong giao dịch để điểm trung bình của khách sạn luôn được tính lại từ đúng tập đánh giá đang hiển thị. Sau mỗi yêu cầu ghi thành công của người đã đăng nhập, \code{AuditInterceptor} ghi một dòng vào \code{audit\_logs}.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-admin-moderate}
+\caption{Biểu đồ tuần tự khóa người dùng, ẩn đánh giá và ghi nhật ký}\label{fig:seq-admin-moderate}
+\end{figure}
+
+\Cref{fig:seq-admin-stats} thể hiện UC36. Thống kê tổng quan là năm phép đếm chạy song song. Nhật ký thao tác trả 200 bản ghi mới nhất; nội dung yêu cầu không được lưu, nên nhật ký không chứa mật khẩu hay dữ liệu cá nhân.
+
+\begin{figure}[H]
+\centering
+\diagram{seq-admin-stats}
+\caption{Biểu đồ tuần tự thống kê hệ thống và xem nhật ký thao tác}\label{fig:seq-admin-stats}
 \end{figure}
 
 \subsection{Gợi ý khách sạn}

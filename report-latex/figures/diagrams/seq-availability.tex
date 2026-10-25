@@ -1,0 +1,20 @@
+\begin{seqdiagram}
+  \participant{app}{0}{Ứng dụng iOS}
+  \participant{ctl}{3.2}{RoomTypes-\\Controller}
+  \participant{svc}{6.4}{RoomTypes-\\Service}
+  \participant{rules}{9.6}{booking-rules.ts}
+  \participant{db}{12.8}{MongoDB}
+  \msg{app}{ctl}{GET /room-types/hotel/:hotelId?checkIn\&checkOut}
+  \msg{ctl}{svc}{findByHotel(hotelId, checkIn, checkOut)}
+  \msg{svc}{db}{loại phòng đang bán của khách sạn}
+  \fragopen{app}{db}{alt}{[không gửi khoảng ngày]}
+  \ret{svc}{app}{danh sách loại phòng, chưa tính phòng trống}
+  \fragelse{[chỉ có một trong hai ngày]}
+  \ret{svc}{app}{400: cần cả ngày nhận và ngày trả}
+  \fragelse{[đủ hai ngày]}
+  \msg{svc}{rules}{stayDates: đúng định dạng, không ở quá khứ, 1--90 đêm}
+  \msg{svc}{db}{đặt phòng chồng lấn đang chiếm tồn kho}
+  \msg{svc}{rules}{freeRooms: số phòng trống ít nhất qua các đêm}
+  \ret{svc}{app}{loại phòng kèm availableRooms}
+  \fragclose
+\end{seqdiagram}

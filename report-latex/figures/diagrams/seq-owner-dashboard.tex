@@ -1,0 +1,14 @@
+\begin{seqdiagram}
+  \participant{web}{0}{Bảng điều khiển chủ khách sạn}
+  \participant{guard}{3.3}{JwtAuth + Roles Guard}
+  \participant{svc}{6.6}{Owners-\\Service}
+  \participant{db}{9.9}{MongoDB}
+  \msg{web}{guard}{GET /owners/dashboard}
+  \msg{guard}{svc}{role = OWNER hoặc ADMIN; getDashboard(ownerId)}
+  \msg{svc}{db}{khách sạn của chủ, bỏ khách sạn danh mục mẫu}
+  \msg{svc}{db}{đếm khách sạn PUBLISHED, chờ duyệt, số đặt phòng}
+  \msg{svc}{db}{aggregate tổng doanh thu đặt phòng đã xác nhận}
+  \msg{svc}{db}{đặt phòng đã xác nhận và loại phòng đang bán}
+  \self{svc}{doanh thu hôm nay, tháng này\\(giờ Việt Nam), tỷ lệ lấp đầy}
+  \ret{svc}{web}{stats + danh sách khách sạn}
+\end{seqdiagram}

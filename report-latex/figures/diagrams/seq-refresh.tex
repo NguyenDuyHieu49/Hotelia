@@ -12,7 +12,7 @@
   \ret{ref}{api}{chờ và dùng chung kết quả}
   \fragelse{[chưa có]}
   \msg{ref}{srv}{POST /auth/refresh \{refreshToken\}}
-  \self{srv}{kiểm tra typ, bcrypt; xoay vòng}
+  \self{srv}{kiểm tra typ, SHA-256; xoay vòng}
   \ret{srv}{ref}{200 cặp token mới}
   \msg{ref}{kc}{lưu cặp token mới}
   \ret{ref}{api}{accessToken mới}

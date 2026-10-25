@@ -18,3 +18,4 @@ figures/screens/
 *.synctex.gz
 *.xdv
 main.pdf
+*-SAVE-ERROR
