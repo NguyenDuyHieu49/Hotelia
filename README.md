@@ -218,10 +218,7 @@ venv/bin/python -m pytest tests
 
 ## Tác giả
 
-**Nguyễn Duy Hiệu**, khóa K17, Trường Công nghệ Thông tin Phenikaa
-Giảng viên hướng dẫn: TS. Nguyễn Lệ Thu
-
+**Nguyễn Duy Hiệu**
 - GitHub: [@NguyenDuyHieu49](https://github.com/NguyenDuyHieu49)
 - Email: nguyenduyhieuwork49@gmail.com
 
-Kho mã chưa kèm giấy phép sử dụng.
