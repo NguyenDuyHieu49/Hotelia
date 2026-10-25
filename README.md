@@ -2,7 +2,6 @@
 
 Nền tảng đặt phòng khách sạn có gợi ý cá nhân hóa, gồm ứng dụng iOS cho khách, bảng điều khiển web cho chủ khách sạn và quản trị viên, máy chủ NestJS với MongoDB, và mô hình xếp hạng LightGBM chạy ngay trong máy chủ.
 
-Đồ án liên ngành, Trường Công nghệ Thông tin Phenikaa, Đại học Phenikaa (2026).
 
 | Thành phần | Địa chỉ |
 |---|---|
