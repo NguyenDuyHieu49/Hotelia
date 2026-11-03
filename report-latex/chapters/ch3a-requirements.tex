@@ -372,7 +372,7 @@ Quy tắc liên quan & #8 \\ \hline
 {Có \code{sessionId} của thiết bị; có thể đã đăng nhập.}
 {1. Trong màn Tài khoản, người dùng chọn ``Xóa lịch sử gợi ý'' và xác nhận. 2. Ứng dụng gửi \code{DELETE /recommendations/views?sessionId=\ldots}. 3. Máy chủ xác định tác nhân: \code{user:<id>} nếu có token, ngược lại \code{session:<id>}. 4. Xóa mọi lượt xem và lượt hiển thị của tác nhân đó. 5. Trả \code{\{cleared: true\}}; ứng dụng báo đã xóa.}
 {1a. Người dùng hủy ở hộp xác nhận: không có thay đổi. 2a. Lỗi mạng: ứng dụng báo không xóa được và đề nghị thử lại.}
-{Gợi ý quay về chế độ khám phá cho tới khi có lịch sử mới.}
+{Lượt xem và lượt hiển thị của tác nhân bị xóa. Người dùng chưa có đặt phòng thì gợi ý quay về chế độ khám phá; đặt phòng đã xác nhận vẫn được dùng làm tín hiệu cá nhân hóa, vì đó là giao dịch thật chứ không phải lịch sử duyệt.}
 {FR-13; NFR-14.}
 
 \ucspec{tab:uc13}{Đặc tả UC13 -- Xem thời tiết}
