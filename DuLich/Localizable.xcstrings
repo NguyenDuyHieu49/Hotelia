@@ -69,19 +69,19 @@
         }
       }
     },
-    "Hàng Đề xuất cho bạn sẽ quay về gợi ý khám phá cho tới khi bạn xem khách sạn mới." : {
+    "Các lượt xem dùng để cá nhân hóa sẽ bị xóa. Đặt phòng đã xác nhận vẫn được dùng để gợi ý." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recommended for you will show discovery picks until you view new hotels."
+            "value" : "Hotel views used for personalization will be deleted. Confirmed bookings still shape your recommendations."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hàng Đề xuất cho bạn sẽ quay về gợi ý khám phá cho tới khi bạn xem khách sạn mới."
+            "value" : "Các lượt xem dùng để cá nhân hóa sẽ bị xóa. Đặt phòng đã xác nhận vẫn được dùng để gợi ý."
           }
         }
       }

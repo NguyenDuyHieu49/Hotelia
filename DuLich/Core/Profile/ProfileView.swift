@@ -179,7 +179,7 @@ struct ProfileView: View {
             Button("Xóa", role: .destructive) { clearRecommendationHistory() }
             Button("Hủy", role: .cancel) {}
         } message: {
-            Text("Hàng Đề xuất cho bạn sẽ quay về gợi ý khám phá cho tới khi bạn xem khách sạn mới.")
+            Text("Các lượt xem dùng để cá nhân hóa sẽ bị xóa. Đặt phòng đã xác nhận vẫn được dùng để gợi ý.")
         }
         .alert(
             Text(LocalizedStringKey(clearHistoryMessage ?? "")),
