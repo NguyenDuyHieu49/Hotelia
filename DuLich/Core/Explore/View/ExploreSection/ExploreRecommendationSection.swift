@@ -57,7 +57,8 @@ struct ExploreRecommendationSection: View {
                     showsIndicators: false
                 ) {
 
-                    HStack(spacing: 16) {
+                    // Top-aligned so a one-line hotel name does not push its card below the others.
+                    HStack(alignment: .top, spacing: 16) {
 
                         ForEach(
                             recommendedHotels

@@ -14,7 +14,7 @@ struct HotelRecommendationCard: View {
             Text(hotel.name)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.primary)
-                .lineLimit(2)
+                .lineLimit(2, reservesSpace: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
             Label(hotel.localizedCity, systemImage: "mappin")
                 .font(.caption)
