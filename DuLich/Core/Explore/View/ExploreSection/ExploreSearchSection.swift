@@ -10,6 +10,7 @@ import SwiftUI
 struct ExploreSearchSection: View {
 
     @Binding var searchText: String
+    var isFocused: FocusState<Bool>.Binding
     let filters: HotelSearchFilters
 
     let onSearch: () -> Void
@@ -36,6 +37,7 @@ struct ExploreSearchSection: View {
                     "Bạn muốn đến đâu?",
                     text: $searchText
                 )
+                .focused(isFocused)
                 .submitLabel(.search)
                 .onSubmit {
                     onSearch()

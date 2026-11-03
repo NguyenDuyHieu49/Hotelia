@@ -8,6 +8,9 @@ struct ExploreView: View {
     @State private var showFilters = false
     @State private var searchText = ""
     @State private var selectedDestination = "Tất cả"
+    // Bumped after a search so the page scrolls down to the results below the banners.
+    @State private var resultsScrollRequest = 0
+    @FocusState private var searchFocused: Bool
 
     private let destinations = [
         "Tất cả",
@@ -28,6 +31,7 @@ struct ExploreView: View {
                 Color(.systemGroupedBackground)
                     .ignoresSafeArea()
 
+                ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 28) {
 
@@ -35,6 +39,7 @@ struct ExploreView: View {
 
                         ExploreSearchSection(
                             searchText: $searchText,
+                            isFocused: $searchFocused,
                             filters: viewModel.filters,
                             onSearch: performSearch,
                             onFilter: { showFilters = true }
@@ -55,6 +60,7 @@ struct ExploreView: View {
                             onSelect: selectDestination
                         )
 
+                        VStack(spacing: 28) {
                         if viewModel.isLoading {
                             ExploreLoadingSection(
                                 isRanking: viewModel.isRanking
@@ -92,6 +98,8 @@ struct ExploreView: View {
                             )
 
                         }
+                        }
+                        .id(Self.resultsAnchor)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
@@ -101,6 +109,13 @@ struct ExploreView: View {
                     async let hotels: Void = viewModel.refreshFromGesture()
                     async let weather: Void = weatherViewModel.load(forceRefresh: true)
                     _ = await (hotels, weather)
+                }
+                .scrollDismissesKeyboard(.immediately)
+                .onChange(of: resultsScrollRequest) {
+                    withAnimation(.easeInOut) {
+                        proxy.scrollTo(Self.resultsAnchor, anchor: .top)
+                    }
+                }
                 }
             }
             .environment(\.hotelSearchFilters, viewModel.filters)
@@ -124,27 +139,31 @@ struct ExploreView: View {
 
 private extension ExploreView {
 
+    static let resultsAnchor = "explore-results"
+
     func performSearch() {
+        searchFocused = false
         let destination = searchText
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard !destination.isEmpty else {
-            Task {
-                await viewModel.loadHotels()
-            }
-            return
-        }
-
         Task {
-            await viewModel.searchHotels(
-                destination: HotelContentLocalization.searchDestination(destination)
-            )
+            if destination.isEmpty {
+                await viewModel.loadHotels()
+            } else {
+                await viewModel.searchHotels(
+                    destination: HotelContentLocalization.searchDestination(destination)
+                )
+            }
+            // Scroll once the results are in; earlier the page is too short to reach them.
+            // Clearing the search field stays where the user is.
+            if !destination.isEmpty { resultsScrollRequest += 1 }
         }
     }
 
     func selectDestination(_ destination: String) {
         selectedDestination = destination
         searchText = ""
+        searchFocused = false
 
         Task {
             if destination == "Tất cả" {
@@ -154,6 +173,7 @@ private extension ExploreView {
                     destination: destination
                 )
             }
+            resultsScrollRequest += 1
         }
     }
 }
