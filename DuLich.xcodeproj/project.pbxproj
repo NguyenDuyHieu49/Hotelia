@@ -308,7 +308,7 @@
 				DEVELOPMENT_TEAM = UMBX69GFWD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				HOTELIA_API_BASE_URL = "http://con-meo-beo-2.local:3000/api/v1";
+				HOTELIA_API_BASE_URL = "https://api.hotelia.asia/api/v1";
 				INFOPLIST_FILE = "Info-Debug.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
