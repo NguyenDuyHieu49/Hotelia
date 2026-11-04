@@ -20,6 +20,7 @@
     "test": "jest",
     "test:booking-flow": "jest --runInBand pay-at-hotel-flow payments.service.spec",
     "test:booking-db": "node scripts/test-booking-concurrency.cjs",
+    "test:security": "node scripts/test-security.cjs",
     "catalog:check": "node scripts/activate-operational-catalog.cjs",
     "catalog:activate": "node scripts/activate-operational-catalog.cjs --apply",
     "test:watch": "jest --watch",

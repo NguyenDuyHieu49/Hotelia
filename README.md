@@ -178,8 +178,9 @@ Mở `DuLich.xcodeproj`, chọn scheme **Hotelia** và chạy trên Simulator. �
 
 ```bash
 cd backend
-npm test                                  # 57 ca Jest, 14 bộ
+npm test                                  # 63 test Jest, 15 bộ
 npm run build && npm run test:booking-db  # tranh chấp đặt phòng trên MongoDB thật (cổng 27018)
+API_URL=http://127.0.0.1:3000/api/v1 npm run test:security  # 10 kiểm thử tấn công qua HTTP, chỉ chạy với API local
 ```
 
 ```bash
