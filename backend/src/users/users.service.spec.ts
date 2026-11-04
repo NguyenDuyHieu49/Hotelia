@@ -33,3 +33,37 @@ describe('refresh token storage', () => {
     await expect(service.validateRefreshToken(String(id), newer)).resolves.toBe(true);
   });
 });
+
+describe('login lockout', () => {
+  const makeUser = async () => {
+    const user: any = { passwordHash: await bcrypt.hash('Correct123', 4), loginAttempts: 0 };
+    user.save = jest.fn(async () => user);
+    return user;
+  };
+  const service = new UsersService({} as any);
+
+  it('locks the account for 15 minutes after five wrong passwords', async () => {
+    const user = await makeUser();
+    for (let i = 0; i < 4; i++) await expect(service.validatePassword(user, 'Wrong1234')).resolves.toBe(false);
+    expect(user.lockedUntil).toBeUndefined();
+    await expect(service.validatePassword(user, 'Wrong1234')).resolves.toBe(false);
+    const minutes = (user.lockedUntil.getTime() - Date.now()) / 60_000;
+    expect(minutes).toBeGreaterThan(14);
+    expect(minutes).toBeLessThanOrEqual(15);
+  });
+
+  it('rejects even the right password while the account is locked', async () => {
+    const user = await makeUser();
+    user.lockedUntil = new Date(Date.now() + 60_000);
+    await expect(service.validatePassword(user, 'Correct123')).rejects.toThrow('Account is temporarily locked');
+  });
+
+  it('resets the failure counter after a successful login', async () => {
+    const user = await makeUser();
+    await service.validatePassword(user, 'Wrong1234');
+    await service.validatePassword(user, 'Wrong1234');
+    await expect(service.validatePassword(user, 'Correct123')).resolves.toBe(true);
+    expect(user.loginAttempts).toBe(0);
+    expect(user.lockedUntil).toBeUndefined();
+  });
+});

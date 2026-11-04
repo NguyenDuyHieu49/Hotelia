@@ -3,6 +3,8 @@ import { Request, Response } from 'express';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(HttpExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -17,6 +19,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
       const res = exception.getResponse();
       message = typeof res === 'string' ? res : (res as any).message || exception.message;
       code = this.getCode(status);
+    } else if ((exception as { name?: string })?.name === 'CastError') {
+      // A malformed id in the URL (e.g. /hotels/abc) is the caller's mistake, not a server fault.
+      status = HttpStatus.BAD_REQUEST;
+      message = 'Mã định danh không hợp lệ';
+      code = this.getCode(status);
+    } else {
+      // Keep details in the server log only; the client gets the generic message above.
+      this.logger.error(exception instanceof Error ? exception.stack ?? exception.message : String(exception));
     }
 
     response.status(status).json({
