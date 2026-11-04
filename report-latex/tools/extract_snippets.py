@@ -21,6 +21,7 @@ SNIPPETS = {
     "payos-verify.ts": ("backend/src/payments/providers/payos.client.ts", "  async verifyWebhook(", "  private getClient(): PayOS {", -2),
     "payments-webhook.ts": ("backend/src/payments/payments.service.ts", "  async handlePayOSWebhook(", "          throw new BadRequestException('Số tiền webhook payOS không khớp đơn hàng');", 1),
     "lgbm-evaluate.ts": ("backend/src/recommendations/lightgbm-ranker.ts", "function evaluateTree(", "  return artifact.tree_info.reduce(", 1),
+    "lgbm-export.py": ("research/scripts/train_hotelia_lgb.py", "    dump = model.booster_.dump_model(", "    serving_output.write_text(", 0),
     "lgbm-load.ts": ("backend/src/recommendations/lightgbm-ranker.ts", "  constructor() {", "      this.logger.warn(`LightGBM unavailable", 2),
 }
 

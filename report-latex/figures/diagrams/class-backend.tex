@@ -14,16 +14,16 @@
   \entity[below=6mm of PaymentsService]{HoteliaLightGbmRanker}{%
     - artifact: Artifact\\+ version, loaded\\+ score(features)\\+ rank(candidates, signals, now)}{44mm}
   \entity[below=6mm of PayOSClient]{AuthService}{%
-    + register(dto)\\+ login(dto)\\+ social(dto)\\+ refresh(token)\\+ logout(userId)\\- generateTokens(user)}{40mm}
+    + register(dto)\\+ login(dto)\\+ social(dto)\\+ refresh(token)\\+ logout(refreshToken)\\- generateTokens(user)}{40mm}
   \entity[below=6mm of HoteliaLightGbmRanker]{ranking}{%
     + rank(candidates, signals)\\+ normalize(s), cityKey(city)}{44mm}
   \entity[below=6mm of AuthService]{JwtStrategy}{%
     + validate(payload): từ chối typ = refresh,\\ \ \ tokenVersion sai, tài khoản bị khóa}{40mm}
   \draw[->] (BookingsService.east |- BookingStateService.text) -- (BookingStateService.west |- BookingStateService.text);
-  \draw[->] (BookingsService) -- node[lbl, right] {dùng} (booking-rules);
+  \draw[->] (BookingsService) -- node[lbl, left] {dùng} (booking-rules);
   \draw[->] (BookingsService.south east) -- (PaymentsService.west);
   \draw[->] (PaymentsService.east) -- (PayOSClient.south west);
   \draw[->] (RecommendationsService.east) -- (HoteliaLightGbmRanker.west);
-  \draw[->, dashed] (RecommendationsService.south east) -- node[lbl, below, sloped] {dự phòng} (ranking.west);
+  \draw[->, dashed] (RecommendationsService.south) |- node[lbl, pos=0.7, below] {dự phòng} (ranking.west);
   \draw[->] (AuthService) -- (JwtStrategy);
 \end{tikzpicture}

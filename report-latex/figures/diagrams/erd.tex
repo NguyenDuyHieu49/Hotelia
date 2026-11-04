@@ -7,13 +7,13 @@
   \entity[anchor=north, at={(5.4,-4.4)}]{bookings}{\underline{\_id}\\userId, hotelId, roomTypeId\\checkIn, checkOut, nights\\totalPrice, status\\holdExpiresAt\\requestKey, requestHash\\paymentMethod}{36mm}
   \entity[anchor=north, at={(10.8,-4.4)}]{payments}{\underline{\_id}\\bookingId $\rightarrow$ bookings\\bookingKey (duy nhất)\\orderCode (duy nhất)\\amount, status\\paymentUrl, paidAt}{34mm}
   \entity[anchor=north, at={(0,-4.4)}]{reviews}{\underline{\_id}\\hotelId, userId, bookingId\\rating, title, content\\ownerReply, isVisible}{34mm}
-  \entity[anchor=north, at={(-0.6,-8.6)}]{notifications}{userId, title, message\\type, relatedId, isRead}{30mm}
-  \entity[anchor=north, at={(3.0,-8.6)}]{favorites}{\_id = userId:hotelId}{26mm}
-  \entityT[anchor=north, at={(6.2,-8.6)}]{support}{support\_tickets}{userId, subject\\message, status, reply}{28mm}
-  \entityT[anchor=north, at={(9.6,-8.6)}]{pwreset}{password\_resets}{userId, tokenHash\\expiresAt (15 phút)}{30mm}
-  \entityT[anchor=north, at={(13.0,-8.6)}]{audit}{audit\_logs}{actorId, role\\method, path}{26mm}
-  \entityT[anchor=north, at={(2.6,-10.7)}]{recviews}{recommendation\_views}{\_id = actor:hotelId\\viewedAt (TTL 90 ngày)}{40mm}
-  \entityT[anchor=north, at={(8.6,-10.7)}]{recimp}{recommendation\_impressions}{\_id = actor:impressionId\\candidateIds ($\le$ 8)\\detailOpenedHotelIds\\expiresAt (TTL)}{44mm}
+  \entity[anchor=north, at={(-0.6,-9.3)}]{notifications}{userId, title, message\\type, relatedId, isRead}{30mm}
+  \entity[anchor=north, at={(3.0,-9.3)}]{favorites}{\_id = userId:hotelId}{26mm}
+  \entityT[anchor=north, at={(6.2,-9.3)}]{support}{support\_tickets}{userId, subject\\message, status, reply}{28mm}
+  \entityT[anchor=north, at={(9.6,-9.3)}]{pwreset}{password\_resets}{userId, tokenHash\\expiresAt (15 phút)}{30mm}
+  \entityT[anchor=north, at={(13.0,-9.3)}]{audit}{audit\_logs}{actorId, role\\method, path}{26mm}
+  \entityT[anchor=north, at={(2.6,-11.4)}]{recviews}{recommendation\_views}{\_id = actor:hotelId\\viewedAt (TTL 90 ngày)}{40mm}
+  \entityT[anchor=north, at={(8.6,-11.4)}]{recimp}{recommendation\_impressions}{\_id = actor:impressionId\\candidateIds ($\le$ 8)\\detailOpenedHotelIds\\expiresAt (TTL)}{44mm}
   \end{scope}
   \draw[rel] (users.east) -- node[card, pos=0.12, above] {1} node[card, pos=0.88, above] {N} node[card, midway, below] {sở hữu} (hotels.west);
   \draw[rel] (hotels.east) -- node[card, pos=0.12, above] {1} node[card, pos=0.88, above] {N} (roomtypes.west);

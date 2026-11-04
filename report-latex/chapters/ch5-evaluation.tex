@@ -4,24 +4,25 @@ Chương này trình bày chiến lược kiểm thử, kết quả kiểm thử
 
 \section{Chiến lược kiểm thử}\label{sec:test-strategy}
 
-\Cref{tab:test-levels} mô tả các mức kiểm thử, công cụ, phạm vi và số lượng ca. Kiểm thử đơn vị và tích hợp chạy tự động mỗi khi thay đổi mã. Kiểm thử trên MongoDB thật cần một replica set riêng nên chạy theo lệnh. Kiểm thử giao diện và kiểm thử đầu-cuối được thực hiện thủ công trên Simulator và trình duyệt, với dữ liệu tạo qua chính API của hệ thống.
+\Cref{tab:test-levels} mô tả các mức kiểm thử, công cụ, phạm vi và số lượng test case. Kiểm thử đơn vị và tích hợp chạy tự động mỗi khi thay đổi mã. Kiểm thử trên MongoDB thật cần một replica set riêng nên chạy theo lệnh. Kiểm thử giao diện và kiểm thử đầu-cuối được thực hiện thủ công trên Simulator và trình duyệt, với dữ liệu tạo qua chính API của hệ thống.
 
 \begin{rtable}
 \begin{longtable}{|L{2.9cm}|L{3.5cm}|L{5.4cm}|C{2.8cm}|}
 \caption{Các mức kiểm thử}\label{tab:test-levels}\\
 \hline
-\thead{Mức} & \thead{Công cụ} & \thead{Phạm vi} & \thead{Số ca, kết quả} \\ \hline
+\thead{Mức} & \thead{Công cụ} & \thead{Phạm vi} & \thead{Số test case, kết quả} \\ \hline
 \endfirsthead
 \hline
-\thead{Mức} & \thead{Công cụ} & \thead{Phạm vi} & \thead{Số ca, kết quả} \\ \hline
+\thead{Mức} & \thead{Công cụ} & \thead{Phạm vi} & \thead{Số test case, kết quả} \\ \hline
 \endhead
-Đơn vị (máy chủ) & Jest 30, ts-jest & Quy tắc ngày, tồn kho, máy trạng thái, xác thực, webhook, bộ xếp hạng, cấu hình & 57 ca / 14 bộ; 57 đạt \\ \hline
-Tích hợp dịch vụ (máy chủ) & Jest với MongoDB giả lập trong bộ nhớ & BookingsService, PaymentsService, RecommendationsService, luồng trả tại khách sạn & (nằm trong 57 ca) \\ \hline
+Đơn vị (máy chủ) & Jest 30, ts-jest & Quy tắc ngày, tồn kho, máy trạng thái, xác thực, webhook, bộ xếp hạng, cấu hình & 63 test case / 15 bộ; 63 đạt (\cref{tab:unit-jest}) \\ \hline
+Tích hợp dịch vụ (máy chủ) & Jest với MongoDB giả lập trong bộ nhớ & BookingsService, PaymentsService, RecommendationsService, luồng trả tại khách sạn & (nằm trong 63 test case) \\ \hline
 Tích hợp cơ sở dữ liệu thật & Node, MongoDB 7.0 replica set (Docker) & Tranh chấp, thử lại, hết hạn, hủy, nhận/trả phòng & 1 kịch bản, 24 khẳng định; đạt \\ \hline
-Đơn vị (nghiên cứu ML) & pytest 9.1 & Đặc trưng Python, chuẩn hóa, giờ Việt Nam, ảnh chụp danh mục, pipeline Trivago & 80 ca; 80 đạt \\ \hline
-Phân quyền qua HTTP & Kịch bản Node gọi API cục bộ & Vai trò, quyền sở hữu, loại token, kiểm tra đầu vào, thu hồi phiên & 13 + 7 ca; 20 đạt \\ \hline
+Đơn vị (nghiên cứu ML) & pytest 9.1 & Đặc trưng Python, chuẩn hóa, giờ Việt Nam, ảnh chụp danh mục, pipeline Trivago & 80 test case; 80 đạt (\cref{tab:unit-pytest}) \\ \hline
+Phân quyền qua HTTP & Kịch bản Node gọi API cục bộ & Vai trò, quyền sở hữu, loại token, kiểm tra đầu vào, thu hồi phiên & 13 + 7 test case; 20 đạt \\ \hline
+Bảo mật qua HTTP & Kịch bản Node \code{test-security.cjs} gọi API cục bộ & Chèn toán tử, JWT giả, khóa tài khoản, webhook giả, CORS, giới hạn tần suất & 10 test case; 10 đạt (\cref{tab:security-http}) \\ \hline
 Khả năng chịu lỗi của mô hình & Kịch bản Node trên bản sao thư mục build & Tệp mô hình hỏng, thiếu, sai đặc trưng & 6 kịch bản; 6 đạt \\ \hline
-Giao diện iOS & iOS Simulator, iPhone 17 Pro & Luồng khách đầy đủ, tiếng Việt và tiếng Anh & 18 ca thủ công (\cref{tab:test-ui}) \\ \hline
+Giao diện iOS & iOS Simulator, iPhone 17 Pro & Luồng khách đầy đủ, tiếng Việt và tiếng Anh & 18 test case thủ công (\cref{tab:test-ui}) \\ \hline
 Giao diện web & Chrome headless (Puppeteer) & 14 trang owner/admin; 3 kích thước màn hình; lỗi console, HTTP, tràn ngang & 16 ảnh; 0 lỗi tự động phát hiện \\ \hline
 Kiểm tra trên môi trường vận hành & curl, dig & Sức khỏe API, phiên bản mô hình, DNS & chỉ đọc \\ \hline
 \end{longtable}
@@ -29,15 +30,81 @@ Kiểm tra trên môi trường vận hành & curl, dig & Sức khỏe API, phi�
 
 Hệ thống chưa có kiểm thử giao diện tự động (XCUITest, Playwright), chưa có kiểm thử tải và chưa có kiểm thử với cổng payOS thật. Đây là các giới hạn được nêu ở \cref{sec:limitations}.
 
+\section{Unit test hệ thống}\label{sec:unit-tests}
+
+Unit test kiểm tra từng lớp hoặc hàm độc lập, không cần chạy cả hệ thống. Máy chủ dùng Jest với ts-jest; các phụ thuộc như cơ sở dữ liệu, cổng thanh toán, nhà cung cấp danh tính được thay bằng đối tượng giả (mock) hoặc MongoDB giả lập trong bộ nhớ. Phần huấn luyện mô hình dùng pytest. \Cref{tab:unit-jest,tab:unit-pytest} liệt kê toàn bộ các bộ unit test, nội dung kiểm tra và số test case; \cref{lst:unit-run} là lệnh chạy và kết quả.
+
+\begin{rtable}
+\begin{longtable}{|L{5.4cm}|L{7.9cm}|C{1.4cm}|}
+\caption{Các bộ unit test của máy chủ NestJS (Jest)}\label{tab:unit-jest}\\
+\hline
+\thead{Tệp kiểm thử (\code{backend/src/})} & \thead{Nội dung kiểm tra} & \thead{Số test} \\ \hline
+\endfirsthead
+\hline
+\thead{Tệp kiểm thử (\code{backend/src/})} & \thead{Nội dung kiểm tra} & \thead{Số test} \\ \hline
+\endhead
+\code{auth/auth.service.spec.ts} & Xác minh ID token Google và Apple (chữ ký, \code{aud}, email đã xác minh, nonce); phân loại access và refresh token; đăng xuất thu hồi đúng token & 8 \\ \hline
+\code{auth/jwt.strategy.spec.ts} & Chấp nhận access token, từ chối refresh token dùng làm Bearer & 2 \\ \hline
+\code{bookings/booking-rules.spec.ts} & Ngày theo giờ Việt Nam, số đêm, kỳ lưu trú sai, đếm phòng trống theo đêm, giữ phòng hết hạn & 4 \\ \hline
+\code{bookings/bookings.service.spec.ts} & Hai khách tranh phòng cuối; gửi lại cùng khóa lũy đẳng; khách sạn chỉ để xem & 3 \\ \hline
+\code{bookings/pay-at-hotel-flow.spec.ts} & Hành trình giữ phòng, trả tại khách sạn, nhận và trả phòng; hết hạn giữ; yêu cầu hủy & 2 \\ \hline
+\code{common/filters/http-exception.filter.spec.ts} & Giữ mã lỗi HTTP; mã định danh sai định dạng trả 400; ẩn chi tiết lỗi nội bộ & 3 \\ \hline
+\code{config/env.validation.spec.ts} & Cấu hình hợp lệ; thiếu biến bắt buộc; \code{JWT\_SECRET} dạng mẫu; thiếu \code{CORS\_ORIGINS} ở môi trường vận hành & 4 \\ \hline
+\code{hotels/public-hotel.spec.ts} & Điều kiện nhận đặt phòng; tách điểm biên tập khỏi đánh giá thật & 2 \\ \hline
+\code{owners/owners.service.spec.ts} & Giữ phòng quá hạn hiển thị là hết hạn trong danh sách của chủ khách sạn & 1 \\ \hline
+\code{payments/payments.service.spec.ts} & payOS chưa cấu hình; dùng lại liên kết đang chờ; số tiền lấy từ đặt phòng; webhook mẫu & 4 \\ \hline
+\code{payments/providers/payos.client.spec.ts} & Webhook đúng chữ ký; sửa số tiền nhưng giữ chữ ký cũ & 2 \\ \hline
+\code{recommendations/lightgbm-ranker.spec.ts} & Điểm số và 16 đặc trưng khớp Python; giờ Việt Nam; xếp hạng ứng viên & 4 \\ \hline
+\code{recommendations/ranking.spec.ts} & Bộ xếp hạng theo nội dung: khởi động lạnh, tương đồng, điểm đến không dấu, điểm chất lượng & 5 \\ \hline
+\code{recommendations/recommendations.spec.ts} & Cô lập lịch sử theo tác nhân; lượt hiển thị và lượt mở chi tiết; xóa lịch sử; chuyển sang bộ dự phòng & 13 \\ \hline
+\code{users/users.service.spec.ts} & Lưu refresh token bằng SHA-256, xoay vòng, thu hồi, tương thích bản băm cũ; khóa tài khoản sau 5 lần sai & 6 \\ \hline
+\textit{Tổng} & \textit{15 bộ} & \textit{63} \\ \hline
+\end{longtable}
+\end{rtable}
+
+\begin{rtable}
+\begin{longtable}{|L{5.4cm}|L{7.9cm}|C{1.4cm}|}
+\caption{Các bộ unit test của phần huấn luyện mô hình (pytest)}\label{tab:unit-pytest}\\
+\hline
+\thead{Tệp kiểm thử (\code{research/tests/})} & \thead{Nội dung kiểm tra} & \thead{Số test} \\ \hline
+\endfirsthead
+\hline
+\thead{Tệp kiểm thử (\code{research/tests/})} & \thead{Nội dung kiểm tra} & \thead{Số test} \\ \hline
+\endhead
+\code{test\_train\_hotelia\_lgb.py} & Chuẩn hóa giống máy chủ; giờ Việt Nam; khách mới không có độ hợp sở thích; giới hạn lịch sử giống lúc phục vụ; danh mục khớp API & 5 \\ \hline
+\code{test\_features.py} & Các nhóm đặc trưng trên dữ liệu Trivago: khách sạn, ngữ cảnh, phiên, thời gian & 20 \\ \hline
+\code{test\_evaluate.py} & Cách tính DCG, NDCG, MRR, kể cả danh sách rỗng và thứ tự tốt nhất, tệ nhất & 20 \\ \hline
+\code{test\_data\_loader.py} & Kiểm tra cấu trúc, đọc và lưu dữ liệu thô, lấy mẫu & 10 \\ \hline
+\code{test\_session\_knn.py} & Đường cơ sở láng giềng theo phiên: độ tương đồng, tìm láng giềng, dự đoán & 10 \\ \hline
+\code{test\_train\_lgb.py} & Huấn luyện LightGBM: chia theo thời gian giữ nguyên phiên, chỉ số theo đúng ranh giới truy vấn & 8 \\ \hline
+\code{test\_baselines.py} & Các đường cơ sở: vị trí hiển thị, độ phổ biến chỉ học từ tập huấn luyện & 7 \\ \hline
+\textit{Tổng} & \textit{7 tệp} & \textit{80} \\ \hline
+\end{longtable}
+\end{rtable}
+
+\begin{lstlisting}[numbers=none, language={}, caption={Lệnh chạy unit test và kết quả}, label={lst:unit-run}]
+$ cd backend && npm test
+Test Suites: 15 passed, 15 total
+Tests:       63 passed, 63 total
+
+$ cd research && venv/bin/python -m pytest tests -q
+80 passed, 5 warnings in 5.12s
+
+$ cd backend && npm run build && npm run test:booking-db
+PASS: contention, retry, expiry, cancellation, pay-at-hotel, owner check-in/out and occupied stay dates.
+\end{lstlisting}
+
+Một số unit test đã phát hiện lỗi thật trong quá trình làm đồ án: kiểm thử khớp Python -- TypeScript phát hiện lỗi múi giờ; kiểm thử lưu refresh token phát hiện việc bcrypt chỉ đọc 72 byte đầu; kiểm thử bảo mật qua HTTP phát hiện mã định danh sai định dạng bị trả 500 thay vì 400, sau đó lỗi được sửa và có unit test riêng (\cref{sec:test-security}).
+
 \section{Kiểm thử chức năng đặt phòng}\label{sec:test-booking}
 
 \subsection{Kiểm thử tự động}
 
-\Cref{tab:test-booking} là các ca kiểm thử của luồng đặt phòng. Các ca TC-B chạy bằng Jest với cơ sở dữ liệu giả lập. Các ca TC-D chạy trên MongoDB thật với giao dịch thật, nhằm loại trừ khả năng mô hình giả lập che khuất lỗi đồng thời.
+\Cref{tab:test-booking} là các test case của luồng đặt phòng. Các test case TC-B chạy bằng Jest với cơ sở dữ liệu giả lập. Các test case TC-D chạy trên MongoDB thật với giao dịch thật, nhằm loại trừ khả năng mô hình giả lập che khuất lỗi đồng thời.
 
 \begin{rtable}
 \begin{longtable}{|C{1.4cm}|L{6.6cm}|L{5.0cm}|C{1.6cm}|}
-\caption{Ca kiểm thử luồng đặt phòng}\label{tab:test-booking}\\
+\caption{Test case luồng đặt phòng}\label{tab:test-booking}\\
 \hline
 \thead{Mã} & \thead{Kịch bản} & \thead{Kết quả mong đợi} & \thead{Kết quả} \\ \hline
 \endfirsthead
@@ -74,7 +141,7 @@ PASS: contention, retry, expiry, cancellation, pay-at-hotel, owner check-in/out
 
 \subsection{Hết thời gian chờ và thử lại}
 
-Lỗi mạng giữa ứng dụng và máy chủ khó tái hiện tự động. Đồ án kiểm chứng tình huống này theo hai lớp. Phía máy chủ, TC-D02 xác nhận rằng một yêu cầu gửi lại với cùng khóa, kể cả khi hai yêu cầu đến đồng thời, chỉ tạo một đặt phòng. Phía ứng dụng, mã nguồn ở \cref{lst:bookroom} cho thấy khóa được giữ nguyên khi lỗi thuộc loại không xác định. Hai lớp kết hợp bảo đảm rằng việc khách bấm ``Kiểm tra lại kết quả'' sau khi hết thời gian chờ không tạo đặt phòng thứ hai. Đồ án chưa có kiểm thử đầu-cuối tự động mô phỏng mất kết nối đúng lúc máy chủ vừa ghi xong; đây là ca nên bổ sung bằng công cụ chặn mạng (ví dụ proxy có độ trễ).
+Lỗi mạng giữa ứng dụng và máy chủ khó tái hiện tự động. Đồ án kiểm chứng tình huống này theo hai lớp. Phía máy chủ, TC-D02 xác nhận rằng một yêu cầu gửi lại với cùng khóa, kể cả khi hai yêu cầu đến đồng thời, chỉ tạo một đặt phòng. Phía ứng dụng, mã nguồn ở \cref{lst:bookroom} cho thấy khóa được giữ nguyên khi lỗi thuộc loại không xác định. Hai lớp kết hợp bảo đảm rằng việc khách bấm ``Kiểm tra lại kết quả'' sau khi hết thời gian chờ không tạo đặt phòng thứ hai. Đồ án chưa có kiểm thử đầu-cuối tự động mô phỏng mất kết nối đúng lúc máy chủ vừa ghi xong; đây là test case nên bổ sung bằng công cụ chặn mạng (ví dụ proxy có độ trễ).
 
 \subsection{Kiểm thử thủ công trên ứng dụng}
 
@@ -84,11 +151,11 @@ Luồng đặt phòng được thực hiện đầy đủ trên Simulator với 
 
 \subsection{Xác thực}
 
-\Cref{tab:test-auth} là các ca kiểm thử tự động của xác thực và cấu hình bảo mật. TC-A05 đến TC-A08 được bổ sung khi sửa lỗi refresh token dùng được như access token; TC-A13 đến TC-A17 được bổ sung khi sửa cách lưu và thu hồi refresh token (\cref{sec:impl-auth}).
+\Cref{tab:test-auth} là các test case tự động của xác thực và cấu hình bảo mật. TC-A05 đến TC-A08 được bổ sung khi sửa lỗi refresh token dùng được như access token; TC-A13 đến TC-A17 được bổ sung khi sửa cách lưu và thu hồi refresh token (\cref{sec:impl-auth}).
 
 \begin{rtable}
 \begin{longtable}{|C{1.4cm}|L{8.0cm}|L{3.6cm}|C{1.6cm}|}
-\caption{Ca kiểm thử xác thực và cấu hình}\label{tab:test-auth}\\
+\caption{Test case xác thực và cấu hình}\label{tab:test-auth}\\
 \hline
 \thead{Mã} & \thead{Kịch bản} & \thead{Mong đợi} & \thead{Kết quả} \\ \hline
 \endfirsthead
@@ -117,11 +184,11 @@ TC-A17 & Đăng xuất bằng access token, token cũ hoặc token giả & Trả
 
 \subsection{Phân quyền qua HTTP}
 
-\Cref{tab:test-authz} là kết quả gọi API thật trên máy chủ cục bộ bằng ba tài khoản thử nghiệm USER, OWNER và ADMIN. Ca A10 ban đầu cho kết quả 403 thay vì 200. Nguyên nhân là kịch bản chọn nhầm một đặt phòng thuộc khách sạn mà chủ khách sạn thử nghiệm không sở hữu, nên 403 là phản hồi đúng. Sau khi sửa dữ liệu của kịch bản, ca này đạt; tình huống bị chọn nhầm được giữ lại thành ca A13.
+\Cref{tab:test-authz} là kết quả gọi API thật trên máy chủ cục bộ bằng ba tài khoản thử nghiệm USER, OWNER và ADMIN. Test case A10 ban đầu cho kết quả 403 thay vì 200. Nguyên nhân là kịch bản chọn nhầm một đặt phòng thuộc khách sạn mà chủ khách sạn thử nghiệm không sở hữu, nên 403 là phản hồi đúng. Sau khi sửa dữ liệu của kịch bản, test case này đạt; tình huống bị chọn nhầm được giữ lại thành test case A13.
 
 \begin{rtable}
 \begin{longtable}{|C{1.0cm}|L{7.6cm}|C{1.6cm}|C{1.6cm}|C{1.8cm}|}
-\caption{Ca kiểm thử phân quyền qua API}\label{tab:test-authz}\\
+\caption{Test case phân quyền qua API}\label{tab:test-authz}\\
 \hline
 \thead{Mã} & \thead{Kịch bản} & \thead{Mong đợi} & \thead{Thực tế} & \thead{Kết quả} \\ \hline
 \endfirsthead
@@ -144,15 +211,15 @@ A13 & OWNER xem chi tiết đặt phòng tại khách sạn không sở hữu & 
 \end{longtable}
 \end{rtable}
 
-Ca A11 cho thấy \code{ValidationPipe} với \code{forbidNonWhitelisted} chặn tấn công gán hàng loạt (mass assignment): người dùng không thể tự nâng vai trò bằng cách gửi thêm trường \code{role}.
+Test case A11 cho thấy \code{ValidationPipe} với \code{forbidNonWhitelisted} chặn tấn công gán hàng loạt (mass assignment): người dùng không thể tự nâng vai trò bằng cách gửi thêm trường \code{role}.
 
 \subsection{Phiên đăng nhập}
 
-\Cref{tab:test-session} kiểm tra việc xoay vòng và thu hồi refresh token, cùng chức năng xóa lịch sử gợi ý, trên cùng máy chủ cục bộ. Lần chạy đầu, ca S2 không đạt: lần đăng nhập và lần làm mới diễn ra trong cùng một giây nên máy chủ phát lại đúng refresh token cũ. Sau khi thêm claim \code{jti} ngẫu nhiên, cả bảy ca đều đạt.
+\Cref{tab:test-session} kiểm tra việc xoay vòng và thu hồi refresh token, cùng chức năng xóa lịch sử gợi ý, trên cùng máy chủ cục bộ. Lần chạy đầu, test case S2 không đạt: lần đăng nhập và lần làm mới diễn ra trong cùng một giây nên máy chủ phát lại đúng refresh token cũ. Sau khi thêm claim \code{jti} ngẫu nhiên, cả bảy test case đều đạt.
 
 \begin{rtable}
 \begin{longtable}{|C{1.0cm}|L{11.0cm}|C{1.8cm}|}
-\caption{Ca kiểm thử phiên đăng nhập và xóa lịch sử gợi ý}\label{tab:test-session}\\
+\caption{Test case phiên đăng nhập và xóa lịch sử gợi ý}\label{tab:test-session}\\
 \hline
 \thead{Mã} & \thead{Kịch bản} & \thead{Kết quả} \\ \hline
 \endfirsthead
@@ -171,11 +238,11 @@ S7 & Sau khi xóa lịch sử gợi ý, gợi ý không còn được cá nhân 
 
 \subsection{Thanh toán và webhook}
 
-\Cref{tab:test-pay} là các ca kiểm thử của thanh toán. TC-P05 và TC-P06 dùng chính thư viện payOS để ký một webhook bằng khóa thử nghiệm. TC-P06 xác nhận rằng nếu kẻ tấn công sửa số tiền nhưng giữ nguyên chữ ký cũ, webhook bị từ chối.
+\Cref{tab:test-pay} là các test case của thanh toán. TC-P05 và TC-P06 dùng chính thư viện payOS để ký một webhook bằng khóa thử nghiệm. TC-P06 xác nhận rằng nếu kẻ tấn công sửa số tiền nhưng giữ nguyên chữ ký cũ, webhook bị từ chối.
 
 \begin{rtable}
 \begin{longtable}{|C{1.4cm}|L{8.0cm}|L{3.6cm}|C{1.6cm}|}
-\caption{Ca kiểm thử thanh toán}\label{tab:test-pay}\\
+\caption{Test case thanh toán}\label{tab:test-pay}\\
 \hline
 \thead{Mã} & \thead{Kịch bản} & \thead{Mong đợi} & \thead{Kết quả} \\ \hline
 \endfirsthead
@@ -197,15 +264,89 @@ TC-P08 & Thủ công: trả tại khách sạn & CONFIRMED, không tạo bản g
 
 \subsection{Chủ khách sạn và quản trị viên}
 
-Ngoài ca kiểm thử tự động của \code{OwnersService} (đặt phòng hết hạn giữ được hiển thị đúng trạng thái), các chức năng của bảng điều khiển được kiểm tra thủ công với dữ liệu tạo qua API: nhận phòng, trả phòng và phản hồi đánh giá bằng tài khoản OWNER; duyệt hồ sơ chủ khách sạn đang chờ, xem thanh toán và nhật ký thao tác bằng tài khoản ADMIN (\cref{fig:web-owner,fig:web-admin}). Nhật ký thao tác ghi đúng các yêu cầu POST đã thực hiện (gợi ý, đặt phòng) cùng mã tài khoản.
+Ngoài test case tự động của \code{OwnersService} (đặt phòng hết hạn giữ được hiển thị đúng trạng thái), các chức năng của bảng điều khiển được kiểm tra thủ công với dữ liệu tạo qua API: nhận phòng, trả phòng và phản hồi đánh giá bằng tài khoản OWNER; duyệt hồ sơ chủ khách sạn đang chờ, xem thanh toán và nhật ký thao tác bằng tài khoản ADMIN (\cref{fig:web-owner,fig:web-admin}). Nhật ký thao tác ghi đúng các yêu cầu POST đã thực hiện (gợi ý, đặt phòng) cùng mã tài khoản.
+
+\section{Kiểm thử và đánh giá bảo mật}\label{sec:test-security}
+
+Mục này chứng minh các biện pháp bảo mật hoạt động bằng ba cách: đối chiếu từng nhóm rủi ro của OWASP Top 10:2021 \cite{owasptop10} với biện pháp và test case tương ứng; chạy một bộ kiểm thử tấn công qua HTTP trên máy chủ cục bộ; và ghi lại các lỗ hổng đã phát hiện, đã sửa.
+
+\subsection{Đối chiếu với OWASP Top 10}
+
+\begin{rtable}
+\begin{longtable}{|L{3.3cm}|L{5.6cm}|L{3.9cm}|C{1.9cm}|}
+\caption{Rủi ro bảo mật, biện pháp và bằng chứng kiểm thử}\label{tab:security-owasp}\\
+\hline
+\thead{Rủi ro (OWASP 2021)} & \thead{Biện pháp trong Hotelia} & \thead{Test case} & \thead{Kết quả} \\ \hline
+\endfirsthead
+\hline
+\thead{Rủi ro (OWASP 2021)} & \thead{Biện pháp trong Hotelia} & \thead{Test case} & \thead{Kết quả} \\ \hline
+\endhead
+A01 Kiểm soát truy cập & Phân quyền ba vai trò; kiểm tra quyền sở hữu trong từng dịch vụ & A1--A7, A10, A13 & Đạt \\ \hline
+A02 Lỗi mật mã & Mật khẩu bcrypt 12 vòng; refresh token lưu SHA-256; webhook HMAC-SHA256; HTTPS & TC-A13--A15, TC-P05, TC-P06, H7 & Đạt \\ \hline
+A03 Chèn mã (injection) & \code{ValidationPipe} kiểm tra kiểu, từ chối trường lạ; thoát ký tự trong biểu thức chính quy & A11, H1--H3 & Đạt \\ \hline
+A04 Thiết kế không an toàn & Số tiền lấy ở máy chủ; khóa lũy đẳng; giữ phòng có hạn; tuần tự hóa tồn kho & TC-B06, TC-D01, TC-D02, TC-P03 & Đạt \\ \hline
+A05 Cấu hình sai & Từ chối khởi động khi cấu hình nguy hiểm; CORS theo danh sách; lỗi không lộ chi tiết & TC-A09--A12, H8, H9 & Đạt \\ \hline
+A07 Lỗi xác thực & Khóa 15 phút sau 5 lần sai; giới hạn 100 yêu cầu/phút; phân loại token; xoay vòng, thu hồi; xác minh ID token & TC-A01--A08, TC-A16--A17, S1--S6, H4--H6, H10 & Đạt \\ \hline
+A08 Toàn vẹn dữ liệu & Webhook phải có chữ ký và đúng số tiền; tệp mô hình được kiểm tra trước khi nạp & TC-P05, TC-P06, H7, TC-R12 & Đạt \\ \hline
+A09 Ghi nhật ký, giám sát & Nhật ký thao tác \code{audit\_logs}; lỗi nội bộ ghi vào nhật ký máy chủ & Kiểm tra trên bảng điều khiển quản trị & Một phần (chưa có cảnh báo) \\ \hline
+\end{longtable}
+\end{rtable}
+
+\subsection{Kiểm thử tấn công qua HTTP}
+
+Bộ kiểm thử \code{backend/scripts/test-security.cjs} (lệnh \code{npm run test:security}) gửi các yêu cầu tấn công thật tới máy chủ chạy cục bộ với MongoDB trong Docker. Script tự từ chối chạy nếu địa chỉ API không phải máy cục bộ, vì nó tạo một tài khoản thử và cố tình vượt giới hạn tần suất. \Cref{tab:security-http} là kết quả.
+
+\begin{rtable}
+\begin{longtable}{|C{1.0cm}|L{6.9cm}|L{3.0cm}|L{2.4cm}|C{1.1cm}|}
+\caption{Kết quả kiểm thử tấn công qua HTTP}\label{tab:security-http}\\
+\hline
+\thead{Mã} & \thead{Kịch bản tấn công} & \thead{Mong đợi} & \thead{Thực tế} & \thead{Kết quả} \\ \hline
+\endfirsthead
+\hline
+\thead{Mã} & \thead{Kịch bản tấn công} & \thead{Mong đợi} & \thead{Thực tế} & \thead{Kết quả} \\ \hline
+\endhead
+H1 & Chèn toán tử MongoDB vào ô đăng nhập: \code{\{"email": \{"\$ne": null\}, "password": \{"\$ne": null\}\}} & 400 & 400 & Đạt \\ \hline
+H2 & Chèn toán tử qua tham số tìm kiếm: \code{destination[\$ne]=x} & 400 & 400 & Đạt \\ \hline
+H3 & Gửi biểu thức chính quy \code{.*} vào ô tìm kiếm để lấy toàn bộ khách sạn & 0 kết quả & 0 kết quả & Đạt \\ \hline
+H4 & JWT tự ký bằng khóa khác, tự gán vai trò ADMIN, gọi \code{/admin/stats} & 401 & 401 & Đạt \\ \hline
+H5 & JWT không có chữ ký (\code{alg: none}) & 401 & 401 & Đạt \\ \hline
+H6 & Sai mật khẩu 5 lần, lần thứ 6 nhập đúng & 5 lần 401, rồi 400 (bị khóa) & 5 lần 401, rồi 400 & Đạt \\ \hline
+H7 & Gửi webhook payOS với chữ ký giả & 400 & 400 & Đạt \\ \hline
+H8 & Gọi \code{/hotels/not-a-valid-id}; kiểm tra phản hồi không lộ stack trace & 400, không lộ & 400, không lộ & Đạt \\ \hline
+H9 & Yêu cầu CORS từ nguồn lạ \code{https://evil.example} & Không cấp quyền & Không cấp quyền & Đạt \\ \hline
+H10 & Gửi 120 yêu cầu trong vài giây (giới hạn 100/phút) & Có mã 429 & 22 yêu cầu bị 429 & Đạt \\ \hline
+\end{longtable}
+\end{rtable}
+
+\subsection{Lỗ hổng đã phát hiện và sửa}
+
+Quá trình đối chiếu mã với tiêu chuẩn và chạy các kiểm thử trên đã phát hiện bốn lỗi bảo mật. Mỗi lỗi đều được sửa kèm test case tái hiện, để lỗi không quay lại (\cref{tab:security-fixes}).
+
+\begin{rtable}
+\begin{longtable}{|L{3.8cm}|L{4.3cm}|L{4.2cm}|L{2.4cm}|}
+\caption{Lỗ hổng bảo mật đã phát hiện và sửa}\label{tab:security-fixes}\\
+\hline
+\thead{Lỗ hổng} & \thead{Hậu quả} & \thead{Cách sửa} & \thead{Test case} \\ \hline
+\endfirsthead
+\hline
+\thead{Lỗ hổng} & \thead{Hậu quả} & \thead{Cách sửa} & \thead{Test case} \\ \hline
+\endhead
+Access và refresh token ký giống nhau & Refresh token 7 ngày dùng được như access token & Thêm claim \code{typ}; mỗi bên từ chối loại token sai & TC-A05--A08, A8, A9 \\ \hline
+Refresh token băm bằng bcrypt, mà bcrypt chỉ đọc 72 byte đầu & Token cũ vẫn làm mới được phiên sau khi xoay vòng & Băm SHA-256 toàn bộ token, thêm \code{jti}; đăng xuất thu hồi phiên & TC-A13--A17, S1--S6 \\ \hline
+Hai điểm cuối của chủ khách sạn thiếu kiểm tra vai trò & Khách thường gọi được API doanh thu và đặt phòng của chủ khách sạn & Thêm \code{RolesGuard} với vai trò OWNER, ADMIN & A6, A7 \\ \hline
+Mã định danh sai định dạng gây lỗi 500 & Mã lỗi sai; lỗi nội bộ không được ghi nhật ký & Bộ lọc lỗi trả 400 cho lỗi chuyển kiểu, ghi nhật ký lỗi nội bộ & H8, unit test bộ lọc lỗi \\ \hline
+\end{longtable}
+\end{rtable}
+
+Các điểm còn yếu được trình bày ở \cref{sec:limitations}: bảng điều khiển lưu token trong \code{localStorage}, chưa có xác thực hai bước, chưa bật các header bảo mật HTTP và chưa có giám sát, cảnh báo.
 
 \section{Kiểm thử giao diện, đáp ứng và song ngữ}\label{sec:test-ui}
 
-\Cref{tab:test-ui} là các ca kiểm thử giao diện thủ công. Năm lỗi được phát hiện trong quá trình này và đều đã được sửa trong mã nguồn.
+\Cref{tab:test-ui} là các test case giao diện thủ công. Năm lỗi được phát hiện trong quá trình này và đều đã được sửa trong mã nguồn.
 
 \begin{rtable}
 \begin{longtable}{|C{1.2cm}|L{6.4cm}|L{5.2cm}|C{1.8cm}|}
-\caption{Ca kiểm thử giao diện và lỗi phát hiện}\label{tab:test-ui}\\
+\caption{Test case giao diện và lỗi phát hiện}\label{tab:test-ui}\\
 \hline
 \thead{Mã} & \thead{Kịch bản} & \thead{Quan sát} & \thead{Kết quả} \\ \hline
 \endfirsthead
@@ -246,11 +387,11 @@ Kiểm thử bảng điều khiển được tự động hóa một phần. K�
 
 \subsection{Kiểm thử tự động}
 
-\Cref{tab:test-rec} là các ca kiểm thử của thành phần gợi ý. Nhóm R01--R11 kiểm tra cách ly dữ liệu và ghi nhận tương tác. Nhóm R12--R13 kiểm tra cơ chế dự phòng. Nhóm R14--R17 kiểm tra khớp Python -- TypeScript. Nhóm R18--R22 kiểm tra bộ xếp hạng theo nội dung.
+\Cref{tab:test-rec} là các test case của thành phần gợi ý. Nhóm R01--R11 kiểm tra cách ly dữ liệu và ghi nhận tương tác. Nhóm R12--R13 kiểm tra cơ chế dự phòng. Nhóm R14--R17 kiểm tra khớp Python -- TypeScript. Nhóm R18--R22 kiểm tra bộ xếp hạng theo nội dung.
 
 \begin{rtable}
 \begin{longtable}{|C{1.2cm}|L{9.6cm}|C{1.6cm}|}
-\caption{Ca kiểm thử thành phần gợi ý}\label{tab:test-rec}\\
+\caption{Test case thành phần gợi ý}\label{tab:test-rec}\\
 \hline
 \thead{Mã} & \thead{Kịch bản} & \thead{Kết quả} \\ \hline
 \endfirsthead
@@ -414,7 +555,7 @@ Trên hành vi thật của Trivago, LightGBM hơn thứ tự hiển thị gốc
 
 \begin{itemize}
 \item Tính đúng của đặt phòng được kiểm chứng trên cơ sở dữ liệu thật. Tình huống hai khách tranh căn phòng cuối, thử lại, hết hạn giữ và hủy được kiểm tra bằng giao dịch MongoDB thật, không chỉ bằng mô hình giả lập.
-\item Bảo mật theo nguyên tắc ``không tin máy khách''. Số tiền thanh toán, trạng thái thanh toán, vai trò và quyền sở hữu đều được quyết định ở máy chủ. Quá trình kiểm tra lại khi viết báo cáo phát hiện và sửa một lỗ hổng thật (refresh token dùng như access token).
+\item Bảo mật theo nguyên tắc ``không tin máy khách''. Số tiền thanh toán, trạng thái thanh toán, vai trò và quyền sở hữu đều được quyết định ở máy chủ. Quá trình kiểm tra khi viết báo cáo phát hiện và sửa bốn lỗ hổng bảo mật (\cref{tab:security-fixes}).
 \item Gợi ý chạy trong cùng tiến trình, có dự phòng và có kiểm thử khớp. Không cần thêm dịch vụ, độ trễ mạng hay chi phí vận hành. Mọi lỗi của mô hình đều được chuyển sang dự phòng.
 \item Trung thực về dữ liệu. Giao diện phân biệt điểm biên tập với đánh giá đã xác minh; báo cáo phân biệt dữ liệu thật với dữ liệu mô phỏng.
 \item Triển khai thật. API, bảng điều khiển và cơ sở dữ liệu đang chạy với tên miền \code{hotelia.asia}; việc cập nhật mô hình có quy trình và đã được thực hiện.
@@ -469,4 +610,4 @@ Trên hành vi thật của Trivago, LightGBM hơn thứ tự hiển thị gốc
 
 \section{Kết luận chương}
 
-Chương này đã trình bày kết quả của 57 ca kiểm thử máy chủ, 80 ca kiểm thử Python, kịch bản tranh chấp trên MongoDB thật, 13 ca phân quyền và 7 ca phiên đăng nhập qua HTTP, 6 kịch bản lỗi mô hình và 18 ca kiểm thử giao diện. Quá trình kiểm thử phát hiện và sửa năm lỗi giao diện cùng một lỗ hổng xác thực. Đánh giá mô hình cho thấy LightGBM v3 học sát giới hạn của dữ liệu sinh nhưng không vượt bộ xếp hạng nội dung. Vì vậy đánh giá ngoại tuyến hiện tại chỉ xác nhận tính đúng của đường ống, chưa xác nhận hiệu quả gợi ý.
+Chương này đã trình bày kết quả của 63 unit test máy chủ, 80 unit test Python, kịch bản tranh chấp trên MongoDB thật, 13 test case phân quyền, 7 test case phiên đăng nhập và 10 test case tấn công qua HTTP, 6 kịch bản lỗi mô hình và 18 test case giao diện. Quá trình kiểm thử phát hiện và sửa năm lỗi giao diện cùng bốn lỗ hổng bảo mật. Đánh giá mô hình cho thấy LightGBM v3 học sát giới hạn của dữ liệu sinh nhưng không vượt bộ xếp hạng nội dung. Vì vậy đánh giá ngoại tuyến hiện tại chỉ xác nhận tính đúng của đường ống, chưa xác nhận hiệu quả gợi ý.

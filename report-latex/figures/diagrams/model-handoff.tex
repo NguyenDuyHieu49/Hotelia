@@ -1,0 +1,27 @@
+\begin{tikzpicture}[node distance=5mm and 5mm]
+  \tikzset{s/.style={box, text width=32mm, font=\sffamily\footnotesize, minimum height=21mm},
+           frame/.style={draw, thick, rounded corners=2pt},
+           ftitle/.style={anchor=south west, font=\sffamily\scriptsize\bfseries}}
+  % Row 1: developer machine, one Git repository
+  \node[s] (exp) {\textbf{1. Xuất danh mục}\\export\_hotelia\_\\catalog.py: GET /hotels};
+  \node[s, right=of exp] (train) {\textbf{2. Huấn luyện}\\train\_hotelia\_lgb.py\\(LambdaRank)};
+  \node[s, right=of train] (write) {\textbf{3. Ghi tệp vào backend}\\hotelia-lgbm.\\active.json};
+  \node[s, right=of write] (test) {\textbf{4. Kiểm thử khớp}\\npm test\\(Python = TypeScript)};
+  \draw[flow] (exp) -- (train); \draw[flow] (train) -- (write); \draw[flow] (write) -- (test);
+  \begin{scope}[on background layer]
+    \node[frame, fit=(exp)(test), inner sep=4mm, yshift=1.5mm] (dev) {};
+  \end{scope}
+  \node[ftitle] at (dev.north west) {MÁY PHÁT TRIỂN -- MỘT KHO MÃ GIT (research/ và backend/ CÙNG THƯ MỤC)};
+  % Row 2: delivery and runtime
+  \node[s, below=26mm of exp] (git) {\textbf{5. git commit, push}\\tệp .json đi cùng mã nguồn};
+  \node[s, right=of git] (build) {\textbf{6. Render build}\\chép models/*.json vào dist};
+  \node[s, right=of build] (load) {\textbf{7. NestJS khởi động}\\đọc tệp, kiểm tra 16 đặc trưng};
+  \node[s, right=of load] (score) {\textbf{8. Chấm điểm}\\evaluateTree (TypeScript)};
+  \draw[flow] (git) -- (build); \draw[flow] (build) -- (load); \draw[flow] (load) -- (score);
+  \begin{scope}[on background layer]
+    \node[frame, fit=(git)(score), inner sep=4mm, yshift=1.5mm] (run) {};
+  \end{scope}
+  \node[ftitle, anchor=south east] at (run.north east) {GITHUB, RENDER VÀ MÁY CHỦ API (KHÔNG CÓ PYTHON)};
+  \draw[flow] (test.south) -- ++(0,-6mm) -| node[lbl, pos=0.25, above] {đạt} (git.north);
+  \draw[ret] (score.south) -- ++(0,-6mm) -| node[lbl, pos=0.25, below] {tệp lỗi hoặc thiếu: dùng bộ xếp hạng theo nội dung} (load.south);
+\end{tikzpicture}

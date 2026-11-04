@@ -123,14 +123,14 @@ NFR-11 & Hiệu năng & Danh sách có phân trang, tối đa 100 phần tử m�
 NFR-12 & Khả dụng & Có điểm kiểm tra sức khỏe cho nền tảng triển khai & \code{GET /health} \\ \hline
 NFR-13 & Bản địa hóa & Ứng dụng iOS hỗ trợ tiếng Việt và tiếng Anh, đổi ngôn ngữ không cần cài lại & String Catalog, \code{AppLanguage} \\ \hline
 NFR-14 & Quyền riêng tư & Dữ liệu tương tác gợi ý có thời hạn và người dùng tự xóa được & Chỉ mục TTL 90 ngày; \code{DELETE /recommendations/views} \\ \hline
-NFR-15 & Bảo trì & Quy tắc nghiệp vụ quan trọng có kiểm thử tự động & 50 ca Jest, 80 ca pytest, kịch bản MongoDB thật \\ \hline
+NFR-15 & Bảo trì & Quy tắc nghiệp vụ quan trọng có kiểm thử tự động & 63 unit test Jest, 80 unit test pytest, kịch bản MongoDB thật \\ \hline
 NFR-16 & Khả chuyển & API chạy trong container; cấu hình qua biến môi trường & Dockerfile hai giai đoạn, \code{render.yaml} \\ \hline
 \end{longtable}
 \end{rtable}
 
 \section{Tác nhân của hệ thống}\label{sec:actors}
 
-Hệ thống có ba tác nhân chính là con người và ba tác nhân phụ là hệ thống bên ngoài (\cref{tab:actors}). Trong đó, nhà cung cấp danh tính (Google, Apple) được bổ sung so với danh sách ban đầu, vì nó tham gia trực tiếp vào ca sử dụng đăng nhập.
+Hệ thống có ba tác nhân chính là con người và ba tác nhân phụ là hệ thống bên ngoài (\cref{tab:actors}). Trong đó, nhà cung cấp danh tính (Google, Apple) được bổ sung so với danh sách ban đầu, vì nó tham gia trực tiếp vào use case đăng nhập.
 
 \begin{table}[H]
 \centering
@@ -149,20 +149,20 @@ Nhà cung cấp danh tính (Google, Apple) & Phụ & Xác thực người dùng 
 \end{rtable}
 \end{table}
 
-\section{Mô hình ca sử dụng}\label{sec:usecases}
+\section{Mô hình use case}\label{sec:usecases}
 
-\subsection{Danh sách ca sử dụng}
+\subsection{Danh sách use case}
 
-\Cref{tab:uc-list} liệt kê 37 ca sử dụng, chia theo tác nhân. Mã ca sử dụng được dùng lại trong các biểu đồ và bảng đặc tả phía sau.
+\Cref{tab:uc-list} liệt kê 37 use case, chia theo tác nhân. Mã use case được dùng lại trong các biểu đồ và bảng đặc tả phía sau.
 
 \begin{rtable}
 \begin{longtable}{|C{1.2cm}|L{5.4cm}|L{2.5cm}|L{5.6cm}|}
-\caption{Danh sách ca sử dụng}\label{tab:uc-list}\\
+\caption{Danh sách use case}\label{tab:uc-list}\\
 \hline
-\thead{Mã} & \thead{Tên ca sử dụng} & \thead{Tác nhân} & \thead{Mô tả ngắn} \\ \hline
+\thead{Mã} & \thead{Tên use case} & \thead{Tác nhân} & \thead{Mô tả ngắn} \\ \hline
 \endfirsthead
 \hline
-\thead{Mã} & \thead{Tên ca sử dụng} & \thead{Tác nhân} & \thead{Mô tả ngắn} \\ \hline
+\thead{Mã} & \thead{Tên use case} & \thead{Tác nhân} & \thead{Mô tả ngắn} \\ \hline
 \endhead
 UC01 & Đăng ký tài khoản & Khách & Tạo tài khoản USER bằng email và mật khẩu \\ \hline
 UC02 & Đăng nhập email -- mật khẩu & Khách, Owner, Admin & Nhận cặp access/refresh token \\ \hline
@@ -204,24 +204,24 @@ UC37 & Trả lời yêu cầu hỗ trợ & Admin & Đóng phiếu hỗ trợ \\ 
 \end{longtable}
 \end{rtable}
 
-\subsection{Biểu đồ ca sử dụng tổng quát}
+\subsection{Biểu đồ use case tổng quát}
 
-\Cref{fig:uc-overall} trình bày biểu đồ ca sử dụng tổng quát. Để biểu đồ dễ đọc, các ca sử dụng được gom thành chín nhóm chức năng; mỗi nhóm được tách thành biểu đồ chi tiết ở các mục tiếp theo. Tác nhân chính đứng bên trái, tác nhân phụ là hệ thống bên ngoài đứng bên phải ranh giới hệ thống.
+\Cref{fig:uc-overall} trình bày biểu đồ use case tổng quát. Để biểu đồ dễ đọc, các use case được gom thành chín nhóm chức năng; mỗi nhóm được tách thành biểu đồ chi tiết ở các mục tiếp theo. Tác nhân chính đứng bên trái, tác nhân phụ là hệ thống bên ngoài đứng bên phải ranh giới hệ thống.
 
 \begin{figure}[H]
 \centering
 \diagram{uc-overall}
-\caption{Biểu đồ ca sử dụng tổng quát của Hotelia}\label{fig:uc-overall}
+\caption{Biểu đồ use case tổng quát của Hotelia}\label{fig:uc-overall}
 \end{figure}
 
-\subsection{Biểu đồ ca sử dụng chi tiết}
+\subsection{Biểu đồ use case chi tiết}
 
-\paragraph{Nhóm xác thực và tài khoản.} \Cref{fig:uc-auth} chi tiết nhóm xác thực. Đăng nhập Google/Apple \emph{bao gồm} (include) việc xác minh ID token với nhà cung cấp. Đổi mật khẩu và đặt lại mật khẩu \emph{bao gồm} việc tăng \code{tokenVersion} để thu hồi các phiên cũ. Mọi thao tác cần đăng nhập đều mở rộng từ ca làm mới phiên khi access token hết hạn.
+\paragraph{Nhóm xác thực và tài khoản.} \Cref{fig:uc-auth} chi tiết nhóm xác thực. Đăng nhập Google/Apple \emph{bao gồm} (include) việc xác minh ID token với nhà cung cấp. Đổi mật khẩu và đặt lại mật khẩu \emph{bao gồm} việc tăng \code{tokenVersion} để thu hồi các phiên cũ. Mọi thao tác cần đăng nhập đều mở rộng từ use case làm mới phiên khi access token hết hạn.
 
 \begin{figure}[H]
 \centering
 \diagram{uc-auth}
-\caption{Biểu đồ ca sử dụng nhóm xác thực và tài khoản}\label{fig:uc-auth}
+\caption{Biểu đồ use case nhóm xác thực và tài khoản}\label{fig:uc-auth}
 \end{figure}
 
 \paragraph{Nhóm khám phá và gợi ý.} \Cref{fig:uc-explore} cho thấy khách chưa đăng nhập vẫn dùng được tìm kiếm, xem chi tiết và gợi ý khám phá. Gợi ý cá nhân hóa \emph{bao gồm} việc ghi nhận lượt hiển thị và lượt mở chi tiết. Đây là dữ liệu đầu vào cho các lần gợi ý sau.
@@ -229,23 +229,23 @@ UC37 & Trả lời yêu cầu hỗ trợ & Admin & Đóng phiếu hỗ trợ \\ 
 \begin{figure}[H]
 \centering
 \diagram{uc-explore}
-\caption{Biểu đồ ca sử dụng nhóm khám phá, gợi ý và thời tiết}\label{fig:uc-explore}
+\caption{Biểu đồ use case nhóm khám phá, gợi ý và thời tiết}\label{fig:uc-explore}
 \end{figure}
 
-\paragraph{Nhóm đặt phòng và thanh toán.} \Cref{fig:uc-booking} thể hiện đặt phòng \emph{bao gồm} kiểm tra phòng trống. Hai ca thanh toán là \emph{mở rộng} (extend) của đặt phòng, vì khách chọn một trong hai. Thanh toán payOS có cổng thanh toán tham gia với vai trò tác nhân phụ.
+\paragraph{Nhóm đặt phòng và thanh toán.} \Cref{fig:uc-booking} thể hiện đặt phòng \emph{bao gồm} kiểm tra phòng trống. Hai use case thanh toán là \emph{mở rộng} (extend) của đặt phòng, vì khách chọn một trong hai. Thanh toán payOS có cổng thanh toán tham gia với vai trò tác nhân phụ.
 
 \begin{figure}[H]
 \centering
 \diagram{uc-booking}
-\caption{Biểu đồ ca sử dụng nhóm đặt phòng và thanh toán}\label{fig:uc-booking}
+\caption{Biểu đồ use case nhóm đặt phòng và thanh toán}\label{fig:uc-booking}
 \end{figure}
 
-\paragraph{Nhóm chủ khách sạn.} \Cref{fig:uc-owner} gồm quản lý khách sạn, loại phòng, đặt phòng và đánh giá. Mọi ca sử dụng của nhóm này đều \emph{bao gồm} việc kiểm tra quyền sở hữu khách sạn. Kiểm tra này nằm ở tầng dịch vụ, bổ sung cho kiểm tra vai trò.
+\paragraph{Nhóm chủ khách sạn.} \Cref{fig:uc-owner} gồm quản lý khách sạn, loại phòng, đặt phòng và đánh giá. Mọi use case của nhóm này đều \emph{bao gồm} việc kiểm tra quyền sở hữu khách sạn. Kiểm tra này nằm ở tầng dịch vụ, bổ sung cho kiểm tra vai trò.
 
 \begin{figure}[H]
 \centering
 \diagram{uc-owner}
-\caption{Biểu đồ ca sử dụng nhóm chủ khách sạn}\label{fig:uc-owner}
+\caption{Biểu đồ use case nhóm chủ khách sạn}\label{fig:uc-owner}
 \end{figure}
 
 \paragraph{Nhóm quản trị viên.} \Cref{fig:uc-admin} gồm duyệt, quản lý người dùng, kiểm duyệt và giám sát. Ẩn đánh giá \emph{bao gồm} việc tính lại điểm trung bình của khách sạn.
@@ -253,12 +253,12 @@ UC37 & Trả lời yêu cầu hỗ trợ & Admin & Đóng phiếu hỗ trợ \\ 
 \begin{figure}[H]
 \centering
 \diagram{uc-admin}
-\caption{Biểu đồ ca sử dụng nhóm quản trị viên}\label{fig:uc-admin}
+\caption{Biểu đồ use case nhóm quản trị viên}\label{fig:uc-admin}
 \end{figure}
 
-\subsection{Đặc tả ca sử dụng}\label{sec:uc-spec}
+\subsection{Đặc tả use case}\label{sec:uc-spec}
 
-Các bảng dưới đây đặc tả toàn bộ 37 ca sử dụng ở \cref{tab:uc-list}, theo thứ tự mã. Một số ca sử dụng có quan hệ chặt được đặc tả chung trong một bảng (UC19 với UC30, UC32 với UC33). Các bảng dùng cùng một khuôn dạng gồm tác nhân, tiền điều kiện, luồng chính, luồng thay thế và hậu điều kiện. Biểu đồ tuần tự tương ứng được trình bày ở \cref{sec:sequences}.
+Các bảng dưới đây đặc tả toàn bộ 37 use case ở \cref{tab:uc-list}, theo thứ tự mã. Một số use case có quan hệ chặt được đặc tả chung trong một bảng (UC19 với UC30, UC32 với UC33). Các bảng dùng cùng một khuôn dạng gồm tác nhân, tiền điều kiện, luồng chính, luồng thay thế và hậu điều kiện. Biểu đồ tuần tự tương ứng được trình bày ở \cref{sec:sequences}.
 
 \newcommand{\ucspec}[8]{%
 \begin{rtable}
@@ -331,7 +331,7 @@ Quy tắc liên quan & #8 \\ \hline
 {Mọi người dùng đã đăng nhập}
 {Có phiên hợp lệ.}
 {1. Màn Tài khoản gọi \code{GET /users/me}. 2. Người dùng sửa họ tên, số điện thoại hoặc ảnh đại diện. 3. Ứng dụng gửi \code{PUT /users/me}. 4. \code{ValidationPipe} chỉ nhận ba trường này. 5. Máy chủ lưu và trả hồ sơ không có \code{passwordHash}.}
-{4a. Số điện thoại sai định dạng hoặc họ tên quá 100 ký tự: 400. 4b. Gửi thêm trường như \code{role} hay \code{email}: 400 (ca A11).}
+{4a. Số điện thoại sai định dạng hoặc họ tên quá 100 ký tự: 400. 4b. Gửi thêm trường như \code{role} hay \code{email}: 400 (test case A11).}
 {Hồ sơ được cập nhật; email và vai trò không đổi.}
 {FR-08; \cref{fig:seq-profile}.}
 
@@ -499,7 +499,7 @@ Quy tắc liên quan & #8 \\ \hline
 {Chủ khách sạn}
 {Vai trò OWNER.}
 {1. Chủ mở trang Đặt phòng. 2. Bảng điều khiển gọi \code{GET /owners/bookings} (mọi khách sạn) hoặc \code{GET /owners/hotels/:hotelId/bookings} (một khách sạn, kèm họ tên, email, số điện thoại của khách). 3. Máy chủ chuyển các giữ phòng quá hạn sang EXPIRED rồi trả danh sách. 4. Chủ lọc, tìm kiếm và mở chi tiết qua \code{GET /bookings/:id}.}
-{2a. Khách sạn không thuộc chủ: 404 (ca A7). 4a. Chi tiết đặt phòng ở khách sạn khác: 403 (ca A13).}
+{2a. Khách sạn không thuộc chủ: 404 (test case A7). 4a. Chi tiết đặt phòng ở khách sạn khác: 403 (test case A13).}
 {Chủ chỉ thấy đặt phòng của khách sạn mình.}
 {FR-29.}
 
@@ -531,7 +531,7 @@ Quy tắc liên quan & #8 \\ \hline
 {Quản trị viên}
 {Vai trò ADMIN.}
 {1. Quản trị viên mở trang Người dùng; bảng điều khiển gọi \code{GET /admin/users?page\&search\&role}. 2. Máy chủ tìm theo họ tên hoặc email (đã thoát ký tự đặc biệt), lọc vai trò, trả tối đa 100 bản ghi mỗi trang, không kèm mật khẩu và refresh token. 3. Quản trị viên khóa qua \code{POST /admin/users/:id/suspend} hoặc mở khóa qua \code{POST /admin/users/:id/activate}. 4. Thao tác được ghi vào nhật ký.}
-{3a. Người dùng không tồn tại: 404. 3b. Vai trò khác ADMIN: 403 (ca A3).}
+{3a. Người dùng không tồn tại: 404. 3b. Vai trò khác ADMIN: 403 (test case A3).}
 {Tài khoản bị khóa không đăng nhập được và mọi yêu cầu kế tiếp bị 401.}
 {FR-34; \cref{fig:seq-admin-moderate}.}
 
@@ -547,7 +547,7 @@ Quy tắc liên quan & #8 \\ \hline
 {Quản trị viên}
 {Vai trò ADMIN.}
 {1. Trang Tổng quan gọi \code{GET /admin/stats}: số người dùng, chủ khách sạn, khách sạn PUBLISHED, đặt phòng, đánh giá đang hiển thị. 2. Các trang Khách sạn, Đặt phòng, Thanh toán, Đánh giá gọi \code{GET /admin/hotels}, \code{/admin/bookings}, \code{/admin/payments}, \code{/admin/reviews}. 3. Trang Nhật ký gọi \code{GET /admin/audit-logs}, trả 200 bản ghi mới nhất gồm người thực hiện, vai trò, phương thức, đường dẫn và thời điểm.}
-{1a. Vai trò khác ADMIN: 403 (ca A2).}
+{1a. Vai trò khác ADMIN: 403 (test case A2).}
 {Quản trị viên nắm được tình trạng hệ thống; nhật ký không chứa nội dung yêu cầu.}
 {FR-36; \cref{fig:seq-admin-stats}.}
 

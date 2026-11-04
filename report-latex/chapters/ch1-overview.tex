@@ -8,7 +8,7 @@ Chương này trình bày lý do chọn đề tài, bối cảnh chuyển đổi
 
 Lý do thứ hai là nhu cầu gợi ý. Khi danh mục có hàng trăm khách sạn, việc sắp xếp theo điểm đánh giá hoặc theo giá không phản ánh sở thích riêng của từng người. Người đã xem nhiều khu nghỉ dưỡng ven biển ở Đà Nẵng với mức giá khoảng một triệu đồng có lẽ không muốn thấy một khách sạn thành phố ở Hà Nội đứng đầu danh sách. Các hệ thống gợi ý trong thương mại điện tử và du lịch giải quyết vấn đề này bằng cách học thứ tự hiển thị từ hành vi người dùng \cite{ricci2022,adamczak2019}. Tuy nhiên, với một nền tảng mới, việc đưa học máy vào ngay từ đầu đặt ra câu hỏi về dữ liệu: khi chưa có người dùng thật thì mô hình học từ đâu, và kết quả đánh giá có ý nghĩa gì. Đề tài chọn đối diện trực tiếp câu hỏi này thay vì trình bày một con số chính xác cao mà không giải thích nguồn gốc dữ liệu.
 
-Lý do thứ ba mang tính học thuật: đề tài là đồ án liên ngành, đòi hỏi kết hợp phát triển ứng dụng di động, phát triển máy chủ, phát triển web, cơ sở dữ liệu, an toàn thông tin và học máy trong cùng một sản phẩm. Hotelia đáp ứng yêu cầu đó với năm thành phần chính: ứng dụng iOS viết bằng SwiftUI, máy chủ NestJS, bảng điều khiển React, cơ sở dữ liệu MongoDB và đường ống huấn luyện mô hình bằng Python.
+Lý do thứ ba mang tính học thuật: đề tài là đồ án liên ngành giữa công nghệ thông tin và du lịch -- quản trị khách sạn (\cref{sec:interdisciplinary}). Nghiệp vụ khách sạn đặt ra yêu cầu cho sản phẩm; về phía công nghệ, đề tài đòi hỏi kết hợp phát triển ứng dụng di động, phát triển máy chủ, phát triển web, cơ sở dữ liệu, an toàn thông tin và học máy trong cùng một sản phẩm. Hotelia đáp ứng yêu cầu đó với năm thành phần chính: ứng dụng iOS viết bằng SwiftUI, máy chủ NestJS, bảng điều khiển React, cơ sở dữ liệu MongoDB và đường ống huấn luyện mô hình bằng Python.
 
 \section{Bối cảnh chuyển đổi số ngành du lịch và đặt phòng khách sạn}\label{sec:context}
 
@@ -39,6 +39,64 @@ Công cụ cho chủ khách sạn & Cổng đối tác & Hệ thống nội bộ
 \subsection{Khoảng trống mà đề tài hướng tới}
 
 Đồ án không cạnh tranh với các OTA về quy mô. Khoảng trống đề tài nhắm tới là một hệ thống hoàn chỉnh ở quy mô nhỏ nhưng đúng nghiệp vụ. Cụ thể, quy tắc tồn kho được kiểm thử bằng các tình huống tranh chấp thật trên cơ sở dữ liệu; thanh toán trực tuyến chỉ được xác nhận bằng webhook có chữ ký; và thành phần gợi ý vừa có mô hình học máy, vừa có đường dự phòng khi mô hình lỗi, vừa được đánh giá với đầy đủ giới hạn của dữ liệu. Đây cũng là những điểm mà các báo cáo đồ án về ứng dụng đặt phòng thường chỉ mô tả ở mức chức năng mà ít khi kiểm chứng.
+
+\section{Tính liên ngành của đề tài}\label{sec:interdisciplinary}
+
+Hotelia là đồ án liên ngành giữa \emph{công nghệ thông tin} và \emph{du lịch -- quản trị khách sạn}. Hai ngành giữ hai vai trò tách biệt. Ngành du lịch và khách sạn quyết định \emph{sản phẩm phải làm gì}: một đêm lưu trú được tính thế nào, khi nào một phòng được coi là đã bán, khách được hủy ra sao, lễ tân ghi nhận khách đến và đi thế nào. Công nghệ thông tin quyết định \emph{làm thế nào để các quy tắc đó luôn đúng} khi có nhiều người dùng cùng lúc, qua mạng không ổn định và trước các hành vi gian lận. Mục này trình bày riêng phần đóng góp của từng ngành và cách chúng gặp nhau trong sản phẩm.
+
+\subsection{Kiến thức từ ngành du lịch và quản trị khách sạn}
+
+Các khái niệm nghiệp vụ dưới đây được lấy từ cách vận hành của khách sạn và các kênh phân phối phòng (\cref{sec:context}), rồi trở thành yêu cầu của hệ thống:
+
+\begin{itemize}
+\item \emph{Loại phòng và đêm lưu trú.} Khách sạn bán theo loại phòng (Superior, Deluxe, Suite\ldots), mỗi loại có số phòng, sức chứa và giá. Đơn vị bán là \emph{đêm}: khách ở từ ngày 10 tới ngày 12 dùng hai đêm, ngày trả phòng không tính.
+\item \emph{Tồn kho phòng theo đêm.} Một loại phòng chỉ còn bán được nếu còn phòng ở \emph{mọi} đêm trong kỳ lưu trú; bán vượt số phòng là lỗi nghiêm trọng nhất của khách sạn vì khách đến nơi không có phòng.
+\item \emph{Giữ chỗ tạm thời và đặt phòng được bảo đảm.} Khi khách đang thanh toán, khách sạn giữ phòng trong một khoảng ngắn; đặt phòng chỉ được bảo đảm khi đã thanh toán hoặc được khách sạn xác nhận cho trả tại quầy.
+\item \emph{Chính sách hủy.} Đặt phòng chưa thanh toán hủy được ngay; đặt phòng đã xác nhận cần khách sạn xử lý, có thể kèm hoàn tiền.
+\item \emph{Quy trình lễ tân.} Nhận phòng chỉ hợp lệ trong khoảng ngày lưu trú; sau khi trả phòng khách mới được đánh giá.
+\item \emph{Kênh phân phối và kiểm duyệt đối tác.} Nền tảng trung gian (OTA) chỉ đăng khách sạn của đối tác đã được kiểm duyệt (\cref{tab:channels}).
+\item \emph{Uy tín và đánh giá.} Đánh giá chỉ có giá trị khi đến từ khách đã lưu trú thật.
+\item \emph{Chỉ số vận hành.} Chủ khách sạn theo dõi doanh thu theo ngày, tháng và công suất phòng (tỷ lệ phòng đang có khách).
+\item \emph{Trải nghiệm du khách.} Du khách chọn theo điểm đến, mùa và thời tiết, cần gợi ý phù hợp và cần ngôn ngữ quen thuộc (khách quốc tế).
+\item \emph{Quy định.} Chiến lược chuyển đổi số du lịch \cite{qd147,qd1671} khuyến khích ứng dụng công nghệ; dữ liệu cá nhân của khách phải được bảo vệ theo Nghị định 13/2023/NĐ-CP \cite{nd13}.
+\end{itemize}
+
+\subsection{Đóng góp của công nghệ thông tin}
+
+Công nghệ thông tin biến các khái niệm trên thành phần mềm chạy được và kiểm chứng được: ứng dụng di động (SwiftUI) và bảng điều khiển web (React) cho ba nhóm người dùng; máy chủ API (NestJS) và cơ sở dữ liệu (MongoDB) với giao dịch để giữ tồn kho đúng; an toàn thông tin (xác thực, phân quyền, chữ ký thanh toán); học máy (LightGBM) để xếp hạng khách sạn theo sở thích; kiểm thử tự động và triển khai trên hạ tầng đám mây.
+
+\subsection{Đối chiếu nghiệp vụ khách sạn với giải pháp công nghệ}
+
+\Cref{tab:interdisciplinary} nối từng yêu cầu của ngành khách sạn với giải pháp công nghệ tương ứng trong Hotelia và mục trình bày chi tiết.
+
+\begin{rtable}
+\begin{longtable}{|L{4.6cm}|L{7.0cm}|L{3.1cm}|}
+\caption{Đối chiếu yêu cầu nghiệp vụ khách sạn và giải pháp công nghệ}\label{tab:interdisciplinary}\\
+\hline
+\thead{Yêu cầu của ngành khách sạn} & \thead{Giải pháp công nghệ trong Hotelia} & \thead{Trình bày tại} \\ \hline
+\endfirsthead
+\hline
+\thead{Yêu cầu của ngành khách sạn} & \thead{Giải pháp công nghệ trong Hotelia} & \thead{Trình bày tại} \\ \hline
+\endhead
+Không bán quá số phòng trong một đêm & Kỳ lưu trú nửa mở, đếm phòng trống theo đêm, giao dịch MongoDB tuần tự hóa theo loại phòng & \Cref{sec:half-open,sec:booking-rules} \\ \hline
+Giữ chỗ khi khách đang thanh toán & Giữ phòng 15 phút, quá hạn tự trả phòng (EXPIRED) & \Cref{sec:state-machine} \\ \hline
+Khách bấm đặt nhiều lần do mạng chập chờn & Khóa lũy đẳng \code{Idempotency-Key}, băm nội dung đặt phòng & \Cref{sec:idempotency-theory,sec:retry-design} \\ \hline
+Bảo đảm đặt phòng bằng thanh toán hoặc trả tại quầy & payOS (VietQR) xác nhận bằng webhook có chữ ký; trả tại khách sạn & \Cref{sec:payment-design,sec:impl-payment} \\ \hline
+Chính sách hủy, khách sạn xử lý yêu cầu hủy & Trạng thái CANCEL\_REQUESTED, chủ khách sạn chấp nhận hủy & \Cref{fig:seq-cancel} \\ \hline
+Lễ tân nhận phòng, trả phòng & Chỉ chủ khách sạn sở hữu khách sạn, chỉ trong khoảng ngày lưu trú (giờ Việt Nam) & \Cref{fig:seq-stay} \\ \hline
+Kiểm duyệt đối tác và khách sạn & Quản trị viên duyệt chủ khách sạn và khách sạn trước khi đăng & \Cref{fig:seq-approve} \\ \hline
+Đánh giá đáng tin cậy & Chỉ đánh giá sau khi trả phòng; tách điểm biên tập khỏi đánh giá thật & \Cref{sec:data-sources} \\ \hline
+Theo dõi doanh thu, công suất phòng & Bảng điều khiển chủ khách sạn tính doanh thu theo giờ Việt Nam và tỷ lệ phòng có khách & \Cref{fig:seq-owner-dashboard} \\ \hline
+Gợi ý nơi ở phù hợp cho du khách & Lọc theo điểm đến và phòng trống, xếp hạng LightGBM, dự phòng theo nội dung & \Cref{sec:rec-design} \\ \hline
+Thông tin điểm đến, thời tiết & Thẻ thời tiết 8 thành phố từ Open-Meteo & \Cref{fig:seq-weather} \\ \hline
+Phục vụ khách quốc tế & Ứng dụng song ngữ Việt -- Anh & \Cref{sec:ui-design} \\ \hline
+Bảo vệ dữ liệu cá nhân của khách & Tối thiểu hóa dữ liệu, tự xóa sau 90 ngày, người dùng tự xóa lịch sử gợi ý; phân quyền & \Cref{sec:rbac-design} \\ \hline
+\end{longtable}
+\end{rtable}
+
+\subsection{Phần nghiệp vụ còn đơn giản hóa}
+
+So với vận hành thật của khách sạn, đồ án chưa có: giá thay đổi theo ngày và mùa (quản trị doanh thu), đồng bộ tồn kho với phần mềm quản lý khách sạn (PMS) hoặc bộ quản lý kênh khi khách sạn bán đồng thời trên nhiều OTA, đặt cọc và hoàn tiền theo mốc thời gian, đặt nhiều phòng trong một đơn, hóa đơn và thuế phí, và khai báo lưu trú cho khách. Đây là các hướng mở rộng khi đưa sản phẩm vào sử dụng với khách sạn thật (\cref{sec:future}).
 
 \section{Mục tiêu nghiên cứu}\label{sec:objectives}
 
@@ -107,9 +165,9 @@ Về dữ liệu, danh mục gồm 20 khách sạn có tên, địa chỉ, mô t
 
 \begin{itemize}
 \item Nghiên cứu tài liệu. Tổng hợp các tiêu chuẩn và tài liệu chính thức về HTTP, JWT, OAuth 2.0, OpenID Connect, MongoDB, payOS, và các công trình gốc về gradient boosting, LambdaRank, MRR, NDCG \cite{rfc9110,rfc7519,rfc6749,oidc,mongodbtx,payosdocs,friedman2001,burges2010,jarvelin2002,voorhees1999}.
-\item Phân tích và thiết kế hướng đối tượng. Mô hình hóa yêu cầu bằng biểu đồ ca sử dụng, hoạt động, tuần tự, trạng thái, thành phần và triển khai theo UML \cite{fowler2003uml}.
+\item Phân tích và thiết kế hướng đối tượng. Mô hình hóa yêu cầu bằng biểu đồ use case, hoạt động, tuần tự, trạng thái, thành phần và triển khai theo UML \cite{fowler2003uml}.
 \item Phát triển lặp. Hệ thống được xây dựng qua nhiều vòng nhỏ, mỗi vòng kết thúc bằng một commit có kiểm thử. Đến ngày 24/10/2026, kho mã có 102 commit: 39 commit trong tháng 5, 2 commit trong tháng 6, 46 commit trong tháng 9 và 15 commit trong tháng 10 năm 2026.
-\item Kiểm thử tự động và kiểm thử thủ công. Các quy tắc nghiệp vụ được viết thành ca kiểm thử Jest (TypeScript) và pytest (Python). Tình huống tranh chấp được kiểm thử trên MongoDB thật chạy dưới dạng replica set. Giao diện được kiểm thử thủ công trên iOS Simulator ở cả hai ngôn ngữ và trên trình duyệt ở ba kích thước màn hình.
+\item Kiểm thử tự động và kiểm thử thủ công. Các quy tắc nghiệp vụ được viết thành test case Jest (TypeScript) và pytest (Python). Tình huống tranh chấp được kiểm thử trên MongoDB thật chạy dưới dạng replica set. Giao diện được kiểm thử thủ công trên iOS Simulator ở cả hai ngôn ngữ và trên trình duyệt ở ba kích thước màn hình.
 \item Thực nghiệm ngoại tuyến (offline). Mô hình gợi ý được huấn luyện và đánh giá trên tập dữ liệu sinh có kiểm soát, so sánh với đường cơ sở chất lượng, bộ xếp hạng theo nội dung và mức trần (oracle) của chính tập dữ liệu.
 \end{itemize}
 
@@ -129,9 +187,9 @@ Về mặt sản phẩm, đề tài đóng góp một nền tảng đặt phòng
 Báo cáo gồm phần mở đầu, năm chương nội dung, phần kết luận và tài liệu tham khảo:
 
 \begin{itemize}
-\item \Cref{chap:overview} -- Tổng quan đề tài: lý do, bối cảnh, mục tiêu, phạm vi, phương pháp và đóng góp.
+\item \Cref{chap:overview} -- Tổng quan đề tài: lý do, bối cảnh, tính liên ngành giữa công nghệ thông tin và nghiệp vụ khách sạn, mục tiêu, phạm vi, phương pháp và đóng góp.
 \item \Cref{chap:theory} -- Cơ sở lý thuyết và công nghệ: nghiệp vụ đặt phòng; SwiftUI, MVVM, React, NestJS, MongoDB, REST; JWT, refresh token, OAuth, RBAC; payOS và webhook có chữ ký; hệ gợi ý, học xếp hạng, LightGBM LambdaRank, MRR, NDCG.
-\item \Cref{chap:design} -- Phân tích và thiết kế hệ thống: yêu cầu, tác nhân, ca sử dụng, quy tắc nghiệp vụ, kiến trúc, cơ sở dữ liệu, API, đường ống gợi ý và giao diện.
+\item \Cref{chap:design} -- Phân tích và thiết kế hệ thống: yêu cầu, tác nhân, use case, quy tắc nghiệp vụ, kiến trúc, cơ sở dữ liệu, API, đường ống gợi ý và giao diện.
 \item \Cref{chap:implementation} -- Cài đặt hệ thống: môi trường, cấu trúc mã nguồn, cài đặt iOS, máy chủ, web, xác thực, thanh toán, máy trạng thái, gợi ý và triển khai.
 \item \Cref{chap:evaluation} -- Kiểm thử, đánh giá và hướng phát triển.
 \end{itemize}

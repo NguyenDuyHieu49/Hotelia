@@ -163,11 +163,11 @@ Tệp \code{main.ts} cấu hình các thành phần toàn cục:
 \item \code{HttpExceptionFilter}; thư mục ảnh tĩnh \code{/media/} không liệt kê thư mục và từ chối tệp ẩn.
 \item Tài liệu Swagger, chỉ bật ở môi trường phát triển.
 \end{itemize}
-Hàm \code{validateEnvironment} kiểm tra cấu hình ngay khi khởi động. Máy chủ từ chối chạy ở môi trường vận hành nếu \code{JWT\_SECRET} ngắn hơn 32 ký tự hoặc trông như giá trị mẫu, nếu thiếu \code{CORS\_ORIGINS}, hoặc nếu chỉ có một phần trong ba khóa payOS. Bốn ca kiểm thử trong \code{env.validation.spec.ts} kiểm chứng các điều kiện này.
+Hàm \code{validateEnvironment} kiểm tra cấu hình ngay khi khởi động. Máy chủ từ chối chạy ở môi trường vận hành nếu \code{JWT\_SECRET} ngắn hơn 32 ký tự hoặc trông như giá trị mẫu, nếu thiếu \code{CORS\_ORIGINS}, hoặc nếu chỉ có một phần trong ba khóa payOS. Bốn test case trong \code{env.validation.spec.ts} kiểm chứng các điều kiện này.
 
 \subsection{Xác thực và phân quyền}\label{sec:impl-auth}
 
-\Cref{lst:tokens} là hàm phát hành token. Trong quá trình viết báo cáo, việc đối chiếu với RFC 8725 \cite{rfc8725} cho thấy phiên bản cũ ký access token và refresh token bằng cùng khóa và cùng nội dung. Hệ quả là một refresh token có hạn 7 ngày cũng được \code{JwtStrategy} chấp nhận như access token. Bản sửa thêm claim \code{typ} vào mỗi token. \code{JwtStrategy} từ chối token có \code{typ = refresh} (\cref{lst:jwt}); điểm cuối làm mới từ chối token có \code{typ = access}. Token phát hành trước bản sửa không có \code{typ} và vẫn được chấp nhận cho tới khi hết hạn, để người dùng đang đăng nhập không bị đăng xuất đột ngột. Bốn ca kiểm thử mới kiểm chứng hành vi này.
+\Cref{lst:tokens} là hàm phát hành token. Trong quá trình viết báo cáo, việc đối chiếu với RFC 8725 \cite{rfc8725} cho thấy phiên bản cũ ký access token và refresh token bằng cùng khóa và cùng nội dung. Hệ quả là một refresh token có hạn 7 ngày cũng được \code{JwtStrategy} chấp nhận như access token. Bản sửa thêm claim \code{typ} vào mỗi token. \code{JwtStrategy} từ chối token có \code{typ = refresh} (\cref{lst:jwt}); điểm cuối làm mới từ chối token có \code{typ = access}. Token phát hành trước bản sửa không có \code{typ} và vẫn được chấp nhận cho tới khi hết hạn, để người dùng đang đăng nhập không bị đăng xuất đột ngột. Bốn test case mới kiểm chứng hành vi này.
 
 Khi bổ sung chức năng thu hồi phiên lúc đăng xuất, báo cáo phát hiện thêm một lỗi trong cách lưu refresh token. Phiên bản cũ lưu \code{bcrypt(refreshToken)}, nhưng bcrypt chỉ đọc 72 byte đầu của đầu vào. Mọi refresh token của cùng một người dùng có chung 72 byte đầu (phần header và claim \code{sub}), nên token cũ vẫn khớp với bản băm của token mới và việc xoay vòng không vô hiệu hóa được token cũ. Ngoài ra, hai token phát hành trong cùng một giây có nội dung giống hệt nhau. Bản sửa gồm ba phần: (i) lưu bản băm SHA-256 của toàn bộ token và so sánh bằng \code{timingSafeEqual}; vì refresh token là chuỗi ngẫu nhiên dài do máy chủ ký nên không cần hàm băm chậm như với mật khẩu; (ii) thêm claim \code{jti} ngẫu nhiên vào mỗi refresh token (\cref{lst:tokens}); (iii) điểm cuối \code{POST /auth/logout} nhận chính refresh token cần thu hồi thay vì access token, nên đăng xuất vẫn có hiệu lực khi access token đã hết hạn. Bản băm bcrypt cũ vẫn được chấp nhận ở lần làm mới kế tiếp rồi được thay bằng SHA-256, để người dùng đang đăng nhập không bị đăng xuất khi triển khai. Ứng dụng iOS và bảng điều khiển gọi điểm cuối này ở nền khi người dùng đăng xuất.
 
@@ -243,6 +243,43 @@ Bảng điều khiển gồm các thư mục \code{features/owner}, \code{featur
 
 \section{Cài đặt thành phần gợi ý}\label{sec:impl-rec}
 
+\subsection{Từ huấn luyện bằng Python tới máy chủ NestJS}\label{sec:model-handoff}
+
+Mục này trả lời câu hỏi: mô hình huấn luyện bằng Python đi vào máy chủ NestJS bằng cách nào. Điểm quan trọng nhất là \emph{lúc chạy, hai bên không gọi nhau}. Máy chủ NestJS không chạy Python và không gọi một dịch vụ Python qua mạng; mã nguồn máy chủ không có lệnh tạo tiến trình con (\code{child\_process}) hay yêu cầu HTTP nào tới dịch vụ Python. Python cũng không ghi vào máy chủ đang chạy hay vào cơ sở dữ liệu. Hai bên chỉ trao đổi qua \emph{tệp}, ở hai thời điểm khác nhau (\cref{fig:model-handoff}).
+
+\begin{figure}[H]
+\centering
+\diagram{model-handoff}
+\caption{Đường đi của tệp mô hình từ Python tới máy chủ NestJS}\label{fig:model-handoff}
+\end{figure}
+
+\paragraph{Vì sao script Python ghi được vào thư mục của backend.} Có ba lý do:
+
+\begin{enumerate}
+\item \emph{Hai phần nằm chung một kho mã Git.} Thư mục \code{research/} (Python) và \code{backend/} (NestJS) là hai thư mục con của cùng một thư mục gốc. Trên máy phát triển, cả hai cùng có mặt trên ổ đĩa:
+\begin{lstlisting}[numbers=none, language={}]
+DoAnCoSo/                              (gốc kho mã)
+|-- backend/src/recommendations/models/
+|   `-- hotelia-lgbm.active.json       (tệp Python ghi ra)
+`-- research/scripts/
+    `-- train_hotelia_lgb.py           (script huấn luyện)
+\end{lstlisting}
+\item \emph{Script tự tìm ra thư mục gốc của kho mã.} Dòng \code{root = Path(\_\_file\_\_).resolve().parents[2]} lấy đường dẫn của chính tệp script (\code{DoAnCoSo/research/scripts/train\_hotelia\_lgb.py}) rồi đi lên hai cấp thư mục, được \code{DoAnCoSo/}. Từ đó script ghép đường dẫn tới thư mục mô hình của backend và ghi tệp bằng \code{write\_text} (\cref{lst:export}).
+\item \emph{Đây là thao tác ghi tệp thông thường lúc phát triển.} Lập trình viên chạy script trên máy của mình, với quyền ghi của chính tài khoản đó, giống như lưu một tệp vào một thư mục khác. Script không cần quyền gì đặc biệt và không chạm vào máy chủ.
+\end{enumerate}
+
+\lstinputlisting[language=Python, firstnumber=341, caption={Python xuất mô hình và ghi tệp vào thư mục backend (\code{train\_hotelia\_lgb.py})}, label={lst:export}]{code/lgbm-export.py}
+
+Tệp \code{hotelia-lgbm.active.json} là một ``hợp đồng'' giữa hai bên. Nó chứa: các cây quyết định do \code{dump\_model} của LightGBM xuất ra (\code{tree\_info}); danh sách 16 đặc trưng theo đúng thứ tự (\code{feature\_names}); phiên bản mô hình; báo cáo đánh giá; và các mẫu kiểm tra do Python tính (\code{parity\_cases}, \code{feature\_parity\_cases}) để kiểm thử khớp.
+
+\paragraph{Tệp đi tới máy chủ thật thế nào.} Sau khi Python ghi tệp, lập trình viên chạy \code{npm test} trong \code{backend}; các test case khớp sẽ thất bại nếu điểm số TypeScript lệch Python (\cref{sec:impl-parity}). Tiếp theo, tệp được commit và push lên GitHub như mọi tệp mã nguồn. Render nhận commit mới và build lại máy chủ; khi build, \code{nest-cli.json} chép \code{recommendations/models/*.json} vào thư mục \code{dist}. Khi máy chủ khởi động, \code{HoteliaLightGbmRanker} đọc tệp bằng \code{readFileSync}, kiểm tra danh sách đặc trưng và số cây (\cref{lst:load}), rồi dùng mô hình cho mọi yêu cầu gợi ý. Nếu không commit, tệp mới chỉ nằm trên máy phát triển và máy chủ vẫn dùng mô hình cũ.
+
+\paragraph{Chiều ngược lại: Python đọc dữ liệu từ API.} Trước khi huấn luyện, \code{export\_hotelia\_catalog.py} gọi \code{GET /api/v1/hotels} qua HTTP (\code{urlopen}) để lấy đúng 100 khách sạn mà API đang phục vụ, lưu thành \code{hotelia-catalog-snapshot.json}. Đây là thao tác chỉ đọc, giống một ứng dụng khách bình thường; Python không ghi gì vào cơ sở dữ liệu. Lịch sử người dùng mô phỏng chỉ tồn tại trong bộ nhớ của script huấn luyện.
+
+\paragraph{Vì sao chọn cách trao đổi qua tệp.} Thư mục \code{research/} có một bản thử phục vụ mô hình bằng dịch vụ Python riêng (FastAPI) và một đoạn mã Node gọi sang dịch vụ đó, nhưng máy chủ vận hành không dùng. Trao đổi qua tệp được chọn vì: (i) không phải vận hành, giám sát và trả phí cho thêm một dịch vụ; (ii) không thêm độ trễ mạng cho mỗi lần gợi ý; (iii) dịch vụ Python ngủ hay lỗi không làm hỏng gợi ý; (iv) mô hình chỉ có 10 cây nên chấm điểm bằng TypeScript chỉ là vài phép so sánh và cộng; (v) phiên bản mô hình luôn đi cùng phiên bản mã tính đặc trưng trong cùng một commit.
+
+\paragraph{Kiểm soát rủi ro.} Vì Python có thể ghi vào thư mục backend, cách làm này có ba lớp chặn: thay đổi đi qua git nên xem lại được trước khi triển khai; kiểm thử khớp chặn mô hình lệch đặc trưng; và máy chủ tự từ chối nạp tệp sai danh sách đặc trưng hoặc không có cây, chuyển sang bộ xếp hạng theo nội dung thay vì dừng hoạt động.
+
 \subsection{Đọc và chấm điểm mô hình LightGBM trong NestJS}
 
 Tệp mô hình do LightGBM xuất (\code{dump\_model}) mô tả mỗi cây dưới dạng nút lồng nhau. Nút trong có \code{split\_feature}, \code{threshold}, \code{decision\_type} và \code{default\_left}; nút lá có \code{leaf\_value}. \Cref{lst:tree} là toàn bộ bộ chấm điểm: duyệt từng cây từ gốc tới lá rồi cộng các giá trị lá. Giá trị thiếu (NaN, vô cực) đi theo nhánh mặc định do LightGBM học được. Bộ chấm điểm chỉ chấp nhận phép so sánh \code{<=} (loại duy nhất xuất hiện với đặc trưng số) và ném lỗi với loại khác. Lỗi này khiến hệ thống chuyển sang bộ xếp hạng dự phòng thay vì trả điểm sai.
@@ -253,7 +290,7 @@ Tệp mô hình do LightGBM xuất (\code{dump\_model}) mô tả mỗi cây dư�
 
 Mô hình được nạp một lần khi khởi động (\cref{lst:load}). Nếu tệp thiếu, hỏng, sai danh sách đặc trưng hoặc không có cây, máy chủ ghi cảnh báo và tiếp tục chạy với bộ xếp hạng dự phòng. Tệp \code{nest-cli.json} khai báo \code{recommendations/models/*.json} là tài nguyên cần sao chép vào \code{dist}, để bản build Docker có tệp mô hình.
 
-\subsection{Bảo đảm khớp giữa Python và TypeScript}
+\subsection{Bảo đảm khớp giữa Python và TypeScript}\label{sec:impl-parity}
 
 Lệch giữa huấn luyện và phục vụ là rủi ro lớn nhất của cách tiếp cận hai ngôn ngữ. Hai cơ chế được dùng để kiểm soát rủi ro này:
 \begin{enumerate}

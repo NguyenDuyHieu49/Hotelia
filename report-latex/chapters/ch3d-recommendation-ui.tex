@@ -4,15 +4,11 @@
 
 Đường ống gợi ý của Hotelia gồm hai nửa tách biệt (\cref{fig:rec-pipeline}). Nửa ngoại tuyến chạy bằng Python trên máy phát triển: xuất ảnh chụp danh mục từ API, sinh dữ liệu huấn luyện, huấn luyện LightGBM LambdaRank, đánh giá và xuất mô hình ra JSON. Nửa trực tuyến chạy trong NestJS: lọc ứng viên, tổng hợp tín hiệu, tính 16 đặc trưng, chấm điểm bằng mô hình đã nạp và ghi nhận tương tác. Hai nửa giao tiếp qua đúng hai tệp: ảnh chụp danh mục (đầu vào huấn luyện) và tệp mô hình \code{hotelia-lgbm.active.json} (đầu ra huấn luyện, được commit cùng mã nguồn máy chủ). Tệp mô hình chứa thứ tự đặc trưng; máy chủ từ chối nạp nếu thứ tự này khác hằng \code{HOTELIA\_FEATURES} trong mã TypeScript.
 
-\begin{figure}[H]
-\centering
-\diagram{rec-pipeline}
-\caption{Kiến trúc đường ống gợi ý: huấn luyện ngoại tuyến và phục vụ trực tuyến}\label{fig:rec-pipeline}
-\end{figure}
+\landscapediagram{rec-pipeline}{Kiến trúc đường ống gợi ý: huấn luyện ngoại tuyến và phục vụ trực tuyến}{fig:rec-pipeline}
 
 \subsection{Lọc ứng viên và tín hiệu người dùng}
 
-Tập ứng viên là các khách sạn PUBLISHED có ít nhất một loại phòng đang bán, sau khi áp dụng điểm đến và bộ lọc phòng như \cref{sec:search-design}. Không giới hạn số ứng viên trước khi xếp hạng: mọi ứng viên hợp lệ đều được chấm điểm rồi mới cắt theo \code{limit} (mặc định 20). Ca kiểm thử TC-R03 kiểm chứng điều này.
+Tập ứng viên là các khách sạn PUBLISHED có ít nhất một loại phòng đang bán, sau khi áp dụng điểm đến và bộ lọc phòng như \cref{sec:search-design}. Không giới hạn số ứng viên trước khi xếp hạng: mọi ứng viên hợp lệ đều được chấm điểm rồi mới cắt theo \code{limit} (mặc định 20). Test case TC-R03 kiểm chứng điều này.
 
 Tín hiệu của một tác nhân gồm:
 \begin{itemize}
@@ -127,4 +123,4 @@ Hai giới hạn được ghi nhận. Thứ nhất, nội dung dữ liệu như 
 
 \section{Kết luận chương}
 
-Chương này đã phân tích yêu cầu của Hotelia với 37 yêu cầu chức năng, 16 yêu cầu phi chức năng và 37 ca sử dụng. Chương cũng đặc tả 25 quy tắc nghiệp vụ của luồng đặt phòng, máy trạng thái của đặt phòng, khách sạn và thanh toán, cùng các biểu đồ tuần tự chính. Về cấu trúc, chương trình bày kiến trúc phân lớp, cơ sở dữ liệu 13 bộ sưu tập, 78 điểm cuối API, ma trận phân quyền, đường ống gợi ý với 16 đặc trưng và thiết kế giao diện song ngữ. \Cref{chap:implementation} trình bày cách các thiết kế này được cài đặt.
+Chương này đã phân tích yêu cầu của Hotelia với 37 yêu cầu chức năng, 16 yêu cầu phi chức năng và 37 use case. Chương cũng đặc tả 25 quy tắc nghiệp vụ của luồng đặt phòng, máy trạng thái của đặt phòng, khách sạn và thanh toán, cùng các biểu đồ tuần tự chính. Về cấu trúc, chương trình bày kiến trúc phân lớp, cơ sở dữ liệu 13 bộ sưu tập, 78 điểm cuối API, ma trận phân quyền, đường ống gợi ý với 16 đặc trưng và thiết kế giao diện song ngữ. \Cref{chap:implementation} trình bày cách các thiết kế này được cài đặt.

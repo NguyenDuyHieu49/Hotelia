@@ -2,7 +2,7 @@
 
 \subsection{Danh sách quy tắc}
 
-\Cref{tab:rules} tổng hợp các quy tắc nghiệp vụ. Mỗi quy tắc được đối chiếu với vị trí cài đặt trong mã nguồn và với ca kiểm thử tự động kiểm chứng nó (nếu có). Các ca kiểm thử được trình bày ở \cref{chap:evaluation}.
+\Cref{tab:rules} tổng hợp các quy tắc nghiệp vụ. Mỗi quy tắc được đối chiếu với vị trí cài đặt trong mã nguồn và với test case tự động kiểm chứng nó (nếu có). Các test case được trình bày ở \cref{chap:evaluation}.
 
 \begin{rtable}
 \begin{longtable}{|C{1.2cm}|L{7.0cm}|L{3.7cm}|L{2.9cm}|}
@@ -159,7 +159,7 @@ Mục này trình bày các biểu đồ tuần tự của những luồng có n
 \caption{Biểu đồ tuần tự quên và đặt lại mật khẩu}\label{fig:seq-password}
 \end{figure}
 
-\paragraph{Hồ sơ và ngôn ngữ.} \Cref{fig:seq-profile} gộp UC07 và UC08. Cập nhật hồ sơ chỉ nhận ba trường \code{name}, \code{phone}, \code{avatar}; trường lạ như \code{role} bị \code{ValidationPipe} từ chối với lỗi 400 (ca A11 ở \cref{tab:test-authz}). Ngôn ngữ là thiết lập cục bộ của ứng dụng, không gửi lên máy chủ: giá trị được lưu bằng \code{@AppStorage}, và việc gắn \code{.id(appLanguage)} vào cây giao diện buộc SwiftUI dựng lại mọi màn hình bằng chuỗi của ngôn ngữ mới.
+\paragraph{Hồ sơ và ngôn ngữ.} \Cref{fig:seq-profile} gộp UC07 và UC08. Cập nhật hồ sơ chỉ nhận ba trường \code{name}, \code{phone}, \code{avatar}; trường lạ như \code{role} bị \code{ValidationPipe} từ chối với lỗi 400 (test case A11 ở \cref{tab:test-authz}). Ngôn ngữ là thiết lập cục bộ của ứng dụng, không gửi lên máy chủ: giá trị được lưu bằng \code{@AppStorage}, và việc gắn \code{.id(appLanguage)} vào cây giao diện buộc SwiftUI dựng lại mọi màn hình bằng chuỗi của ngôn ngữ mới.
 
 \begin{figure}[H]
 \centering

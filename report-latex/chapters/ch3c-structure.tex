@@ -34,21 +34,13 @@ JWT không trạng thái cho access token & Không truy vấn phiên cho mỗi y
 
 \Cref{fig:components} trình bày các module của máy chủ và quan hệ phụ thuộc giữa chúng. Module \code{Bookings} phụ thuộc \code{Hotels} để kiểm tra quyền sở hữu và phụ thuộc \code{Payments} để hủy liên kết thanh toán khi đặt phòng bị hủy. Module \code{Recommendations} không phụ thuộc module nghiệp vụ nào. Nó đọc trực tiếp các bộ sưu tập cần thiết qua kết nối MongoDB, nên lỗi trong phần gợi ý không ảnh hưởng tới luồng đặt phòng. Các thành phần dùng chung (guard, interceptor, filter, decorator) nằm trong thư mục \code{common} và được đăng ký toàn cục trong \code{AppModule}.
 
-\begin{figure}[H]
-\centering
-\diagram{component-backend}
-\caption{Sơ đồ thành phần của máy chủ NestJS}\label{fig:components}
-\end{figure}
+\landscapediagram{component-backend}{Sơ đồ thành phần của máy chủ NestJS}{fig:components}
 
 \subsection{Sơ đồ lớp}
 
 \Cref{fig:class} là sơ đồ lớp rút gọn của các lớp dịch vụ chính, chỉ giữ các phương thức công khai có ý nghĩa nghiệp vụ. Các lớp controller không được vẽ vì chúng chỉ chuyển tiếp yêu cầu sang lớp dịch vụ tương ứng.
 
-\begin{figure}[H]
-\centering
-\diagram{class-backend}
-\caption{Sơ đồ lớp rút gọn của tầng dịch vụ}\label{fig:class}
-\end{figure}
+\landscapediagram{class-backend}{Sơ đồ lớp rút gọn của tầng dịch vụ}{fig:class}
 
 \subsection{Sơ đồ triển khai}\label{sec:deploy-design}
 
@@ -70,11 +62,7 @@ JWT không trạng thái cho access token & Không truy vấn phiên cho mỗi y
 \item Tồn kho không được lưu như một số đếm giảm dần. Số phòng trống luôn được \emph{tính} từ tổng số phòng và các đặt phòng chồng lấn theo \cref{eq:free-rooms}. Cách này tránh sai lệch khi một đặt phòng hết hạn mà không có tác vụ nào cộng lại số phòng. Đổi lại, mỗi lần kiểm tra phải đọc các đặt phòng liên quan, nên chỉ mục \code{(roomTypeId, checkIn, checkOut)} là bắt buộc.
 \end{itemize}
 
-\begin{figure}[H]
-\centering
-\diagram{erd}
-\caption{Sơ đồ thực thể -- liên kết của cơ sở dữ liệu Hotelia}\label{fig:erd}
-\end{figure}
+\landscapediagram{erd}{Sơ đồ thực thể -- liên kết của cơ sở dữ liệu Hotelia}{fig:erd}
 
 \subsection{Từ điển dữ liệu}
 
@@ -329,6 +317,117 @@ DELETE & \code{/recommendations/views?sessionId} & C$^{*}$ & Xóa lịch sử g�
 GET & \code{/health} & C & Kiểm tra sức khỏe (ngoài tiền tố /api) \\ \hline
 \end{longtable}
 \end{rtable}
+
+\subsection{Đặc tả chi tiết các API chính}\label{sec:api-spec}
+
+\Cref{tab:api} liệt kê đầy đủ điểm cuối. Mục này đặc tả chi tiết 11 API nằm trên luồng nghiệp vụ chính: xác thực, tìm khách sạn, kiểm tra phòng trống, đặt phòng, thanh toán và gợi ý. Mỗi bảng gồm phương thức và đường dẫn, quyền truy cập, tiêu đề cần gửi, dữ liệu gửi lên (kiểu và ràng buộc lấy từ các lớp DTO có \code{class-validator}), phản hồi thành công và các mã lỗi. Mọi đường dẫn có tiền tố \code{/api/v1}; mọi lỗi theo cấu trúc ở \cref{lst:error-format}; trường lạ trong thân yêu cầu bị từ chối với mã 400.
+
+\newcommand{\apispec}[8]{%
+\begin{rtable}
+\begin{longtable}{|L{3.0cm}|L{11.8cm}|}
+\caption{#2}\label{#1}\\
+\hline
+\thead{Mục} & \thead{Nội dung} \\ \hline
+\endfirsthead
+\hline
+\thead{Mục} & \thead{Nội dung} \\ \hline
+\endhead
+Điểm cuối & #3 \\ \hline
+Quyền & #4 \\ \hline
+Tiêu đề & #5 \\ \hline
+Dữ liệu gửi lên & #6 \\ \hline
+Phản hồi thành công & #7 \\ \hline
+Mã lỗi & #8 \\ \hline
+\end{longtable}
+\end{rtable}}
+
+\apispec{tab:api-login}{API đăng nhập email -- mật khẩu}
+{\code{POST /auth/login}}
+{Công khai; giới hạn 100 yêu cầu mỗi phút cho mỗi địa chỉ}
+{\code{Content-Type: application/json}}
+{\code{email} (chuỗi, đúng định dạng email); \code{password} (chuỗi, không rỗng)}
+{200: \code{\{ user: \{ id, email, name, phone, avatar, role, ownerStatus \}, accessToken, refreshToken \}}. Access token hết hạn sau 15 phút, refresh token sau 7 ngày}
+{400: dữ liệu sai định dạng, hoặc tài khoản đang bị khóa 15 phút sau 5 lần sai (\code{Account is temporarily locked}); 401: sai email hoặc mật khẩu (\code{Invalid credentials}, không tiết lộ email có tồn tại hay không), tài khoản bị vô hiệu hóa; 429: vượt giới hạn tần suất}
+
+\apispec{tab:api-refresh}{API làm mới phiên}
+{\code{POST /auth/refresh}}
+{Công khai (xác thực bằng chính refresh token)}
+{\code{Content-Type: application/json}}
+{\code{refreshToken} (chuỗi)}
+{200: cấu trúc giống đăng nhập, kèm cặp token mới; refresh token cũ mất hiệu lực (xoay vòng)}
+{401 \code{Invalid refresh token}: token sai chữ ký, hết hạn, đã bị thay, đã thu hồi, hoặc là access token}
+
+\apispec{tab:api-logout}{API đăng xuất}
+{\code{POST /auth/logout}}
+{Công khai (không cần access token còn hạn)}
+{\code{Content-Type: application/json}}
+{\code{refreshToken} (chuỗi): refresh token cần thu hồi}
+{200: \code{\{ message: "Logged out successfully" \}}. Nếu token hợp lệ và khớp bản băm đang lưu thì bản băm bị xóa; token giả, cũ hoặc là access token cũng nhận cùng phản hồi nhưng không làm thay đổi gì}
+{400: thiếu \code{refreshToken}}
+
+\apispec{tab:api-hotels}{API tìm kiếm khách sạn}
+{\code{GET /hotels?destination\&checkIn\&checkOut\&guests\&minPrice\&maxPrice\&minRating\&amenities\&sortBy\&page\&limit}}
+{Công khai}
+{Không bắt buộc}
+{Tham số truy vấn, đều không bắt buộc: \code{destination} (chuỗi, tối đa 100 ký tự, so khớp không phân biệt hoa thường với thành phố, quận, tên); \code{checkIn}, \code{checkOut} (\code{YYYY-MM-DD}); \code{guests} (1--10); \code{minPrice}, \code{maxPrice} ($\ge 0$); \code{minRating} (1--5); \code{amenities} (danh sách cách nhau bởi dấu phẩy); \code{sortBy} (\code{price\_low}, \code{price\_high}, mặc định theo điểm); \code{page} ($\ge 1$); \code{limit} (1--100, mặc định 20)}
+{200: \code{\{ hotels: [ \{ \_id, name, city, address, starRating, amenities, images, averageRating, reviewCount, editorialRating, bookingEnabled, \ldots \} ], total \}}. Chỉ gồm khách sạn đã đăng; khi có ngày hoặc số khách, chỉ gồm khách sạn còn ít nhất một loại phòng trống ở mọi đêm}
+{400: tham số sai kiểu, ví dụ gửi toán tử truy vấn (\code{destination[\$ne]=x})}
+
+\apispec{tab:api-roomtypes}{API loại phòng và số phòng trống theo khoảng ngày}
+{\code{GET /room-types/hotel/:hotelId?checkIn\&checkOut}}
+{Công khai}
+{Không bắt buộc}
+{\code{hotelId} (mã khách sạn trong đường dẫn); \code{checkIn}, \code{checkOut} (\code{YYYY-MM-DD}, không bắt buộc nhưng phải đi cùng nhau)}
+{200: danh sách loại phòng đang bán \code{[ \{ \_id, name, basePrice, maxGuests, totalRooms, availableRooms, images, \ldots \} ]}; \code{availableRooms} là số phòng trống nhỏ nhất qua các đêm của khoảng ngày}
+{400: chỉ có một trong hai ngày; ngày sai định dạng; ngày nhận ở quá khứ; kỳ lưu trú dưới 1 hoặc quá 90 đêm; mã định danh sai định dạng}
+
+\apispec{tab:api-booking}{API tạo đặt phòng}
+{\code{POST /bookings}}
+{Người dùng đã đăng nhập}
+{\code{Authorization: Bearer <access token>}; \code{Idempotency-Key: <UUID>} (bắt buộc)}
+{\code{hotelId}, \code{roomTypeId} (mã MongoDB); \code{checkIn}, \code{checkOut} (ngày); \code{guestCount} (số nguyên 1--10); \code{guestName} (ít nhất 2 ký tự); \code{guestEmail} (email); \code{guestPhone} (10--15 chữ số, có thể bắt đầu bằng +); \code{specialRequests} (chuỗi, không bắt buộc)}
+{201: đặt phòng ở trạng thái \code{PENDING\_PAYMENT} gồm \code{\_id}, \code{hotelName}, \code{roomTypeName}, \code{nights}, \code{roomPrice}, \code{totalPrice}, \code{holdExpiresAt} (sau 15 phút). Gửi lại cùng khóa và cùng nội dung trả lại đúng đặt phòng cũ}
+{400: thiếu hoặc sai \code{Idempotency-Key}; dữ liệu sai; ngày không hợp lệ; khách sạn chưa nhận đặt phòng; loại phòng không thuộc khách sạn hoặc đã ngừng bán; số khách vượt sức chứa; loại phòng đã hết trong thời gian đã chọn. 401: chưa đăng nhập. 409: khóa đã dùng cho nội dung khác}
+
+\apispec{tab:api-payathotel}{API xác nhận trả tại khách sạn}
+{\code{POST /bookings/:id/pay-at-hotel}}
+{Người dùng đã đăng nhập, là người đặt}
+{\code{Authorization: Bearer <access token>}}
+{Không có thân yêu cầu}
+{201 (mặc định của NestJS cho POST): đặt phòng ở trạng thái \code{CONFIRMED}, \code{paymentMethod = PAY\_AT\_HOTEL}. Gọi lại khi đã xác nhận trả lại đặt phòng hiện tại}
+{400: đặt phòng không còn chờ xác nhận, hoặc thời gian giữ phòng đã hết. 403: không phải người đặt. 404: không tìm thấy}
+
+\apispec{tab:api-cancel}{API hủy đặt phòng}
+{\code{POST /bookings/:id/cancel}}
+{Người dùng đã đăng nhập, là người đặt}
+{\code{Authorization: Bearer <access token>}}
+{\code{reason} (chuỗi, không bắt buộc)}
+{201: đặt phòng chờ thanh toán chuyển sang \code{CANCELLED}; đặt phòng đã xác nhận chuyển sang \code{CANCEL\_REQUESTED} và vẫn giữ phòng chờ chủ khách sạn xử lý. Gọi lại khi đã hủy trả lại đặt phòng hiện tại}
+{400: trạng thái hiện tại không cho phép hủy, hoặc đặt phòng vừa bị thay đổi. 403: không phải người đặt}
+
+\apispec{tab:api-payment}{API tạo thanh toán payOS}
+{\code{POST /payments}}
+{Người dùng đã đăng nhập, là người đặt}
+{\code{Authorization: Bearer <access token>}}
+{\code{bookingId} (mã MongoDB); \code{method} (chỉ nhận \code{PAYOS})}
+{201: thanh toán gồm \code{\_id}, \code{bookingId}, \code{orderCode}, \code{amount}, \code{status}, \code{paymentUrl} (trang VietQR của payOS). Số tiền lấy từ đặt phòng ở máy chủ, không nhận từ ứng dụng. Nếu đã có liên kết đang chờ thì trả lại liên kết đó}
+{400: đặt phòng không còn chờ thanh toán; thời gian giữ phòng đã hết; tổng tiền không hợp lệ. 404: không tìm thấy đặt phòng. 409: thanh toán đang được xử lý. 503: payOS chưa được cấu hình}
+
+\apispec{tab:api-webhook}{API nhận webhook payOS}
+{\code{POST /payments/webhooks/payos}}
+{Công khai nhưng chỉ chấp nhận yêu cầu có chữ ký của payOS}
+{\code{Content-Type: application/json}}
+{Thân webhook của payOS: \code{code}, \code{desc}, \code{success}, \code{data} (\code{orderCode}, \code{amount}, \code{code}, \ldots), \code{signature} (HMAC-SHA256 bằng khóa checksum của kênh)}
+{200: \code{\{ code: "00", desc: "success" \}}. Trong một giao dịch, thanh toán chuyển sang \code{COMPLETED}, đặt phòng chuyển sang \code{CONFIRMED} và ghi thông báo cho khách. Webhook gửi lại nhiều lần không cộng tiền hai lần; webhook mẫu khi đăng ký địa chỉ được trả lời mà không thay đổi dữ liệu}
+{400: thiếu hoặc sai chữ ký; số tiền không khớp đơn hàng}
+
+\apispec{tab:api-rec}{API gợi ý khách sạn}
+{\code{GET /recommendations?sessionId\&destination\&checkIn\&checkOut\&guests\&minPrice\&maxPrice\&minRating\&limit}}
+{Công khai; nếu có access token thì dùng lịch sử của tài khoản}
+{\code{Authorization: Bearer <access token>} (không bắt buộc)}
+{\code{sessionId} (UUID của phiên ứng dụng, bắt buộc); \code{destination} (tối đa 100 ký tự); \code{limit} (1--100); các bộ lọc giống API tìm kiếm}
+{200: \code{\{ hotels: [\ldots], total, ranking: \{ mode, version, personalized, signalCount, description, modelUsed \} \}}. Ví dụ \code{mode = "lightgbm-discovery"}, \code{version = "hotelia-lgbm-2026-10-24-v3"}, \code{modelUsed = true}; khi mô hình lỗi, \code{modelUsed = false} và danh sách do bộ xếp hạng theo nội dung tạo}
+{400: thiếu hoặc sai \code{sessionId}; tham số lọc sai kiểu}
 
 \subsection{Tìm kiếm và lọc ứng viên}\label{sec:search-design}
 

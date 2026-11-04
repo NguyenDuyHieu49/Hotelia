@@ -194,6 +194,16 @@
 \usepackage{adjustbox}
 % Insert a diagram, scaled down only when it would exceed the text block.
 \newcommand{\diagram}[1]{\adjustbox{max width=\linewidth,max totalheight=0.82\textheight,center}{\input{figures/diagrams/#1}}}
+% Dense diagrams get a landscape page of their own so their text prints larger.
+\usepackage{pdflscape}
+\newcommand{\landscapediagram}[3]{%
+  \begin{landscape}
+  \begin{figure}[H]
+  \centering
+  \adjustbox{width=\linewidth,max totalheight=0.88\textheight,center}{\input{figures/diagrams/#1}}
+  \caption{#2}\label{#3}
+  \end{figure}
+  \end{landscape}}
 \pgfplotsset{compat=1.18}
 
 \definecolor{lane}{HTML}{EEEEEE}
@@ -329,6 +339,13 @@
 \crefname{equation}{công thức}{công thức}\Crefname{equation}{Công thức}{Công thức}
 \crefname{lstlisting}{Đoạn mã}{Đoạn mã}\Crefname{lstlisting}{Đoạn mã}{Đoạn mã}
 \crefname{listing}{Đoạn mã}{Đoạn mã}\Crefname{listing}{Đoạn mã}{Đoạn mã}
+% Vietnamese conjunctions for \cref with several targets (default is English "and").
+\newcommand{\crefpairconjunction}{ và }
+\newcommand{\crefmiddleconjunction}{, }
+\newcommand{\creflastconjunction}{ và }
+\newcommand{\crefpairgroupconjunction}{ và }
+\newcommand{\crefmiddlegroupconjunction}{, }
+\newcommand{\creflastgroupconjunction}{ và }
 \creflabelformat{equation}{(#2#1#3)}
 
 \newcommand{\hotelia}{Hotelia}
