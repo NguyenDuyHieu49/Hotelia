@@ -195,7 +195,8 @@
 % Insert a diagram, scaled down only when it would exceed the text block.
 \newcommand{\diagram}[1]{\adjustbox{max width=\linewidth,max totalheight=0.82\textheight,center}{\input{figures/diagrams/#1}}}
 % Dense diagrams get a landscape page of their own so their text prints larger.
-\usepackage{pdflscape}
+% lscape rotates only the figure; the page itself stays A4 portrait (pdflscape would rotate the page).
+\usepackage{lscape}
 \newcommand{\landscapediagram}[3]{%
   \begin{landscape}
   \begin{figure}[H]

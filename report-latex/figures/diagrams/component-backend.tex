@@ -16,7 +16,7 @@
   \node[c, fill=lane] (lgb) at (12.8,-6.6) {HoteliaLightGbm\\Ranker};
   \node[c, fill=lane] (common) at (3.2,-6.6) {common\\Guards, Interceptor, Filter};
   \node[store, minimum width=26mm] (db) at (6.4,-8.6) {MongoDB};
-  \node[box, text width=22mm] (json) at (12.8,-8.6) {hotelia-lgbm\\.active.json};
+  \node[box, text width=26mm, font=\sffamily\scriptsize, minimum height=10mm] (json) at (12.8,-8.9) {hotelia-lgbm\\.active.json};
   \foreach \m in {auth,hotels,book,pay,rev} \draw[dep] (app.south) -- (\m.north);
   \draw[dep] (auth) -- (users);
   \draw[dep] (book) -- (hotels);
@@ -27,5 +27,5 @@
   \draw[dep] (lgb) -- node[lbl, right] {nạp khi khởi động} (json);
   \draw[->] (common.south) |- (db.west);
   \draw[->] (rec.south) |- (db.east);
-  \node[notebox, anchor=north west, text width=44mm] at (-1.3,-8.0) {Mũi tên đứt: phụ thuộc module (import/tiêm phụ thuộc). Mọi module dịch vụ truy cập MongoDB qua Mongoose.};
+  \node[notebox, anchor=north west, text width=110mm, font=\sffamily\scriptsize] at (-1.3,-9.9) {Mũi tên đứt: phụ thuộc module (import/tiêm phụ thuộc). Mọi module dịch vụ truy cập MongoDB qua Mongoose.};
 \end{tikzpicture}
