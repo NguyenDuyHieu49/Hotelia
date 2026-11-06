@@ -1,4 +1,6 @@
 \begin{titlepage}
+% Times New Roman has no weight above Bold, so thicken its strokes for the title.
+\newfontfamily\coverheavy{Times New Roman Bold}[FakeBold=1.6, Ligatures=TeX]
 \setstretch{1.25}
 \begin{tikzpicture}[remember picture, overlay]
   \draw[line width=1.6pt] ([xshift=1.6cm,yshift=-1.6cm]current page.north west)
@@ -16,7 +18,7 @@
 \vspace{1.2cm}
 {\fontsize{14}{18}\selectfont ĐỀ TÀI:\par}
 \vspace{0.3cm}
-{\fontsize{17}{24}\selectfont\bfseries HOTELIA -- NỀN TẢNG ĐẶT PHÒNG KHÁCH SẠN\\
+{\coverheavy\fontsize{17}{24}\selectfont HOTELIA -- NỀN TẢNG ĐẶT PHÒNG KHÁCH SẠN\\
 TÍCH HỢP HỆ THỐNG GỢI Ý CÁ NHÂN HÓA\par}
 \vspace{2.2cm}
 \begin{flushleft}
@@ -28,7 +30,7 @@ Sinh viên thực hiện: & Nguyễn Duy Hiệu (23010363) \\
 Khóa: & K17 \\
 Lớp tín chỉ: & CSE703014-1-1-26(N02) \\
 Mã nguồn: & \href{https://github.com/NguyenDuyHieu49/Hotelia}{github.com/NguyenDuyHieu49/Hotelia} \\
-Video demo: & \todoinfo{link YouTube} \\
+Video demo: & \href{https://youtu.be/n3M0TCQEflA}{youtu.be/n3M0TCQEflA} \\
 \end{tabular}
 \end{flushleft}
 \vfill
